@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\ECommerceAuction.UserService.Domain\ECommerceAuction.UserService.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Abstractions\Realtime\" />
+    <Folder Include="Common\Behaviors\" />
+    <Folder Include="Common\Exceptions\" />
+    <Folder Include="Common\Models\" />
+    <Folder Include="Features\Auth\" />
+    <Folder Include="Features\Catalog\" />
+    <Folder Include="Features\Commerce\" />
+    <Folder Include="Features\Auctions\" />
+    <Folder Include="Features\Fulfillment\" />
+    <Folder Include="Features\Notifications\" />
+    <Folder Include="Features\Users\" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+</Project>
+
+

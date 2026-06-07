@@ -1,0 +1,13 @@
+﻿.vs/
+.vscode/
+.idea/
+**/bin/
+**/obj/
+*.user
+*.suo
+.env
+.env.*
+
+# Local backup files generated during setup/review
+_backup_*/
+*_backup_*.yml
