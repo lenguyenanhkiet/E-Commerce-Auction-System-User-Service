@@ -1,6 +1,7 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
+using ECommerceAuction.UserService.Persistence.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,7 +22,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork>(provider =>
             provider.GetRequiredService<ApplicationDbContext>());
-
+        services.AddScoped<IUserRepository, UserRepository>();
         return services;
     }
 }

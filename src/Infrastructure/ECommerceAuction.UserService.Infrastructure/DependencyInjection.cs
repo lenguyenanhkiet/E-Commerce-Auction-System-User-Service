@@ -54,7 +54,7 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddSingleton<IEventBus, MockEventBus>();
-
+        services.AddScoped<IPasswordHasher, PasswordHasher>();
         return services;
     }
 }
