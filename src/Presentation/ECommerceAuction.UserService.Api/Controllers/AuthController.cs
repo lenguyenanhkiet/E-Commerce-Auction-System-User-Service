@@ -1,7 +1,7 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
-
+using ECommerceAuction.UserService.Application.Features.Auth.CheckLocalAccount;
 
 namespace ECommerceAuction.UserService.Api.Controllers;
 
@@ -17,7 +17,19 @@ public class AuthController : ControllerBase
         _sender = sender;
     }
 
-   
+    [HttpPost("check-local-account")]
+    public async Task<IActionResult> CheckLocalAccount(
+     [FromBody] CheckLocalAccountCommand command,
+     CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+
+        return Ok(new
+        {
+            message = "A user has successfully logged into the system",
+            data = result
+        });
+    }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register(

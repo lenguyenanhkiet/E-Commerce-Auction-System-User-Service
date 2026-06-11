@@ -13,4 +13,12 @@ public interface IUserRepository
     Task AddReputationProfileAsync(
       ReputationProfile profile,
       CancellationToken cancellationToken = default);
+
+    Task<User?> GetByEmailOrPhoneAsync(
+    string emailOrPhone,
+    CancellationToken cancellationToken = default);
+
+    Task<List<string>> GetUserRolesAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
 }
