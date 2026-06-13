@@ -17,7 +17,12 @@ public static class DependencyInjection
 
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-            options.UseSqlServer(connectionString);
+            options.UseSqlServer(
+      connectionString,
+      sqlOptions =>
+      {
+          sqlOptions.EnableRetryOnFailure();
+      });
         });
 
         services.AddScoped<IUnitOfWork>(provider =>

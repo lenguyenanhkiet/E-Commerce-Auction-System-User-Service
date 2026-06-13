@@ -12,45 +12,69 @@ public class RegisterAccountCommandHandler
     private readonly IPasswordHasher _passwordHasher;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IEventBus _eventBus;
-   
 
-    
-        public RegisterAccountCommandHandler(
-    IUserRepository userRepository,
-    IPasswordHasher passwordHasher,
-    IUnitOfWork unitOfWork,
-    IEventBus eventBus)
+
+
+    public RegisterAccountCommandHandler(
+IUserRepository userRepository,
+IPasswordHasher passwordHasher,
+IUnitOfWork unitOfWork,
+IEventBus eventBus)
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _unitOfWork = unitOfWork;
         _eventBus = eventBus;
-        
+
     }
 
+    /// <summary>
+    /// Registers a new user account.
+    /// Validates the email and phone number, checks for duplicate accounts,
+    /// creates the user and reputation profile, saves the data,
+    /// and publishes a user registration event.
+    /// </summary>
+    /// <param name="request">
+    /// Contains the registration information such as email, phone number,
+    /// full name, and password.
+    /// </param>
+    /// <param name="cancellationToken">
+    /// Token used to cancel the operation.
+    /// </param>
+    /// <returns>
+    /// Returns the newly created user's account information.
+    /// </returns>
+    /// <exception cref="Exception">
+    /// Thrown when:
+    /// - Email is empty.
+    /// - Phone number is empty.
+    /// - Email already exists.
+    /// - Phone number already exists.
+    /// </exception>
     public async Task<RegisterAccountResponse> Handle(
         RegisterAccountCommand request,
         CancellationToken cancellationToken)
     {
-        var emailExists = await _userRepository.CheckEmailExistsAsync(
-            request.Email,
-            cancellationToken);
 
-        if (emailExists)
+
+        if (string.IsNullOrWhiteSpace(request.Email))
+        {
+            throw new Exception("The email number is empty");
+        }
+        else if (string.IsNullOrWhiteSpace(request.PhoneNumber))
+        {
+            throw new Exception("The phone number is empty");
+        }
+        else if (await _userRepository.CheckEmailExistsAsync(
+          request.Email,
+          cancellationToken))
         {
             throw new Exception("The email already exists.");
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.PhoneNumber))
+        }else if (await _userRepository.CheckPhoneExistsAsync(
+              request.PhoneNumber,
+              cancellationToken))
         {
-            var phoneExists = await _userRepository.CheckPhoneExistsAsync(
-                request.PhoneNumber,
-                cancellationToken);
-
-            if (phoneExists)
-            {
-                throw new Exception("The phone number already exists.");
-            }
+            throw new Exception("The phone number already exists.");
         }
 
         var now = DateTime.UtcNow;
@@ -92,7 +116,7 @@ public class RegisterAccountCommandHandler
             UserId = user.Id,
             Email = user.Email,
             FullName = user.FullName
-         
+
         }, cancellationToken);
 
         return new RegisterAccountResponse(

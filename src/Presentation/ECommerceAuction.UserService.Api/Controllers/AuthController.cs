@@ -17,7 +17,7 @@ public class AuthController : ControllerBase
         _sender = sender;
     }
 
-    [HttpPost("check-local-account")]
+    [HttpPost("login")]
     public async Task<IActionResult> CheckLocalAccount(
      [FromBody] CheckLocalAccountCommand command,
      CancellationToken cancellationToken)

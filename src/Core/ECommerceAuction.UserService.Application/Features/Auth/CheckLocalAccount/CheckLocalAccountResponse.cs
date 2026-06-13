@@ -5,6 +5,5 @@ public record CheckLocalAccountResponse(
 	string Email,
 	string? PhoneNumber,
 	string FullName,
-	string Status,
-	string AccessToken
+	string Status
 );

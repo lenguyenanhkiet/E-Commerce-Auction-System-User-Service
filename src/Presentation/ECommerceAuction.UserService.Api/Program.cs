@@ -14,7 +14,7 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 
-builder.Services.AddAuthorization();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -45,8 +45,6 @@ app.UseHttpsRedirection();
 
 app.UseCors("ReactVite");
 
-app.UseAuthentication();
-app.UseAuthorization();
 
 app.MapGrpcService<InternalHealthGrpcService>();
 app.MapControllers();
