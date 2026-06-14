@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <Nullable>enable</Nullable>
@@ -11,14 +11,11 @@
     <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Core\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\ECommerceAuction.UserService.Persistence\ECommerceAuction.UserService.Persistence.csproj" />
-    <ProjectReference Include="..\..\Infrastructure\ECommerceAuction.UserService.Infrastructure\ECommerceAuction.UserService.Infrastructure.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Infrastructure\ECommerceAuction.UserService.Infrastructure.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Persistence\ECommerceAuction.UserService.Persistence.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Hubs\" />
-    <Folder Include="Extensions\" />
-  </ItemGroup>
+ 
   <ItemGroup>
     <Protobuf Include="Protos\internal_health.proto" GrpcServices="Server" />
   </ItemGroup>

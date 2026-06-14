@@ -1,28 +1,20 @@
-﻿# Git / IDE
-.git/
+﻿.git/
+.gitignore
 .vs/
 .vscode/
-.idea/
-*.user
-*.suo
-*.rsuser
 
-# Build output
 **/bin/
 **/obj/
-TestResults/
-coverage/
 
-# Frontend output, if frontend is added later
-node_modules/
-dist/
-build/
+*.env
+*.user
+*.suo
 
-# Docker / local env
-.env
-.env.*
-!*.env.example
 
-# OS files
-.DS_Store
-Thumbs.db
+*.log
+*.tmp
+*.bak
+
+Dockerfile*
+docker-compose*
+README*
