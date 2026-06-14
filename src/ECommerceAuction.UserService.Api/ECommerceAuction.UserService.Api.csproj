@@ -10,6 +10,11 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.0" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Infrastructure\ECommerceAuction.UserService.Infrastructure.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Persistence\ECommerceAuction.UserService.Persistence.csproj" />
+  </ItemGroup>
  
   <ItemGroup>
     <Protobuf Include="Protos\internal_health.proto" GrpcServices="Server" />

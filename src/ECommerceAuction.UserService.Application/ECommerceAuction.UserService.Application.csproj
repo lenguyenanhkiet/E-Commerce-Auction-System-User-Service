@@ -11,6 +11,10 @@
     <Folder Include="Features\Auth\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ECommerceAuction.UserService.Domain\ECommerceAuction.UserService.Domain.csproj" />
+  </ItemGroup>
+
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
