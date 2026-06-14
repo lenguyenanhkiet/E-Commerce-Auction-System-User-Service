@@ -1,9 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <ItemGroup>
-    <ProjectReference Include="..\..\Core\ECommerceAuction.UserService.Domain\ECommerceAuction.UserService.Domain.csproj" />
-    <ProjectReference Include="..\..\Core\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
-  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.8" />
@@ -21,13 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configurations\Catalog\" />
-    <Folder Include="Configurations\Commerce\" />
-    <Folder Include="Configurations\Auctions\" />
-    <Folder Include="Configurations\Fulfillment\" />
-    <Folder Include="Configurations\Notifications\" />
     <Folder Include="Configurations\Users\" />
-    <Folder Include="Migrations\" />
     <Folder Include="Repositories\" />
   </ItemGroup>
 
