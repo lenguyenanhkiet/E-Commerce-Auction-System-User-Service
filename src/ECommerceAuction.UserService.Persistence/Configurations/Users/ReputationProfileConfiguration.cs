@@ -60,7 +60,7 @@ public class ReputationProfileConfiguration
             .HasColumnType("datetime2(3)");
 
         builder.HasOne<User>()
-            .WithOne()
+            .WithOne(user => user.ReputationProfile)
             .HasForeignKey<ReputationProfile>(x => x.UserId);
     }
 }
