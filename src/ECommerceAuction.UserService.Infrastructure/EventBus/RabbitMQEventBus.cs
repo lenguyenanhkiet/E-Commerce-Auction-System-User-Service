@@ -3,11 +3,11 @@ using Microsoft.Extensions.Logging;
 
 namespace ECommerceAuction.UserService.Infrastructure.EventBus;
 
-public sealed class MockEventBus : IEventBus
+public sealed class RabbitMQEventBus : IEventBus
 {
-    private readonly ILogger<MockEventBus> _logger;
+    private readonly ILogger<RabbitMQEventBus> _logger;
 
-    public MockEventBus(ILogger<MockEventBus> logger)
+    public RabbitMQEventBus(ILogger<RabbitMQEventBus> logger)
     {
         _logger = logger;
     }

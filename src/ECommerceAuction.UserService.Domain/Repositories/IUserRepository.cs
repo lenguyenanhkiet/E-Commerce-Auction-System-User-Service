@@ -1,9 +1,10 @@
 using ECommerceAuction.UserService.Domain.Entities.Users;
 
-namespace ECommerceAuction.UserService.Application.Abstractions.Persistence;
+namespace ECommerceAuction.UserService.Domain.Repositories;
 
 public interface IUserRepository
 {
+    // ĐẠT VÀ TÙNG ĐỊNH NGHĨA HÀM DB CẦN DÙNG
     Task<bool> CheckEmailExistsAsync(string email, CancellationToken cancellationToken = default);
 
     Task<bool> CheckPhoneExistsAsync(string phoneNumber, CancellationToken cancellationToken = default);

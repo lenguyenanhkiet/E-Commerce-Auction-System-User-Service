@@ -4,7 +4,7 @@ namespace ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount
 
 public record RegisterAccountCommand(
     string Email,
-    string? PhoneNumber,
+    string PhoneNumber,
     string FullName,
     string Password
 ) : ICommand<RegisterAccountResponse>;

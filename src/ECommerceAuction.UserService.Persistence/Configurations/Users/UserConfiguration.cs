@@ -79,13 +79,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue("ACTIVE")
             .IsRequired();
 
-        builder.Property(x => x.EmailVerified)
+        builder.Property(x => x.IsEmailConfirmed)
             .HasColumnName("email_verified")
             .HasColumnType("bit")
             .HasDefaultValue(false)
             .IsRequired();
 
-        builder.Property(x => x.PhoneVerified)
+        builder.Property(x => x.IsPhoneConfirmed)
             .HasColumnName("phone_verified")
             .HasColumnType("bit")
             .HasDefaultValue(false)
