@@ -16,21 +16,29 @@ public class UserRepository : IUserRepository
 
 	public async Task<bool> CheckEmailExistsAsync(string email, CancellationToken cancellationToken = default)
 	{
+		var normalizedEmail = email.Trim().ToLowerInvariant();
+
 		return await _context.Users
-			.AnyAsync(x => x.Email == email && x.DeletedAt == null, cancellationToken);
+			.AnyAsync(x => x.Email == normalizedEmail && x.DeletedAt == null, cancellationToken);
 	}
 
 	public async Task<bool> CheckPhoneExistsAsync(string phoneNumber, CancellationToken cancellationToken = default)
 	{
+		var normalizedPhoneNumber = phoneNumber.Trim();
+
 		return await _context.Users
-			.AnyAsync(x => x.PhoneNumber == phoneNumber && x.DeletedAt == null, cancellationToken);
+			.AnyAsync(x => x.PhoneNumber == normalizedPhoneNumber && x.DeletedAt == null, cancellationToken);
 	}
 
 	public async Task<User?> GetByEmailOrPhoneAsync(string emailOrPhone, CancellationToken cancellationToken = default)
 	{
+		// Đạt - Local Login: support email or phone in the same login field.
+		var normalizedInput = emailOrPhone.Trim();
+		var normalizedEmail = normalizedInput.ToLowerInvariant();
+
 		return await _context.Users
 			.FirstOrDefaultAsync(
-				x => (x.Email == emailOrPhone || x.PhoneNumber == emailOrPhone)
+				x => (x.Email == normalizedEmail || x.PhoneNumber == normalizedInput)
 					 && x.DeletedAt == null,
 				cancellationToken);
 	}
