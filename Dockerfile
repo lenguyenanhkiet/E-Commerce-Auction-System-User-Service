@@ -7,6 +7,8 @@ EXPOSE 8080
 FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
 ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
+COPY ["nuget.config", "."]
+COPY ["nuget-local/", "nuget-local/"]
 
 COPY ["src/ECommerceAuction.UserService.Api/ECommerceAuction.UserService.Api.csproj", "src/ECommerceAuction.UserService.Api/"]
 COPY ["src/ECommerceAuction.UserService.Application/ECommerceAuction.UserService.Application.csproj", "src/ECommerceAuction.UserService.Application/"]

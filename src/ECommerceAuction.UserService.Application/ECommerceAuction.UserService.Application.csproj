@@ -1,14 +1,23 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageReference Include="MediatR" Version="14.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <Compile Remove="Features\Auth\LoginOAuth2\**" />
+    <EmbeddedResource Remove="Features\Auth\LoginOAuth2\**" />
+    <None Remove="Features\Auth\LoginOAuth2\**" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Features\Auth\LoginOAuth2\" />
+    <PackageReference Include="FluentValidation" Version="12.1.1" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+    <PackageReference Include="MassTransit" Version="8.5.10" />
+    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.10" />
+    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.10" />
+    <PackageReference Include="MediatR" Version="14.1.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
+    <PackageReference Include="Nexus.Shared.Contracts" Version="1.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="Features\Auth\VerifyEmail\" />
   </ItemGroup>
 

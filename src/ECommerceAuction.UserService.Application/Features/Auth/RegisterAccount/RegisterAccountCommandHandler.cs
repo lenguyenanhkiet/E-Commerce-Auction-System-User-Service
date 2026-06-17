@@ -2,7 +2,8 @@ using System.Security.Cryptography;
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Repositories;
-
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
 namespace ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
 
 /// <summary>
@@ -17,18 +18,18 @@ public sealed class RegisterAccountCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IPasswordHasher _passwordHasher;
     private readonly ICacheService _cacheService;
-    private readonly IEventBus _eventBus;
-
+    private readonly IPublishEndpoint _publishEndpoint;
     public RegisterAccountCommandHandler(
         IUserRepository userRepository,
         IPasswordHasher passwordHasher,
         ICacheService cacheService,
-        IEventBus eventBus)
+        IPublishEndpoint publishEndpoint
+        )
     {
         _userRepository = userRepository;
         _passwordHasher = passwordHasher;
         _cacheService = cacheService;
-        _eventBus = eventBus;
+        _publishEndpoint = publishEndpoint;
     }
 
     /// <summary>
@@ -117,14 +118,16 @@ public sealed class RegisterAccountCommandHandler
             cancellationToken);
 
         // Đạt + Kiệt: Kiệt's Email Service will consume this event and send the OTP to the user.
-        await _eventBus.PublishAsync(
-            new UserRegisteredEvent(
-                pendingUser.Id,
-                pendingUser.Email,
-                pendingUser.FullName,
-                pendingUser.OtpCode,
-                pendingUser.ExpiresAt),
-            cancellationToken);
+        await _publishEndpoint.Publish(new UserRegisteredEvent
+        {
+            UserId = pendingUser.Id,
+            Email = pendingUser.Email,
+            FullName =  pendingUser.FullName,
+            OtpCode = pendingUser.OtpCode,
+            OtpExpiresAt = pendingUser.ExpiresAt,
+            SourceService = "UserService", 
+            CorrelationId = Guid.NewGuid() 
+        }, cancellationToken);
 
         return new RegisterAccountResponse(
             pendingUser.Id,

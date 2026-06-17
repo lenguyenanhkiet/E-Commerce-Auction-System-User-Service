@@ -4,7 +4,6 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using ECommerceAuction.UserService.Infrastructure.Caching;
 using ECommerceAuction.UserService.Infrastructure.CurrentUser;
-using ECommerceAuction.UserService.Infrastructure.EventBus;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -99,7 +98,6 @@ public static class DependencyInjection
         services.AddScoped<ILoginCodeService, LoginCodeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
-        services.AddSingleton<IEventBus, RabbitMQEventBus>();
 
         return services;
     }

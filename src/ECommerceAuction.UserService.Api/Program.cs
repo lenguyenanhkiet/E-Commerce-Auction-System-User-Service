@@ -3,10 +3,21 @@ using ECommerceAuction.UserService.Api.Middlewares;
 using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
+using MassTransit;
 using Microsoft.OpenApi;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddMassTransit(x =>
+{
+    x.UsingRabbitMq((context, cfg) =>
+    {
+        var rabbitMqConnectionString = builder.Configuration.GetConnectionString("RabbitMqConnection");
 
+        cfg.Host(rabbitMqConnectionString);
+
+        cfg.ConfigureEndpoints(context);
+    });
+});
 builder.Services.AddControllers();
 
 builder.Services.AddGrpc();
@@ -14,9 +25,7 @@ builder.Services.AddGrpc();
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
-
 builder.Services.AddAuthorization();
-
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -65,5 +74,22 @@ app.UseAuthorization();
 app.MapGrpcService<InternalHealthGrpcService>();
 app.MapControllers();
 
-app.Run();
+//app.Run();
+try
+{
+    app.Run();
+}
+catch (Exception ex)
+{
+    Console.WriteLine("\n========================================================");
+    Console.WriteLine($"[FATAL CRASH] Thủ phạm làm sập App: {ex.Message}");
+
+    if (ex.InnerException != null)
+    {
+        Console.WriteLine($"[INNER EXCEPTION] Chi tiết sâu hơn: {ex.InnerException.Message}");
+    }
+
+    Console.WriteLine("========================================================\n");
+    throw;
+}
 
