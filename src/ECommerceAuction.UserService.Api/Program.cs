@@ -54,11 +54,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-//if (app.Environment.IsDevelopment())
-//{
     app.UseSwagger();
     app.UseSwaggerUI();
-//}
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 if (!app.Environment.IsDevelopment())
@@ -74,22 +71,6 @@ app.UseAuthorization();
 app.MapGrpcService<InternalHealthGrpcService>();
 app.MapControllers();
 
-//app.Run();
-try
-{
-    app.Run();
-}
-catch (Exception ex)
-{
-    Console.WriteLine("\n========================================================");
-    Console.WriteLine($"[FATAL CRASH] Thủ phạm làm sập App: {ex.Message}");
+app.Run();
 
-    if (ex.InnerException != null)
-    {
-        Console.WriteLine($"[INNER EXCEPTION] Chi tiết sâu hơn: {ex.InnerException.Message}");
-    }
-
-    Console.WriteLine("========================================================\n");
-    throw;
-}
 

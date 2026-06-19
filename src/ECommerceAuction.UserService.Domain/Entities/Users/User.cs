@@ -105,6 +105,7 @@ public class User : AuditableEntity, IAggregateRoot
         LockedUntil = null;
         LastLoginAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        Status = UserStatus.Active;
     }
 
     /// <summary>

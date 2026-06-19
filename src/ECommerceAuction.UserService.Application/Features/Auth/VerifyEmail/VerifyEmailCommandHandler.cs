@@ -67,7 +67,7 @@ public sealed class VerifyEmailCommandHandler
             await RemovePendingRegistrationAsync(pendingUser, cancellationToken);
             throw new InvalidOperationException("The phone number already exists.");
         }
-
+        // Create new account
         var user = new User(
             pendingUser.Id,
             pendingUser.Email,
@@ -80,8 +80,8 @@ public sealed class VerifyEmailCommandHandler
         var reputationProfile = new ReputationProfile
         {
             UserId = user.Id,
-            Score = 0,
-            TrustLevel = "NORMAL",
+            Score = 1,
+            TrustLevel = "Silver",
             UpdatedAt = now
         };
 
