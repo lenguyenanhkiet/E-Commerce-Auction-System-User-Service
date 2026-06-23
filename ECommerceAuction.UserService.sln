@@ -18,6 +18,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B7A871E3-E569-4178-A22F-D5FB21D1CD7E}"
 	ProjectSection(SolutionItems) = preProject
 		.dockerignore = .dockerignore
+		appsettings.Production.json = appsettings.Production.json
 		Dockerfile = Dockerfile
 	EndProjectSection
 EndProject

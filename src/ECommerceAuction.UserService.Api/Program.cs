@@ -4,24 +4,23 @@ using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
 using MassTransit;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
-
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMassTransit(x =>
 {
     x.UsingRabbitMq((context, cfg) =>
     {
-        var rabbitMqConnectionString = builder.Configuration.GetConnectionString("RabbitMqConnection");
-
+        var rabbitMqConnectionString = builder.Configuration["RabbitMQ:ConnectionString"];
+        if (string.IsNullOrEmpty(rabbitMqConnectionString))
+            throw new Exception("RabbitMQ ConnectionString is missing!");
         cfg.Host(rabbitMqConnectionString);
 
         cfg.ConfigureEndpoints(context);
     });
 });
 builder.Services.AddControllers();
-
 builder.Services.AddGrpc();
-
 builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
@@ -33,13 +32,13 @@ builder.Services.AddSwaggerGen(options =>
     {
         Name = "Authorization",
         Type = SecuritySchemeType.Http,
-        Scheme = "bearer",
+        Scheme = "Bearer",
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "Enter JWT access token. Example: Bearer eyJhbGciOi..."
-    });
+    });    
 });
-
+    
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("ReactVite", policy =>
