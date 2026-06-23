@@ -48,6 +48,14 @@ public interface IUserOAuthRepository
     Task EnsureDefaultBuyerRoleAsync(Guid userId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Ensures the user has a reputation profile and optionally grants the one-time email verification point.
+    /// </summary>
+    Task EnsureReputationProfileAsync(
+        Guid userId,
+        bool grantEmailVerificationPoint,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Adds a refresh-token-backed user session.
     /// </summary>
     Task AddUserSessionAsync(UserSession session, CancellationToken cancellationToken);

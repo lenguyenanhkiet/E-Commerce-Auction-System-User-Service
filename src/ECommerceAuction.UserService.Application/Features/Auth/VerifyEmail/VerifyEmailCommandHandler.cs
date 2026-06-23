@@ -85,6 +85,7 @@ public sealed class VerifyEmailCommandHandler
             UpdatedAt = now
         };
 
+
         // Đạt - VerifyEmail: SQL user is created only after the email OTP is correct.
         await _userRepository.AddAsync(user, cancellationToken);
         await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);

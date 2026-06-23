@@ -79,6 +79,7 @@ public sealed class GoogleCallbackCommandHandler
 
             User user;
             string auditAction;
+            var grantEmailVerificationPoint = false;
 
             if (externalLogin is not null)
             {
@@ -96,7 +97,7 @@ public sealed class GoogleCallbackCommandHandler
                     return Failure();
                 }
 
-                ApplyVerifiedGoogleEmail(user);
+                grantEmailVerificationPoint = ApplyVerifiedGoogleEmail(user);
                 externalLogin.SyncProviderSnapshot(googleUser.Email, googleUser.FullName);
 
                 if (!user.CanLogin())
@@ -122,6 +123,9 @@ public sealed class GoogleCallbackCommandHandler
 
                     await _userOAuthRepository.AddUserAsync(user, cancellationToken);
                     auditAction = UserAuditActions.GoogleRegister;
+
+                    // ECA-6 OAuth2 Google: a newly created Google user has already proven email ownership.
+                    grantEmailVerificationPoint = true;
                 }
                 else
                 {
@@ -150,6 +154,9 @@ public sealed class GoogleCallbackCommandHandler
                 if (claimResult == GoogleClaimResult.ClaimedUnverifiedAccount)
                 {
                     auditAction = UserAuditActions.GoogleClaimUnverifiedAccount;
+
+                    // ECA-6 OAuth2 Google: this login changed the local email from unverified to verified.
+                    grantEmailVerificationPoint = true;
                 }
 
                 if (!user.CanLogin())
@@ -168,6 +175,10 @@ public sealed class GoogleCallbackCommandHandler
             }
 
             await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
+            await _userOAuthRepository.EnsureReputationProfileAsync(
+                user.Id,
+                grantEmailVerificationPoint,
+                cancellationToken);
 
             await _userOAuthRepository.AddAuditLogAsync(
                 UserAuditLog.Create(
@@ -196,13 +207,13 @@ public sealed class GoogleCallbackCommandHandler
     }
 
     /// <summary>
-    /// Marks an existing linked user email as verified by Google and clears unsafe passwords only when no phone verification exists.
+    /// Marks an existing linked user email as verified by Google and returns whether this login newly verified the email.
     /// </summary>
-    private static void ApplyVerifiedGoogleEmail(User user)
+    private static bool ApplyVerifiedGoogleEmail(User user)
     {
         if (user.IsEmailConfirmed)
         {
-            return;
+            return false;
         }
 
         // ECA-6 OAuth2 Google: a previously linked Google account can safely verify the user's email.
@@ -214,6 +225,8 @@ public sealed class GoogleCallbackCommandHandler
         {
             user.ClearPasswordAfterUnverifiedGoogleClaim();
         }
+
+        return true;
     }
 
     /// <summary>

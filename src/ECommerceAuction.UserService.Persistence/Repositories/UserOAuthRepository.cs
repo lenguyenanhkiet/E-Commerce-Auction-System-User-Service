@@ -131,6 +131,35 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
     }
 
     /// <summary>
+    /// Ensures the user has a reputation profile and grants the email verification point only when requested by the caller.
+    /// </summary>
+    public async Task EnsureReputationProfileAsync(
+        Guid userId,
+        bool grantEmailVerificationPoint,
+        CancellationToken cancellationToken)
+    {
+        var reputationProfile = await _dbContext.ReputationProfiles
+            .FirstOrDefaultAsync(profile => profile.UserId == userId, cancellationToken);
+
+        if (reputationProfile is null)
+        {
+            // ECA-6 OAuth2 Google: Google-created users already have a verified email, so their profile starts with +1.
+            reputationProfile = grantEmailVerificationPoint
+                ? ReputationProfile.CreateForVerifiedEmail(userId)
+                : ReputationProfile.CreateDefault(userId);
+
+            await _dbContext.ReputationProfiles.AddAsync(reputationProfile, cancellationToken);
+            return;
+        }
+
+        if (grantEmailVerificationPoint)
+        {
+            // ECA-6 OAuth2 Google: this is called only when this login changed email from unverified to verified.
+            reputationProfile.AddEmailVerificationPoint();
+        }
+    }
+
+    /// <summary>
     /// Adds a refresh-token session to the current unit of work.
     /// </summary>
     public Task AddUserSessionAsync(
