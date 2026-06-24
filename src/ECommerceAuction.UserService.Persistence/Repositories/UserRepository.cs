@@ -69,4 +69,14 @@ public class UserRepository : IUserRepository
     {
         await _context.ReputationProfiles.AddAsync(profile, cancellationToken);
     }
+
+    public async Task<User?> GetByIdAsync(
+    Guid userId,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.Users
+            .FirstOrDefaultAsync(
+                x => x.Id == userId && x.DeletedAt == null,
+                cancellationToken);
+    }
 }
