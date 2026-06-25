@@ -8,7 +8,7 @@ using ECommerceAuction.UserService.Domain.Repositories;
 namespace ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 
 /// <summary>
-/// Đạt - VerifyEmail: converts a Redis pending registration into a real SQL user after OTP verification.
+///Pass - VerifyEmail: converts a Redis pending registration into a real SQL user after OTP verification.
 /// </summary>
 public sealed class VerifyEmailCommandHandler
     : ICommandHandler<VerifyEmailCommand, Guid>
@@ -86,7 +86,7 @@ public sealed class VerifyEmailCommandHandler
         };
 
 
-        // Đạt - VerifyEmail: SQL user is created only after the email OTP is correct.
+        //Pass - VerifyEmail: SQL user is created only after the email OTP is correct.
         await _userRepository.AddAsync(user, cancellationToken);
         await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);
 
