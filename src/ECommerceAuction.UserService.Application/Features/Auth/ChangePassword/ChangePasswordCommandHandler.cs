@@ -15,6 +15,9 @@ public sealed class ChangePasswordCommandHandler
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ChangePasswordCommandHandler> _logger;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ChangePasswordCommandHandler"/> class.
+    /// </summary>
     public ChangePasswordCommandHandler(
         IUserRepository userRepository,
         ICurrentUserService currentUserService,
@@ -29,6 +32,9 @@ public sealed class ChangePasswordCommandHandler
         _logger = logger;
     }
 
+    /// <summary>
+    /// Changes the password of the authenticated user after validating the current password.
+    /// </summary>
     public async Task<ChangePasswordResponse> Handle(
         ChangePasswordCommand request,
         CancellationToken cancellationToken)

@@ -182,6 +182,9 @@ public class User : AuditableEntity, IAggregateRoot
         UpdatedAt = DateTime.UtcNow;
     }
 
+    /// <summary>
+    /// Updates the user's password hash.
+    /// </summary>
     public void ChangePassword(string newPasswordHash)
     {
         PasswordHash = newPasswordHash;

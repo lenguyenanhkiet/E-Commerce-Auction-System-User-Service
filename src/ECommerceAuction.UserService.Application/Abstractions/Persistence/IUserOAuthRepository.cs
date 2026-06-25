@@ -71,4 +71,8 @@ public interface IUserOAuthRepository
     /// Adds an audit log entry for authentication-sensitive actions.
     /// </summary>
     Task AddAuditLogAsync(UserAuditLog auditLog, CancellationToken cancellationToken);
+
+
+
+    
 }

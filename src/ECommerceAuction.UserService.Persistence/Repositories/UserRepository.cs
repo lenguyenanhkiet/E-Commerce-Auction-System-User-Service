@@ -79,4 +79,52 @@ public class UserRepository : IUserRepository
                 x => x.Id == userId && x.DeletedAt == null,
                 cancellationToken);
     }
+
+    /// <summary>
+    /// Retrieves a user by email address.
+    /// </summary>
+    public async Task<User?> GetByEmailAsync(
+    string email,
+    CancellationToken cancellationToken = default)
+    {
+        var normalizedEmail = email.Trim().ToLowerInvariant();
+
+        return await _context.Users
+            .FirstOrDefaultAsync(
+                x => x.Email == normalizedEmail && x.DeletedAt == null,
+                cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds a password reset token to the database.
+    /// </summary>
+    public async Task AddPasswordResetTokenAsync(
+    PasswordResetToken token,
+    CancellationToken cancellationToken = default)
+    {
+        await _context.PasswordResetTokens.AddAsync(token, cancellationToken);
+    }
+
+    /// <summary>
+    /// Retrieves a password reset token by its value.
+    /// </summary>
+    public async Task<PasswordResetToken?> GetPasswordResetTokenAsync(
+    string token,
+    CancellationToken cancellationToken = default)
+    {
+        return await _context.PasswordResetTokens
+            .FirstOrDefaultAsync(
+                x => x.Token == token,
+                cancellationToken);
+    }
+
+    /// <summary>
+    /// Adds a user audit log entry to the database.
+    /// </summary>
+    public async Task AddAuditLogAsync(
+    UserAuditLog auditLog,
+    CancellationToken cancellationToken = default)
+    {
+        await _context.UserAuditLogs.AddAsync(auditLog, cancellationToken);
+    }
 }
