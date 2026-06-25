@@ -3,7 +3,9 @@ using ECommerceAuction.UserService.Api.Middlewares;
 using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
+using ECommerceAuction.UserService.Persistence.Context;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 var builder = WebApplication.CreateBuilder(args);
@@ -69,7 +71,11 @@ app.UseAuthorization();
 
 app.MapGrpcService<InternalHealthGrpcService>();
 app.MapControllers();
-
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    dbContext.Database.Migrate();
+}
 app.Run();
 
 
