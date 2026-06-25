@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Domain.Entities.Users;
 namespace ECommerceAuction.UserService.Domain.Repositories;
 
 /// <summary>
-/// Đạt + Tùng: repository contract for local register/login and OAuth account lookup operations.
+///Dat + Tung: repository contract for local register/login and OAuth account lookup operations.
 /// </summary>
 public interface IUserRepository
 {
@@ -41,5 +41,31 @@ public interface IUserRepository
     /// </summary>
     Task<List<string>> GetUserRolesAsync(
         Guid userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a user by id for the current user's profile.
+    /// </summary>
+    Task<User?> GetByIdAsync(
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Checks whether an email belongs to another active user.
+    /// </summary>
+    Task<bool> CheckEmailExistsForOtherUserAsync(
+        string email,
+        Guid userId,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a paginated user list for the Admin management page.
+    /// </summary>
+    Task<(IReadOnlyList<User> Items, int TotalCount)> GetPagedAsync(
+        string? search,
+        string? gender,
+        string? status,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default);
 }

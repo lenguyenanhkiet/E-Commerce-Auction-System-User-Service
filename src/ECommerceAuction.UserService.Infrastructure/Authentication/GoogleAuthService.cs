@@ -6,6 +6,6 @@ namespace ECommerceAuction.UserService.Infrastructure.Authentication
 {
     public class GoogleAuthService
     {
-        // Tùng viết logic đăng nhập Google (OAuth2)
+        //Tung writes Google login logic (OAuth2)
     }
 }

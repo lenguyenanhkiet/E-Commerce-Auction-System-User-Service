@@ -8,7 +8,7 @@ using ECommerceAuction.UserService.Domain.Repositories;
 namespace ECommerceAuction.UserService.Application.Features.Auth.CheckLocalAccount;
 
 /// <summary>
-/// Đạt + Duy - Local Login: validates email/phone credentials, issues JWT/refresh tokens,
+///Dat + Duy - Local Login: validates email/phone credentials, issues JWT/refresh tokens,
 /// creates a user session, and writes an audit log.
 /// </summary>
 public sealed class CheckLocalAccountCommandHandler
@@ -51,7 +51,7 @@ public sealed class CheckLocalAccountCommandHandler
             throw new UnauthorizedAccessException("Incorrect login information.");
         }
 
-        // Đạt - Local Login: local accounts can log in with either email or phone number.
+        //Dat - Local Login: local accounts can log in with either email or phone number.
         var user = await _userRepository.GetByEmailOrPhoneAsync(
             emailOrPhone,
             cancellationToken)
