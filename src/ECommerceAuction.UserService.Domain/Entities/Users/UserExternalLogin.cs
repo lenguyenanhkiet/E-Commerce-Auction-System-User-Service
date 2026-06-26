@@ -27,7 +27,7 @@ public sealed class UserExternalLogin : AuditableEntity
         LastLoginAt = DateTime.UtcNow;
         Status = ExternalLoginStatuses.Active;
         CreatedAt = DateTime.UtcNow;
-        // Tùng - OAuth2 Google: UserExternalLogins.updated_at is required by the database schema.
+        // UserExternalLogins.updated_at is required by the database schema.
         UpdatedAt = CreatedAt;
     }
 

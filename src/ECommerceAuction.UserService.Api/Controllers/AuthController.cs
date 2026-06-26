@@ -55,7 +55,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>
-    /// Đạt - VerifyEmail: verifies registration OTP and creates the real SQL user account.
+    /// Verifies the registration OTP and creates the real SQL user account.
     /// </summary>
     [HttpPost("verify-email")]
     public async Task<IActionResult> VerifyEmail(

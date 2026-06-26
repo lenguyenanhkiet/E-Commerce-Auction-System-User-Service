@@ -1,10 +1,12 @@
 using ECommerceAuction.UserService.Api.GrpcServices;
 using ECommerceAuction.UserService.Api.Middlewares;
+using ECommerceAuction.UserService.Api.Authorization;
 using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
 using MassTransit;
 using Microsoft.OpenApi;
+using Microsoft.AspNetCore.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddMassTransit(x =>
@@ -26,6 +28,8 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PrivilegePolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PrivilegeAuthorizationHandler>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
@@ -37,6 +41,12 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         In = ParameterLocation.Header,
         Description = "Enter JWT access token. Example: Bearer eyJhbGciOi..."
+    });
+
+    // Swagger sends the authorized JWT to protected RBAC APIs.
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document, null)] = []
     });
 });
 

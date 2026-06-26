@@ -1,8 +1,12 @@
-﻿using System.Net;
 using System.Text.Json;
+using ECommerceAuction.UserService.Application.Common.Exceptions;
+using FluentValidation;
 
 namespace ECommerceAuction.UserService.Api.Middlewares;
 
+/// <summary>
+/// Converts expected validation and business exceptions to stable HTTP responses.
+/// </summary>
 public sealed class ExceptionHandlingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -24,27 +28,63 @@ public sealed class ExceptionHandlingMiddleware
         }
         catch (Exception exception)
         {
-            _logger.LogError(exception, "Unhandled exception occurred");
+            var isExpectedException = exception is ApplicationExceptionBase or
+                ValidationException or
+                UnauthorizedAccessException;
+
+            if (isExpectedException)
+            {
+                _logger.LogWarning(exception, "Request failed with an expected application error");
+            }
+            else
+            {
+                _logger.LogError(exception, "Unhandled exception occurred");
+            }
 
             context.Response.ContentType = "application/json";
+            context.Response.StatusCode = exception switch
+            {
+                ValidationException => StatusCodes.Status400BadRequest,
+                BusinessRuleException => StatusCodes.Status400BadRequest,
+                UnauthorizedAccessException => StatusCodes.Status401Unauthorized,
+                NotFoundException => StatusCodes.Status404NotFound,
+                ConflictException => StatusCodes.Status409Conflict,
+                _ => StatusCodes.Status500InternalServerError
+            };
 
-            var isBadRequest =
-                exception.Message.Contains("already exists") ||
-                exception.Message.Contains("đã tồn tại");
+            var validationErrors = exception is ValidationException validationException
+                ? validationException.Errors
+                    .GroupBy(error => error.PropertyName)
+                    .ToDictionary(
+                        group => group.Key,
+                        group => group.Select(error => error.ErrorMessage).Distinct().ToArray())
+                : null;
 
-            context.Response.StatusCode = isBadRequest
-                ? StatusCodes.Status400BadRequest
-                : StatusCodes.Status500InternalServerError;
+            var detail = context.Response.StatusCode == StatusCodes.Status500InternalServerError
+                ? "An unexpected server error occurred."
+                : exception.Message;
 
             var response = new
             {
-                title = isBadRequest ? "Bad Request" : "Server Error",
+                title = GetTitle(context.Response.StatusCode),
                 status = context.Response.StatusCode,
-                detail = exception.Message
+                detail,
+                errors = validationErrors
             };
 
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
     }
-}
 
+    private static string GetTitle(int statusCode)
+    {
+        return statusCode switch
+        {
+            StatusCodes.Status400BadRequest => "Bad Request",
+            StatusCodes.Status401Unauthorized => "Unauthorized",
+            StatusCodes.Status404NotFound => "Not Found",
+            StatusCodes.Status409Conflict => "Conflict",
+            _ => "Server Error"
+        };
+    }
+}

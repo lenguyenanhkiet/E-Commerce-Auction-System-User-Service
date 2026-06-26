@@ -6,6 +6,6 @@ namespace ECommerceAuction.UserService.Infrastructure.Authentication
 {
     public class GoogleAuthService
     {
-        // Tùng viết logic đăng nhập Google (OAuth2)
+        // Reserved for Google Identity Services token verification if FE-owned id_token login is added later.
     }
 }

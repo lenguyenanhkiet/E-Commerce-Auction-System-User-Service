@@ -32,7 +32,7 @@ public class UserRepository : IUserRepository
 
 	public async Task<User?> GetByEmailOrPhoneAsync(string emailOrPhone, CancellationToken cancellationToken = default)
 	{
-		// Đạt - Local Login: support email or phone in the same login field.
+		// Local login supports email or phone in the same login field.
 		var normalizedInput = emailOrPhone.Trim();
 		var normalizedEmail = normalizedInput.ToLowerInvariant();
 

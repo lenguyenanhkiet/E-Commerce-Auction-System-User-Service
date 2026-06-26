@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Domain.Entities.Users;
 namespace ECommerceAuction.UserService.Domain.Repositories;
 
 /// <summary>
-/// Đạt + Tùng: repository contract for local register/login and OAuth account lookup operations.
+/// Repository contract for local register/login and OAuth account lookup operations.
 /// </summary>
 public interface IUserRepository
 {
