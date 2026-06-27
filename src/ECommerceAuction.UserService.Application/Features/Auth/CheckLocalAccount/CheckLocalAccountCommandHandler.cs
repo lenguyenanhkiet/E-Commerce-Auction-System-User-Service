@@ -8,7 +8,7 @@ using ECommerceAuction.UserService.Domain.Repositories;
 namespace ECommerceAuction.UserService.Application.Features.Auth.CheckLocalAccount;
 
 /// <summary>
-///Dat + Duy - Local Login: validates email/phone credentials, issues JWT/refresh tokens,
+/// Local login flow: validates email/phone credentials, issues JWT/refresh tokens,
 /// creates a user session, and writes an audit log.
 /// </summary>
 public sealed class CheckLocalAccountCommandHandler
@@ -51,7 +51,7 @@ public sealed class CheckLocalAccountCommandHandler
             throw new UnauthorizedAccessException("Incorrect login information.");
         }
 
-        //Dat - Local Login: local accounts can log in with either email or phone number.
+        // Local accounts can log in with either email or phone number.
         var user = await _userRepository.GetByEmailOrPhoneAsync(
             emailOrPhone,
             cancellationToken)
@@ -86,13 +86,18 @@ public sealed class CheckLocalAccountCommandHandler
 
         if (roles.Count == 0)
         {
-            // Duy - JWT/RBAC: make sure token claims use the database role source, not hard-coded roles.
+            // RBAC claims must come from database roles, not hard-coded role values.
             await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
-            roles = [RoleCodes.Buyer];
+
+            // Persist the default role assignment before querying database-backed privileges.
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            roles = await _userOAuthRepository.GetActiveRoleCodesAsync(user.Id, cancellationToken);
         }
 
-        // Duy - JWT: privilege claims are kept empty until RolePrivilege is merged into this source.
-        IReadOnlyCollection<string> privileges = [];
+        // Every login reloads current privileges so JWT claims reflect the latest RBAC setup.
+        var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(
+            user.Id,
+            cancellationToken);
 
         var accessToken = _jwtTokenService.GenerateAccessToken(
             user.Id,
@@ -109,7 +114,7 @@ public sealed class CheckLocalAccountCommandHandler
             refreshTokenHash,
             refreshTokenExpiresAt);
 
-        // Duy - JWT/Session: persist refresh token as a hashed session, never as plain text.
+        // Persist refresh tokens as hashed sessions only; never store the plain token.
         await _userOAuthRepository.AddUserSessionAsync(session, cancellationToken);
 
         await _userOAuthRepository.AddAuditLogAsync(
@@ -131,6 +136,7 @@ public sealed class CheckLocalAccountCommandHandler
                 user.Id,
                 user.Email,
                 user.FullName,
-                roles));
+                roles,
+                privileges));
     }
 }

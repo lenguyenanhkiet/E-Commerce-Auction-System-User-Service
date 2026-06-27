@@ -58,7 +58,7 @@ public class User : AuditableEntity, IAggregateRoot
     public User(Guid id, string email, string passwordHash, string fullName, string? phoneNumber)
         : this(email, passwordHash, fullName, phoneNumber)
     {
-        //Pass - VerifyEmail: keep the final SQL user id identical to the pending registration id.
+        // Keep the final SQL user id identical to the pending registration id.
         Id = id;
     }
 

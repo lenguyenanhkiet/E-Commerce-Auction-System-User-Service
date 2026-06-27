@@ -30,6 +30,7 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
+        services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
 
         return services;
     }

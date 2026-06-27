@@ -42,6 +42,7 @@ public class UserRepository : IUserRepository
                 cancellationToken);
     }
 
+
     public async Task<User?> GetByEmailOrPhoneAsync(
         string emailOrPhone,
         CancellationToken cancellationToken = default)
@@ -190,16 +191,6 @@ public class UserRepository : IUserRepository
             .ToListAsync(cancellationToken);
 
         return (users, totalCount);
-    }
-
-    public async Task<User?> GetByIdAsync(
-    Guid userId,
-    CancellationToken cancellationToken = default)
-    {
-        return await _context.Users
-            .FirstOrDefaultAsync(
-                x => x.Id == userId && x.DeletedAt == null,
-                cancellationToken);
     }
 
     /// <summary>

@@ -1,11 +1,13 @@
 //Enter the necessary namespaces for the application
 using ECommerceAuction.UserService.Api.GrpcServices;
 using ECommerceAuction.UserService.Api.Middlewares;
+using ECommerceAuction.UserService.Api.Authorization;
 using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
 using MassTransit;
 using Microsoft.OpenApi;
+using Microsoft.AspNetCore.Authorization;
 
 //Create a builder to configure the web application's services
 var builder = WebApplication.CreateBuilder(args);
@@ -41,11 +43,15 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 //Register services from the Infrastructure layer (authentication, cache, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddAuthorization();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PrivilegePolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PrivilegeAuthorizationHandler>();
 builder.Services.AddEndpointsApiExplorer();
 
 //Configure Swagger/OpenAPI for API documentation
 builder.Services.AddSwaggerGen(options =>
 {
+
     //Add security definition for Bearer token (JWT)
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -59,10 +65,16 @@ builder.Services.AddSwaggerGen(options =>
         BearerFormat = "JWT",
         //Location of the security header
         In = ParameterLocation.Header,
-        //Description of usage
         Description = "Enter JWT access token. Example: Bearer eyJhbGciOi..."
     });
+
+    // Swagger sends the authorized JWT to protected RBAC APIs.
+    options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+    {
+        [new OpenApiSecuritySchemeReference("Bearer", document, null)] = []
+    });
 });
+
 
 //Configure CORS (Cross-Origin Resource Sharing) - allow frontend access from different domains
 builder.Services.AddCors(options =>
