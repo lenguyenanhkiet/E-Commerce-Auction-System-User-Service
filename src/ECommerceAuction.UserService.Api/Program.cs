@@ -41,11 +41,6 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 //Register services from the Infrastructure layer (authentication, cache, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
-
-//Register for authorization service - check access rights
-builder.Services.AddAuthorization();
-
-//Service registration for API Explorer and Swagger
 builder.Services.AddEndpointsApiExplorer();
 
 //Configure Swagger/OpenAPI for API documentation
