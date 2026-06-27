@@ -193,15 +193,6 @@ public class UserRepository : IUserRepository
         return (users, totalCount);
     }
 
-    public async Task<User?> GetByIdAsync(
-    Guid userId,
-    CancellationToken cancellationToken = default)
-    {
-        return await _context.Users
-            .FirstOrDefaultAsync(
-                x => x.Id == userId && x.DeletedAt == null,
-                cancellationToken);
-    }
 
     /// <summary>
     /// Retrieves a user by email address.

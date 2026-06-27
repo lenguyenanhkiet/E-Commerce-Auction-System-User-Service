@@ -78,11 +78,7 @@ public sealed class VerifyEmailCommandHandler
         // A successfully verified email gives the user the first reputation point.
         var reputationProfile = ReputationProfile.CreateForVerifiedEmail(user.Id);
 
-<<<<<<< HEAD
         // SQL user is created only after the email OTP is correct.
-=======
-        //Pass - VerifyEmail: SQL user is created only after the email OTP is correct.
->>>>>>> develop
         await _userRepository.AddAsync(user, cancellationToken);
         await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);
 
