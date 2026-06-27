@@ -61,12 +61,16 @@ public sealed class RefreshTokenCommandHandler
         if (roles.Count == 0)
         {
             await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
-            roles = [RoleCodes.Buyer];
+
+            // Persist the default role assignment before querying database-backed privileges.
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            roles = await _userOAuthRepository.GetActiveRoleCodesAsync(user.Id, cancellationToken);
         }
 
-        // ECA-6/ECA-10 Auth: keep refreshed JWTs using the same claim shape as Google login.
-        // Privilege claims will come from RolePrivileges after the shared JWT service branch is merged.
-        IReadOnlyCollection<string> privileges = [];
+        // Refresh re-reads privileges so revoked rights disappear from new JWTs.
+        var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(
+            user.Id,
+            cancellationToken);
 
         var accessToken = _jwtTokenService.GenerateAccessToken(
             user.Id,
@@ -100,6 +104,7 @@ public sealed class RefreshTokenCommandHandler
                 user.Id,
                 user.Email,
                 user.FullName,
-                roles));
+                roles,
+                privileges));
     }
 }

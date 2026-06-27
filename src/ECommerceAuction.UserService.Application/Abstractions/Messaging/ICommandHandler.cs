@@ -7,3 +7,8 @@ public interface ICommandHandler<in TCommand, TResponse> : IRequestHandler<TComm
 {
 }
 
+public interface ICommandHandler<in TCommand> : IRequestHandler<TCommand>
+    where TCommand : ICommand
+{
+}
+

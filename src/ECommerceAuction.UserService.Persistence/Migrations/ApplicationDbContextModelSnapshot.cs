@@ -22,6 +22,82 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Privilege", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("id");
+
+                b.Property<string>("Code")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(100)")
+                    .HasColumnName("code");
+
+                b.Property<string>("Description")
+                    .HasColumnType("nvarchar(500)")
+                    .HasColumnName("description");
+
+                b.Property<string>("Name")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(150)")
+                    .HasColumnName("name");
+
+                b.Property<string>("Status")
+                    .IsRequired()
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("nvarchar(30)")
+                    .HasDefaultValue("ACTIVE")
+                    .HasColumnName("status");
+
+                b.HasKey("Id");
+
+                b.HasIndex("Code")
+                    .IsUnique();
+
+                b.ToTable("Privileges", "user");
+            });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.PasswordResetToken", b =>
+            {
+                b.Property<Guid>("Id")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("id");
+
+                b.Property<DateTime>("CreatedAt")
+                    .HasColumnType("datetime2(3)")
+                    .HasColumnName("created_at");
+
+                b.Property<DateTime>("ExpiryDate")
+                    .HasColumnType("datetime2(3)")
+                    .HasColumnName("expiry_date");
+
+                b.Property<bool>("IsUsed")
+                    .ValueGeneratedOnAdd()
+                    .HasColumnType("bit")
+                    .HasDefaultValue(false)
+                    .HasColumnName("is_used");
+
+                b.Property<string>("Token")
+                    .IsRequired()
+                    .HasColumnType("nvarchar(500)")
+                    .HasColumnName("token");
+
+                b.Property<Guid>("UserId")
+                    .HasColumnType("uniqueidentifier")
+                    .HasColumnName("user_id");
+
+                b.HasKey("Id");
+
+                b.HasIndex("Token")
+                    .IsUnique();
+
+                b.HasIndex("UserId");
+
+                b.ToTable("PasswordResetTokens", "user");
+            });
+
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.ReputationProfile", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -106,7 +182,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("nvarchar(100)")
+                        .HasColumnType("nvarchar(150)")
                         .HasColumnName("name");
 
                     b.Property<string>("Status")
@@ -126,6 +202,39 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("Roles", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.RolePrivilege", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime>("AssignedAt")
+                        .HasColumnType("datetime2(3)")
+                        .HasColumnName("assigned_at");
+
+                    b.Property<Guid?>("AssignedBy")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("assigned_by");
+
+                    b.Property<Guid>("PrivilegeId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("privilege_id");
+
+                    b.Property<Guid>("RoleId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("role_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PrivilegeId");
+
+                    b.HasIndex("RoleId", "PrivilegeId")
+                        .IsUnique();
+
+                    b.ToTable("RolePrivileges", "user");
                 });
 
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.User", b =>
@@ -478,6 +587,25 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.RolePrivilege", b =>
+                {
+                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.Privilege", "Privilege")
+                        .WithMany()
+                        .HasForeignKey("PrivilegeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.Role", "Role")
+                        .WithMany("RolePrivileges")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Privilege");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserExternalLogin", b =>
                 {
                     b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
@@ -510,6 +638,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Role", b =>
                 {
+                    b.Navigation("RolePrivileges");
+
                     b.Navigation("UserRoles");
                 });
 

@@ -57,12 +57,16 @@ public sealed class ExchangeLoginCodeCommandHandler
         {
             // ECA-6 OAuth2 Google: keep legacy/test users usable by assigning the default BUYER role if no role exists.
             await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
-            roles = [RoleCodes.Buyer];
+
+            // Persist the default role assignment before querying database-backed privileges.
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            roles = await _userOAuthRepository.GetActiveRoleCodesAsync(user.Id, cancellationToken);
         }
 
-        // ECA-6 OAuth2 Google: privileges are kept empty until the shared RolePrivilege/JWT service branch is merged.
-        // After merge, replace this with repository-loaded privilege codes and pass them to the shared JWT generator.
-        IReadOnlyCollection<string> privileges = [];
+        // Google login uses the same database-backed RBAC claims as local login.
+        var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(
+            user.Id,
+            cancellationToken);
 
         var accessToken = _jwtTokenService.GenerateAccessToken(
             user.Id,
@@ -100,6 +104,7 @@ public sealed class ExchangeLoginCodeCommandHandler
                 user.Id,
                 user.Email,
                 user.FullName,
-                roles));
+                roles,
+                privileges));
     }
 }

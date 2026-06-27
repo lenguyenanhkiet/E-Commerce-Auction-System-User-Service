@@ -58,7 +58,7 @@ public class User : AuditableEntity, IAggregateRoot
     public User(Guid id, string email, string passwordHash, string fullName, string? phoneNumber)
         : this(email, passwordHash, fullName, phoneNumber)
     {
-        //Pass - VerifyEmail: keep the final SQL user id identical to the pending registration id.
+        // Keep the final SQL user id identical to the pending registration id.
         Id = id;
     }
 
@@ -203,6 +203,16 @@ public class User : AuditableEntity, IAggregateRoot
     {
         // ECA-6 OAuth2 Google: prevent account takeover when someone pre-created this email with an arbitrary password.
         PasswordHash = string.Empty;
+        PasswordChangedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Updates the user's password hash.
+    /// </summary>
+    public void ChangePassword(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
         PasswordChangedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }

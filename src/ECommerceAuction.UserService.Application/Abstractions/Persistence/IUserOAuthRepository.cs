@@ -43,6 +43,13 @@ public interface IUserOAuthRepository
         CancellationToken cancellationToken);
 
     /// <summary>
+    /// Gets the distinct active privilege codes inherited from all active user roles.
+    /// </summary>
+    Task<IReadOnlyCollection<string>> GetActivePrivilegeCodesAsync(
+        Guid userId,
+        CancellationToken cancellationToken);
+
+    /// <summary>
     /// Ensures that a user has the default BUYER role used by newly created OAuth2 users.
     /// </summary>
     Task EnsureDefaultBuyerRoleAsync(Guid userId, CancellationToken cancellationToken);
@@ -71,4 +78,8 @@ public interface IUserOAuthRepository
     /// Adds an audit log entry for authentication-sensitive actions.
     /// </summary>
     Task AddAuditLogAsync(UserAuditLog auditLog, CancellationToken cancellationToken);
+
+
+
+    
 }

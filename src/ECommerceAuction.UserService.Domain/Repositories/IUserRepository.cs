@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Domain.Entities.Users;
 namespace ECommerceAuction.UserService.Domain.Repositories;
 
 /// <summary>
-///Dat + Tung: repository contract for local register/login and OAuth account lookup operations.
+/// Repository contract for local register/login and OAuth account lookup operations.
 /// </summary>
 public interface IUserRepository
 {
@@ -57,6 +57,37 @@ public interface IUserRepository
         string email,
         Guid userId,
         CancellationToken cancellationToken = default);
+
+   
+    /// <summary>
+    /// Gets a user by email address.
+    /// </summary>
+    Task<User?> GetByEmailAsync(
+    string email,
+    CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stores a password reset token.
+    /// </summary>
+    Task AddPasswordResetTokenAsync(
+        PasswordResetToken token,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Gets a password reset token.
+    /// </summary>
+    Task<PasswordResetToken?> GetPasswordResetTokenAsync(
+        string token,
+        CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Stores a user audit log entry.
+    /// </summary>
+    Task AddAuditLogAsync(
+        UserAuditLog auditLog,
+        CancellationToken cancellationToken = default);
+
+
 
     /// <summary>
     /// Gets a paginated user list for the Admin management page.

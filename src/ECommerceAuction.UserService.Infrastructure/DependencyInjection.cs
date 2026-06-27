@@ -1,3 +1,4 @@
+using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
@@ -7,7 +8,7 @@ using ECommerceAuction.UserService.Infrastructure.CurrentUser;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
+
 
 namespace ECommerceAuction.UserService.Infrastructure;
 
@@ -23,6 +24,7 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
+
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<GoogleOAuthOptions>(configuration.GetSection(GoogleOAuthOptions.SectionName));
 
@@ -74,6 +76,7 @@ public static class DependencyInjection
                 };
             });
 
+
         var redisConnectionString = configuration.GetConnectionString("RedisConnection");
         if (!string.IsNullOrWhiteSpace(redisConnectionString))
         {
@@ -89,6 +92,7 @@ public static class DependencyInjection
         }
 
         services.AddHttpContextAccessor();
+
         services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();

@@ -8,7 +8,7 @@ using ECommerceAuction.UserService.Domain.Repositories;
 namespace ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 
 /// <summary>
-///Pass - VerifyEmail: converts a Redis pending registration into a real SQL user after OTP verification.
+/// Email verification flow: converts a Redis pending registration into a real SQL user after OTP verification.
 /// </summary>
 public sealed class VerifyEmailCommandHandler
     : ICommandHandler<VerifyEmailCommand, Guid>
@@ -76,7 +76,7 @@ public sealed class VerifyEmailCommandHandler
             pendingUser.PhoneNumber);
 
         var now = DateTime.UtcNow;
-
+        // A successfully verified email gives the user the first reputation point.
         var reputationProfile = new ReputationProfile
         {
             UserId = user.Id,
@@ -85,12 +85,11 @@ public sealed class VerifyEmailCommandHandler
             UpdatedAt = now
         };
 
-
-        //Pass - VerifyEmail: SQL user is created only after the email OTP is correct.
+        // SQL user is created only after the email OTP is correct.
         await _userRepository.AddAsync(user, cancellationToken);
         await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);
 
-        // Duy - JWT/RBAC: every verified local account receives the default BUYER role for token claims.
+        // Every verified local account receives the default BUYER role for future token claims.
         await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
 
         await _userOAuthRepository.AddAuditLogAsync(
