@@ -59,13 +59,6 @@ public interface IUserRepository
         CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Gets a user by identifier.
-    /// </summary>
-    Task<User?> GetByIdAsync(
-    Guid userId,
-    CancellationToken cancellationToken = default);
-
-    /// <summary>
     /// Gets a user by email address.
     /// </summary>
     Task<User?> GetByEmailAsync(
