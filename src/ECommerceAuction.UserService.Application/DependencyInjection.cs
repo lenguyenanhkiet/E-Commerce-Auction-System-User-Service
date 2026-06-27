@@ -1,4 +1,6 @@
 ﻿using FluentValidation;
+using ECommerceAuction.UserService.Application.Common.Behaviors;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace ECommerceAuction.UserService.Application;
@@ -15,6 +17,7 @@ public static class DependencyInjection
         });
 
         services.AddValidatorsFromAssembly(assembly);
+        services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
         return services;
     }

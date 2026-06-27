@@ -89,4 +89,7 @@ public static class UserAuditActions
     public const string RefreshTokenIssued = "REFRESH_TOKEN_ISSUED";
     public const string RefreshTokenRotated = "REFRESH_TOKEN_ROTATED";
     public const string Logout = "LOGOUT";
+    public const string RoleCreated = "ROLE_CREATED";
+    public const string RoleUpdated = "ROLE_UPDATED";
+    public const string RoleDeleted = "ROLE_DELETED";
 }

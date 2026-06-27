@@ -7,7 +7,7 @@ using Nexus.Shared.Contracts.Events.User;
 namespace ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
 
 /// <summary>
-///Pass - RegisterAccount: validates a local registration request, stores pending data in Redis,
+/// Local registration flow: validates a registration request, stores pending data in Redis,
 /// and publishes an email OTP event instead of creating the SQL user immediately.
 /// </summary>
 public sealed class RegisterAccountCommandHandler
@@ -104,7 +104,7 @@ public sealed class RegisterAccountCommandHandler
             OtpCode: GenerateOtpCode(),
             ExpiresAt: DateTime.UtcNow.Add(PendingRegistrationExpiration));
 
-        //Pass - RegisterAccount: keep pending data outside SQL until VerifyEmail succeeds.
+        // Keep pending registration data outside SQL until the user verifies the email OTP.
         await _cacheService.SetAsync(
             pendingByEmailKey,
             pendingUser,
@@ -117,7 +117,7 @@ public sealed class RegisterAccountCommandHandler
             PendingRegistrationExpiration,
             cancellationToken);
 
-        //Dat + Kiet: Kiet's Email Service will consume this event and send the OTP to the user.
+        // Publish the OTP event so the email notification flow can deliver the verification code.
         await _publishEndpoint.Publish(new UserRegisteredEvent
         {
             UserId = pendingUser.Id,
