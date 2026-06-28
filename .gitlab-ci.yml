@@ -50,6 +50,9 @@ deploy_to_azure:
       --name $env:SERVICE_NAME_STAGING `
       --resource-group $env:AZURE_RESOURCE_GROUP `
       --image $env:DOCKER_IMAGE_NAME `
+      --registry-server index.docker.io `
+      --registry-username DOCKER_HUB_USER `
+      --registry-password $env:DOCKER_HUB_PASS `
       --set-env-vars `
       "ConnectionStrings__DefaultConnection=$env:DB_CONNECTION_STRING"
 
