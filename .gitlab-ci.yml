@@ -26,12 +26,16 @@ deploy_to_azure:
   stage: deploy_staging
   script:
     - echo "Connecting to Azure..."
+
     - $azureCreds = $env:AZURE_CREDENTIALS | ConvertFrom-Json
-      - az login `
+
+    - az login `
       --service-principal `
       -u $azureCreds.clientId `
       -p $azureCreds.clientSecret `
       --tenant $azureCreds.tenantId
+
+    - echo "Setting Docker Hub registry..."
 
     - az containerapp registry set `
       --name $env:SERVICE_NAME_STAGING `
@@ -40,11 +44,14 @@ deploy_to_azure:
       --username $env:DOCKER_HUB_USER `
       --password $env:DOCKER_HUB_PASS
 
+    - echo "Deploying new image..."
+
     - az containerapp update `
       --name $env:SERVICE_NAME_STAGING `
       --resource-group $env:AZURE_RESOURCE_GROUP `
-      --image $env:DOCKER_HUB_USER/$env:DOCKER_IMAGE_NAME `
+      --image $env:DOCKER_IMAGE_NAME `
       --set-env-vars `
       "ConnectionStrings__DefaultConnection=$env:DB_CONNECTION_STRING"
+
   only:
     - staging
