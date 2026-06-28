@@ -93,13 +93,45 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
     }
 
     /// <summary>
+    /// Loads effective privileges through active UserRole and RolePrivilege rows.
+    /// </summary>
+    public async Task<IReadOnlyCollection<string>> GetActivePrivilegeCodesAsync(
+        Guid userId,
+        CancellationToken cancellationToken)
+    {
+        return await _dbContext.UserRoles
+            .Where(userRole =>
+                userRole.UserId == userId &&
+                userRole.Status == UserRoleStatuses.Active &&
+                userRole.RevokedAt == null)
+            .Join(
+                _dbContext.Roles.Where(role => role.Status == RoleStatuses.Active),
+                userRole => userRole.RoleId,
+                role => role.Id,
+                (_, role) => role.Id)
+            .Join(
+                _dbContext.RolePrivileges,
+                roleId => roleId,
+                rolePrivilege => rolePrivilege.RoleId,
+                (_, rolePrivilege) => rolePrivilege.PrivilegeId)
+            .Join(
+                _dbContext.Privileges.Where(
+                    privilege => privilege.Status == PrivilegeStatuses.Active),
+                privilegeId => privilegeId,
+                privilege => privilege.Id,
+                (_, privilege) => privilege.Code)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+    }
+
+    /// <summary>
     /// Ensures a user has the default BUYER role required by the MVP authentication flow.
     /// </summary>
     public async Task EnsureDefaultBuyerRoleAsync(
         Guid userId,
         CancellationToken cancellationToken)
     {
-        // ECA-6 OAuth2 Google: new OAuth users must receive the default BUYER role instead of using hard-coded roles.
+            // New OAuth users must receive the default BUYER role instead of using hard-coded roles.
         var buyerRole = await _dbContext.Roles
             .FirstOrDefaultAsync(role => role.Code == RoleCodes.Buyer, cancellationToken);
 
@@ -143,7 +175,7 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
 
         if (reputationProfile is null)
         {
-            // ECA-6 OAuth2 Google: Google-created users already have a verified email, so their profile starts with +1.
+            // Google-created users already have a verified email, so their profile starts with +1.
             reputationProfile = grantEmailVerificationPoint
                 ? ReputationProfile.CreateForVerifiedEmail(userId)
                 : ReputationProfile.CreateDefault(userId);
@@ -154,7 +186,7 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
 
         if (grantEmailVerificationPoint)
         {
-            // ECA-6 OAuth2 Google: this is called only when this login changed email from unverified to verified.
+            // This is called only when this login changed email from unverified to verified.
             reputationProfile.AddEmailVerificationPoint();
         }
     }

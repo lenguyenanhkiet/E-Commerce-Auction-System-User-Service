@@ -29,7 +29,7 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.Property(role => role.Name)
             .HasColumnName("name")
-            .HasColumnType("nvarchar(100)")
+            .HasColumnType("nvarchar(150)")
             .IsRequired();
 
         builder.Property(role => role.Description)
@@ -63,5 +63,8 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
             .HasColumnName("deleted_at")
             .HasColumnType("datetime2(3)")
             .IsRequired(false);
+
+        builder.Navigation(role => role.RolePrivileges)
+            .UsePropertyAccessMode(PropertyAccessMode.Field);
     }
 }

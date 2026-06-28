@@ -22,12 +22,15 @@ public static class DependencyInjection
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
+
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
+
         });
 
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
+        services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
 
         return services;
     }

@@ -44,6 +44,8 @@ public sealed class UserAuditLog : BaseEntity
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
     public DateTime CreatedAt { get; private set; }
+    public const string ForgotPasswordRequested = "FORGOT_PASSWORD_REQUESTED";
+    public const string PasswordReset = "PASSWORD_RESET";
 
     /// <summary>
     /// Creates an audit log entry for an authentication or account-management action.
@@ -87,4 +89,7 @@ public static class UserAuditActions
     public const string RefreshTokenIssued = "REFRESH_TOKEN_ISSUED";
     public const string RefreshTokenRotated = "REFRESH_TOKEN_ROTATED";
     public const string Logout = "LOGOUT";
+    public const string RoleCreated = "ROLE_CREATED";
+    public const string RoleUpdated = "ROLE_UPDATED";
+    public const string RoleDeleted = "ROLE_DELETED";
 }

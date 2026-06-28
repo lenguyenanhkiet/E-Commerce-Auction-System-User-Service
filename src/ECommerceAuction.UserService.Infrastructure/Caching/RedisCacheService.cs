@@ -5,7 +5,7 @@ using Microsoft.Extensions.Caching.Distributed;
 namespace ECommerceAuction.UserService.Infrastructure.Caching;
 
 /// <summary>
-/// Đạt - RegisterAccount: stores pending registration data in Redis until email OTP verification succeeds.
+/// Stores pending registration data in Redis until email OTP verification succeeds.
 /// </summary>
 public sealed class RedisCacheService : ICacheService
 {
