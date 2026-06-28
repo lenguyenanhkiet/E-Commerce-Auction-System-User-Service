@@ -193,6 +193,7 @@ public class UserRepository : IUserRepository
         return (users, totalCount);
     }
 
+
     /// <summary>
     /// Retrieves a user by email address.
     /// </summary>
