@@ -68,10 +68,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("nvarchar(255)")
             .IsRequired();
 
-        builder.Property(x => x.PasswordChangedAt)
-            .HasColumnName("password_changed_at")
-            .HasColumnType("datetime2(3)")
-            .IsRequired(false);
+        
 
         builder.Property(x => x.Status)
             .HasColumnName("status")
@@ -97,11 +94,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(0)
             .IsRequired();
 
-        builder.Property(x => x.LockedUntil)
-            .HasColumnName("locked_until")
-            .HasColumnType("datetime2(3)")
-            .IsRequired(false);
-
+       
         builder.Property(x => x.LastLoginAt)
             .HasColumnName("last_login_at")
             .HasColumnType("datetime2(3)")

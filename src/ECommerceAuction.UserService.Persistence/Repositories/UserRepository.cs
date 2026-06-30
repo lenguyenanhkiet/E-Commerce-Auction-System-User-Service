@@ -99,6 +99,7 @@ public class UserRepository : IUserRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Users
+            .Include(user => user.ReputationProfile)
             .FirstOrDefaultAsync(
                 user =>
                     user.Id == userId &&

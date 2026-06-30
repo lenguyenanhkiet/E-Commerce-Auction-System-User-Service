@@ -29,6 +29,7 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserPasswordHistoryRepository, UserPasswordHistoryRepository>();
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
         services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
 
