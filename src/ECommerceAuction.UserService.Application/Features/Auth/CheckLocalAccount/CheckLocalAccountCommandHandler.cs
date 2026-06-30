@@ -131,12 +131,6 @@ public sealed class CheckLocalAccountCommandHandler
         return new AuthResponse(
             accessToken.Value,
             RefreshToken: refreshToken,
-            ExpiresAt: accessToken.ExpiresAt,
-            User: new AuthUserResponse(
-                user.Id,
-                user.Email,
-                user.FullName,
-                roles,
-                privileges));
+            ExpiresAt: accessToken.ExpiresAt);
     }
 }

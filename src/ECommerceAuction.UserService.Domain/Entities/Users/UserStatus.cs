@@ -35,6 +35,12 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
         public const string Locked = "LOCKED";
 
         /// <summary>
+        /// Minor/moderate violations: spam, repeated reports, minor auction fraud.
+        /// Time period / Interval: Time-limited (a few days to a few weeks); expires automatically.
+        /// </summary>
+        public const string Bloced = "BLOCKED";
+
+        /// <summary>
         ///Account has limited features - can log in but not allowed to bid.
         /// Feature restrictions: Login is possible but bidding is prohibited.
         /// </summary>

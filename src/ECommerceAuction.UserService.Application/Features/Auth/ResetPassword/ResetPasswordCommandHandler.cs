@@ -1,7 +1,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.ResetPassword;
@@ -72,23 +71,12 @@ public sealed class ResetPasswordCommandHandler
         }
 
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
+        var changedAt = DateTime.UtcNow;
 
-        user.ChangePassword(newPasswordHash);
-        resetToken.MarkAsUsed();
-
-        await _userRepository.AddAuditLogAsync(
-            UserAuditLog.Create(
-                actorUserId: user.Id,
-                targetUserId: user.Id,
-                action: UserAuditLog.PasswordReset,
-                entityType: nameof(User),
-                entityId: user.Id.ToString()),
-            cancellationToken);
+        user.ChangePassword(newPasswordHash); // domain method: set PasswordHash, MustChangePassword = false, UpdatedAt
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        return new ResetPasswordResponse(
-            user.Id,
-            user.PasswordChangedAt!.Value);
+        return new ResetPasswordResponse(user.Id, changedAt);
     }
 }

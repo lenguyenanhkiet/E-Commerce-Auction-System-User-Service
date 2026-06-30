@@ -99,12 +99,7 @@ public sealed class RefreshTokenCommandHandler
         return new AuthResponse(
             accessToken.Value,
             RefreshToken: newRefreshToken,
-            ExpiresAt: accessToken.ExpiresAt,
-            User: new AuthUserResponse(
-                user.Id,
-                user.Email,
-                user.FullName,
-                roles,
-                privileges));
+            ExpiresAt: accessToken.ExpiresAt
+            );
     }
 }

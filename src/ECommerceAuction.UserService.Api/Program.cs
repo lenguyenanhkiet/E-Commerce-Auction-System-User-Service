@@ -19,18 +19,21 @@ builder.Services.AddMassTransit(x =>
     //Configure to use RabbitMq as service transport
     x.UsingRabbitMq((context, cfg) =>
     {
-        //Get the RabbitMq connection string from the appsettings.json file
-        var rabbitMqConnectionString = builder.Configuration.GetConnectionString("RabbitMqConnection");
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
+        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
 
-        //Set up the RabbitMq host to connect to
-        cfg.Host(rabbitMqConnectionString);
+        cfg.Host(host, "/", h =>
+        {
+            h.Username(username);
+            h.Password(password); 
 
         //Configure endpoints to automatically map messages
         cfg.ConfigureEndpoints(context);
+        });
     });
+
 });
-
-
 //Register the Controllers service - allows the application to handle HTTP requests
 builder.Services.AddControllers();
 

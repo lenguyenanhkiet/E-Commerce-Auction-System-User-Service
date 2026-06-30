@@ -20,4 +20,13 @@ public sealed record UserProfileResponse(
     string? Address,
     DateOnly? DateOfBirth,
     bool IsEmailConfirmed,
-    bool IsPhoneConfirmed);
+    bool IsPhoneConfirmed,
+    UserReputationResponse Reputation,
+    IReadOnlyCollection<string> Roles,
+    IReadOnlyCollection<string> Privileges);
+
+public sealed record UserReputationResponse(
+    int Score,
+    string Trust_level
+);
+
