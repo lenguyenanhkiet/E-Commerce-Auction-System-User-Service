@@ -19,18 +19,21 @@ builder.Services.AddMassTransit(x =>
     //Configure to use RabbitMq as service transport
     x.UsingRabbitMq((context, cfg) =>
     {
-        //Get the RabbitMq connection string from the appsettings.json file
-        var rabbitMqConnectionString = builder.Configuration.GetConnectionString("RabbitMqConnection");
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
+        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
 
-        //Set up the RabbitMq host to connect to
-        cfg.Host(rabbitMqConnectionString);
+        cfg.Host(host, "/", h =>
+        {
+            h.Username(username);
+            h.Password(password); 
 
         //Configure endpoints to automatically map messages
         cfg.ConfigureEndpoints(context);
+        });
     });
+
 });
-
-
 //Register the Controllers service - allows the application to handle HTTP requests
 builder.Services.AddControllers();
 
@@ -97,15 +100,8 @@ builder.Services.AddCors(options =>
 //Build web applications from the builder
 var app = builder.Build();
 
-//Check if the application runs in a Development environment
-//If Development, use Swagger UI to view API documentation
-//if (app.Environment.IsDevelopment())
-//{
-//Enable Swagger middleware - provides JSON schema of the API
-app.UseSwagger();
-//Enable Swagger UI - a web interface to view and test APIs
-app.UseSwaggerUI();
-//}
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
 //Use custom error handling middleware to catch unexpected exceptions
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -127,32 +123,8 @@ app.UseAuthorization();
 
 //Register gRPC service for health check
 app.MapGrpcService<InternalHealthGrpcService>();
-
 //Register all controller endpoints
 app.MapControllers();
+app.Run();
 
-
-//Start running the web application
-//Use try-catch to catch unhandled exceptions and log them to the console
-try
-{
-    //Start the web application, listen for HTTP requests
-    app.Run();
-}
-catch (Exception ex)
-{
-    //Print to the console to notify that the application has crashed
-    Console.WriteLine("\n========================================================");
-    Console.WriteLine($"[FATAL CRASH] The culprit that crashed the app: {ex.Message}");
-
-    //If there is an InnerException (original error), print more details
-    if (ex.InnerException != null)
-    {
-        Console.WriteLine($"[INNER EXCEPTION] More detailed information: {ex.InnerException.Message}");
-    }
-
-    Console.WriteLine("========================================================\n");
-    //Throws an error to stop the application
-    throw;
-}
 

@@ -94,7 +94,7 @@ public sealed class RegisterAccountCommandHandler
         {
             throw new InvalidOperationException("This phone number is already waiting for verification.");
         }
-
+        var correlationId = Guid.NewGuid();
         var pendingUser = new PendingUserCacheModel(
             Id: Guid.NewGuid(),
             Email: email,
@@ -102,7 +102,8 @@ public sealed class RegisterAccountCommandHandler
             FullName: fullName,
             PasswordHash: _passwordHasher.HashPassword(request.Password),
             OtpCode: GenerateOtpCode(),
-            ExpiresAt: DateTime.UtcNow.Add(PendingRegistrationExpiration));
+            ExpiresAt: DateTime.UtcNow.Add(PendingRegistrationExpiration),
+            CorrelationId: correlationId);
 
         // Keep pending registration data outside SQL until the user verifies the email OTP.
         await _cacheService.SetAsync(
@@ -118,7 +119,7 @@ public sealed class RegisterAccountCommandHandler
             cancellationToken);
 
         // Publish the OTP event so the email notification flow can deliver the verification code.
-        await _publishEndpoint.Publish(new UserRegisteredEvent
+        await _publishEndpoint.Publish(new UserRegistrationOtpRequestedEvent
         {
             UserId = pendingUser.Id,
             Email = pendingUser.Email,
@@ -126,7 +127,7 @@ public sealed class RegisterAccountCommandHandler
             OtpCode = pendingUser.OtpCode,
             OtpExpiresAt = pendingUser.ExpiresAt,
             SourceService = "UserService", 
-            CorrelationId = Guid.NewGuid() 
+            CorrelationId = correlationId
         }, cancellationToken);
 
         return new RegisterAccountResponse(

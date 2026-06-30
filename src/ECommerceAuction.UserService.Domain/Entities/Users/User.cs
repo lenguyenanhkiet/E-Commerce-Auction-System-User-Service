@@ -16,14 +16,14 @@ public class User : AuditableEntity, IAggregateRoot
     public string? Address { get; private set; }
 
     public string PasswordHash { get; private set; } = string.Empty;
-    public DateTime? PasswordChangedAt { get; private set; }
+    public bool MustChangePassword { get; private set; }
 
     public string Status { get; private set; } = UserStatus.Active;
     public bool IsEmailConfirmed { get; private set; }
     public bool IsPhoneConfirmed { get; private set; }
 
     public int FailedLoginAttempts { get; private set; }
-    public DateTime? LockedUntil { get; private set; }
+    public DateTime? StatusExpiresAt { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
 
     private readonly List<UserRole> _userRoles = new();
@@ -90,7 +90,7 @@ public class User : AuditableEntity, IAggregateRoot
         if (FailedLoginAttempts >= 5)
         {
             Status = UserStatus.Locked;
-            LockedUntil = DateTime.UtcNow.AddMinutes(15);
+            StatusExpiresAt = DateTime.UtcNow.AddMinutes(15);
         }
 
         UpdatedAt = DateTime.UtcNow;
@@ -102,9 +102,10 @@ public class User : AuditableEntity, IAggregateRoot
     public void ResetFailedLogin()
     {
         FailedLoginAttempts = 0;
-        LockedUntil = null;
+        StatusExpiresAt = null;
         LastLoginAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        Status = UserStatus.Active;
     }
 
     /// <summary>
@@ -167,7 +168,7 @@ public class User : AuditableEntity, IAggregateRoot
             return false;
         }
 
-        if (Status == UserStatus.Locked && LockedUntil > DateTime.UtcNow)
+        if (Status == UserStatus.Locked && StatusExpiresAt > DateTime.UtcNow)
         {
             return false;
         }
@@ -182,7 +183,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         return DeletedAt is not null ||
                Status == UserStatus.Banned ||
-               (Status == UserStatus.Locked && LockedUntil > DateTime.UtcNow);
+               (Status == UserStatus.Locked && StatusExpiresAt > DateTime.UtcNow);
     }
 
     /// <summary>
@@ -202,7 +203,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         // ECA-6 OAuth2 Google: prevent account takeover when someone pre-created this email with an arbitrary password.
         PasswordHash = string.Empty;
-        PasswordChangedAt = DateTime.UtcNow;
+        MustChangePassword = false;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -212,7 +213,12 @@ public class User : AuditableEntity, IAggregateRoot
     public void ChangePassword(string newPasswordHash)
     {
         PasswordHash = newPasswordHash;
-        PasswordChangedAt = DateTime.UtcNow;
+        MustChangePassword = false;
+        UpdatedAt = DateTime.UtcNow;
+    }
+    public void FlagMustChangePassword()
+    {
+        MustChangePassword = true;
         UpdatedAt = DateTime.UtcNow;
     }
 }
