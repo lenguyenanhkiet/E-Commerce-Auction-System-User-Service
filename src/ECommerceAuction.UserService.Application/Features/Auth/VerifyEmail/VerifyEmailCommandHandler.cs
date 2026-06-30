@@ -5,6 +5,9 @@ using ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
+
 namespace ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 
 /// <summary>
@@ -17,17 +20,19 @@ public sealed class VerifyEmailCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IUnitOfWork _unitOfWork;
-
+    private readonly IPublishEndpoint _publishEndpoint;
     public VerifyEmailCommandHandler(
         ICacheService cacheService,
         IUserRepository userRepository,
         IUserOAuthRepository userOAuthRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _cacheService = cacheService;
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     /// <summary>
@@ -76,19 +81,12 @@ public sealed class VerifyEmailCommandHandler
             pendingUser.PhoneNumber);
 
         var now = DateTime.UtcNow;
-
-        var reputationProfile = new ReputationProfile
-        {
-            UserId = user.Id,
-            Score = 1,
-            TrustLevel = "Silver",
-            UpdatedAt = now
-        };
+        // A successfully verified email gives the user the first reputation point.
+        var reputationProfile = ReputationProfile.CreateForVerifiedEmail(user.Id);
 
         // SQL user is created only after the email OTP is correct.
         await _userRepository.AddAsync(user, cancellationToken);
         await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);
-
         // Every verified local account receives the default BUYER role for future token claims.
         await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
 
@@ -102,7 +100,14 @@ public sealed class VerifyEmailCommandHandler
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await _publishEndpoint.Publish(new UserRegisteredEvent
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            FullName = user.FullName,
+            SourceService = "UserService",
+            CorrelationId = pendingUser.CorrelationId
+        }, cancellationToken);
         await RemovePendingRegistrationAsync(pendingUser, cancellationToken);
 
         return user.Id;

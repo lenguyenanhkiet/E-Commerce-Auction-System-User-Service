@@ -6,15 +6,5 @@ namespace ECommerceAuction.UserService.Application.Features.Auth.Common;
 public sealed record AuthResponse(
     string AccessToken,
     string? RefreshToken,
-    DateTime ExpiresAt,
-    AuthUserResponse User);
+    DateTime ExpiresAt);
 
-/// <summary>
-/// Minimal authenticated user profile embedded in authentication responses.
-/// </summary>
-public sealed record AuthUserResponse(
-    Guid Id,
-    string Email,
-    string FullName,
-    IReadOnlyCollection<string> Roles,
-    IReadOnlyCollection<string> Privileges);

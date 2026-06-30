@@ -17,11 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Configurations\Users\" />
-    <Folder Include="Repositories\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
     <ProjectReference Include="..\ECommerceAuction.UserService.Domain\ECommerceAuction.UserService.Domain.csproj" />
   </ItemGroup>

@@ -22,19 +22,28 @@ builder.Services.AddMassTransit(x =>
     //Configure to use RabbitMq as service transport
     x.UsingRabbitMq((context, cfg) =>
     {
-        var rabbitMqConnectionString = builder.Configuration["RabbitMQ:ConnectionString"];
-        if (string.IsNullOrEmpty(rabbitMqConnectionString))
-            throw new Exception("RabbitMQ ConnectionString is missing!");
-        //Get the RabbitMq connection string from the appsettings.json file
-        //Set up the RabbitMq host to connect to
-        cfg.Host(rabbitMqConnectionString);
 
+        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
+        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
+        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
+        var vhost = builder.Configuration["RabbitMQ:VHost"] ?? "/";
+        cfg.Host(host, vhost, h =>
+        {
+            h.Username(username);
+            h.Password(password);
+            if (!string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase))
+            {
+                h.UseSsl(ssl =>
+                {
+                    ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
+                });
+            } 
+        });
         //Configure endpoints to automatically map messages
         cfg.ConfigureEndpoints(context);
     });
+
 });
-
-
 //Register the Controllers service - allows the application to handle HTTP requests
 builder.Services.AddControllers();
 //Register for the gRPC service - allows the application to support gRPC communication
@@ -122,14 +131,8 @@ app.UseAuthorization();
 
 //Register gRPC service for health check
 app.MapGrpcService<InternalHealthGrpcService>();
-
 //Register all controller endpoints
 app.MapControllers();
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    dbContext.Database.Migrate();
-}
 app.Run();
 
 

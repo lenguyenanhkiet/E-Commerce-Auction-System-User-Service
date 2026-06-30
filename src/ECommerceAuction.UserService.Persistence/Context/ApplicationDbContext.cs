@@ -21,7 +21,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<UserAuditLog> UserAuditLogs => Set<UserAuditLog>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
-
+    public DbSet<UserPasswordHistory> UserPasswordHistories => Set<UserPasswordHistory>();
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
