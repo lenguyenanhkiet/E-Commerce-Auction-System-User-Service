@@ -27,17 +27,21 @@ builder.Services.AddMassTransit(x =>
         var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
         var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
         var vhost = builder.Configuration["RabbitMQ:VHost"] ?? "/";
-        cfg.Host(host, vhost, h =>
+        var useSsl = !string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase);
+
+        var hostWithPort = useSsl ? $"{host}:5671" : host;
+        cfg.Host(hostWithPort, vhost, h =>
         {
             h.Username(username);
             h.Password(password);
-            if (!string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase))
+            if (useSsl)
             {
                 h.UseSsl(ssl =>
                 {
                     ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
+                    ssl.ServerName = host; 
                 });
-            } 
+            }
         });
         //Configure endpoints to automatically map messages
         cfg.ConfigureEndpoints(context);
