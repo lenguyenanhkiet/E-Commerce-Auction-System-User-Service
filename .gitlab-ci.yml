@@ -54,7 +54,10 @@ deploy_to_azure:
         --resource-group $env:AZURE_RESOURCE_GROUP `
         --image $env:DOCKER_IMAGE_NAME `
         --set-env-vars `
-        "ConnectionStrings__DefaultConnection=$env:DB_CONNECTION_STRING"
-
+        "ConnectionStrings__DefaultConnection=$env:DB_CONNECTION_STRING" `
+        "RabbitMQ__Host=$env:RABBITMQ_HOST" `
+        "RabbitMQ__Username=$env:RABBITMQ_USERNAME" `
+        "RabbitMQ__Password=$env:RABBITMQ_PASSWORD" `
+        "RabbitMQ__VHost=$env:RABBITMQ_VHOST"
   only:
     - staging
