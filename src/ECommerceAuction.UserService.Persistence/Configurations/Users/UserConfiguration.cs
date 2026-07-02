@@ -68,13 +68,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("nvarchar(255)")
             .IsRequired();
 
-        
-
         builder.Property(x => x.Status)
             .HasColumnName("status")
             .HasColumnType("nvarchar(30)")
             .HasDefaultValue("ACTIVE")
             .IsRequired();
+
+        builder.Property(x => x.StatusExpiresAt)
+            .HasColumnName("status_expires_at")
+            .HasColumnType("datetime2")
+            .IsRequired(false);
 
         builder.Property(x => x.IsEmailConfirmed)
             .HasColumnName("email_verified")
