@@ -1,6 +1,7 @@
 using System.Security.Cryptography;
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit;
 using Nexus.Shared.Contracts.Events.User;
@@ -46,32 +47,32 @@ public sealed class RegisterAccountCommandHandler
 
         if (string.IsNullOrWhiteSpace(email))
         {
-            throw new InvalidOperationException("Email is required.");
+            throw new BusinessRuleException("Email is required.");
         }
 
         if (string.IsNullOrWhiteSpace(phoneNumber))
         {
-            throw new InvalidOperationException("Phone number is required.");
+            throw new BusinessRuleException("Phone number is required.");
         }
 
         if (string.IsNullOrWhiteSpace(fullName))
         {
-            throw new InvalidOperationException("Full name is required.");
+            throw new BusinessRuleException("Full name is required.");
         }
 
         if (string.IsNullOrWhiteSpace(request.Password))
         {
-            throw new InvalidOperationException("Password is required.");
+            throw new BusinessRuleException("Password is required.");
         }
 
         if (await _userRepository.CheckEmailExistsAsync(email, cancellationToken))
         {
-            throw new InvalidOperationException("The email already exists.");
+            throw new ConflictException("The email already exists.");
         }
 
         if (await _userRepository.CheckPhoneExistsAsync(phoneNumber, cancellationToken))
         {
-            throw new InvalidOperationException("The phone number already exists.");
+            throw new ConflictException("The phone number already exists.");
         }
 
         var pendingByEmailKey = BuildPendingEmailKey(email);
@@ -83,7 +84,7 @@ public sealed class RegisterAccountCommandHandler
 
         if (existingPendingByEmail is not null)
         {
-            throw new InvalidOperationException("This email is already waiting for verification.");
+            throw new ConflictException("This email is already waiting for verification.");
         }
 
         var existingPendingByPhone = await _cacheService.GetAsync<PendingUserCacheModel>(
@@ -92,7 +93,7 @@ public sealed class RegisterAccountCommandHandler
 
         if (existingPendingByPhone is not null)
         {
-            throw new InvalidOperationException("This phone number is already waiting for verification.");
+            throw new ConflictException("This phone number is already waiting for verification.");
         }
         var correlationId = Guid.NewGuid();
         var pendingUser = new PendingUserCacheModel(
