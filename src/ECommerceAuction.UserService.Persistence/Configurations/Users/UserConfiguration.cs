@@ -114,5 +114,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("deleted_at")
             .HasColumnType("datetime2(3)")
             .IsRequired(false);
+
+        builder.Property(x => x.MustChangePassword)
+            .HasColumnName("must_change_password")
+            .HasColumnType("bit")
+            .HasDefaultValue(false)
+            .IsRequired();
     }
 }

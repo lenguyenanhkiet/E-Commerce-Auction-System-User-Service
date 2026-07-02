@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceAuction.UserService.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260629140202_AddPasswordHistoryAndMustChangeFlag")]
+    [Migration("20260702164359_AddPasswordHistoryAndMustChangeFlag")]
     partial class AddPasswordHistoryAndMustChangeFlag
     {
         /// <inheritdoc />
@@ -304,7 +304,10 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnName("last_login_at");
 
                     b.Property<bool>("MustChangePassword")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("must_change_password");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()

@@ -301,7 +301,10 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnName("last_login_at");
 
                     b.Property<bool>("MustChangePassword")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("must_change_password");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
