@@ -29,8 +29,10 @@ builder.Services.AddMassTransit(x =>
         var vhost = builder.Configuration["RabbitMQ:VHost"] ?? "/";
         var useSsl = !string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase);
 
-        var hostWithPort = useSsl ? $"{host}:5671" : host;
-        cfg.Host(hostWithPort, vhost, h =>
+        var scheme = useSsl ? "amqps" : "amqp";
+        var port = useSsl ? 5671 : 5672;
+        var hostUri = new Uri($"{scheme}://{host}:{port}/{Uri.EscapeDataString(vhost)}");
+        cfg.Host(hostUri, h =>
         {
             h.Username(username);
             h.Password(password);
