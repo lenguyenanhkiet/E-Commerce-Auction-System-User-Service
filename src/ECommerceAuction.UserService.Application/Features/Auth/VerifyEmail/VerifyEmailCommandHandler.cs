@@ -79,7 +79,7 @@ public sealed class VerifyEmailCommandHandler
             pendingUser.PasswordHash,
             pendingUser.FullName,
             pendingUser.PhoneNumber);
-        
+
         var now = DateTime.UtcNow;
         // A successfully verified email gives the user the first reputation point.
         var reputationProfile = ReputationProfile.CreateForVerifiedEmail(user.Id);

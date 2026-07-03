@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ECommerceAuction.UserService.Persistence.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260629140202_AddPasswordHistoryAndMustChangeFlag")]
-    partial class AddPasswordHistoryAndMustChangeFlag
+    [Migration("20260702182734_FixStatusExpiresAtColumnMapping")]
+    partial class FixStatusExpiresAtColumnMapping
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -304,7 +304,10 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnName("last_login_at");
 
                     b.Property<bool>("MustChangePassword")
-                        .HasColumnType("bit");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("must_change_password");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -323,7 +326,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnName("status");
 
                     b.Property<DateTime?>("StatusExpiresAt")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("datetime2")
+                        .HasColumnName("status_expires_at");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2(3)")

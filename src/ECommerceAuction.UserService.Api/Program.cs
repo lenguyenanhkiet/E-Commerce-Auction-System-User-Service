@@ -5,7 +5,10 @@ using ECommerceAuction.UserService.Api.Authorization;
 using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
+using ECommerceAuction.UserService.Persistence.Context;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authorization;
 
@@ -19,21 +22,28 @@ builder.Services.AddMassTransit(x =>
     //Configure to use RabbitMq as service transport
     x.UsingRabbitMq((context, cfg) =>
     {
+
         var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
         var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
         var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
         var vhost = builder.Configuration["RabbitMQ:VHost"] ?? "/";
-        cfg.Host(host, vhost, h =>
+        var useSsl = !string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase);
+
+        var scheme = useSsl ? "amqps" : "amqp";
+        var port = useSsl ? 5671 : 5672;
+        var hostUri = new Uri($"{scheme}://{host}:{port}/{Uri.EscapeDataString(vhost)}");
+        cfg.Host(hostUri, h =>
         {
             h.Username(username);
             h.Password(password);
-            if (!string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase))
+            if (useSsl)
             {
                 h.UseSsl(ssl =>
                 {
                     ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
+                    ssl.ServerName = host; 
                 });
-            } 
+            }
         });
         //Configure endpoints to automatically map messages
         cfg.ConfigureEndpoints(context);
@@ -42,10 +52,8 @@ builder.Services.AddMassTransit(x =>
 });
 //Register the Controllers service - allows the application to handle HTTP requests
 builder.Services.AddControllers();
-
 //Register for the gRPC service - allows the application to support gRPC communication
 builder.Services.AddGrpc();
-
 //Register for services from the Application layer
 builder.Services.AddApplication();
 //Register services from the Persistence layer (database)
@@ -68,13 +76,14 @@ builder.Services.AddSwaggerGen(options =>
         Name = "Authorization",
         //The security type is HTTP
         Type = SecuritySchemeType.Http,
-        //The security scheme uses Bearer tokens
-        Scheme = "bearer",
-        //The format of the token is JWT
+
+        Scheme = "Bearer",
+
         BearerFormat = "JWT",
         //Location of the security header
         In = ParameterLocation.Header,
         Description = "Enter JWT access token. Example: Bearer eyJhbGciOi..."
+
     });
 
     // Swagger sends the authorized JWT to protected RBAC APIs.
@@ -83,7 +92,6 @@ builder.Services.AddSwaggerGen(options =>
         [new OpenApiSecuritySchemeReference("Bearer", document, null)] = []
     });
 });
-
 
 //Configure CORS (Cross-Origin Resource Sharing) - allow frontend access from different domains
 builder.Services.AddCors(options =>
@@ -131,6 +139,13 @@ app.UseAuthorization();
 app.MapGrpcService<InternalHealthGrpcService>();
 //Register all controller endpoints
 app.MapControllers();
+// Auto Migration when app run
+if (app.Environment.IsProduction() || app.Environment.EnvironmentName == "Staging")
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
+}
 app.Run();
 
 
