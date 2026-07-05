@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Entities.Reputation;
 
 namespace ECommerceAuction.UserService.Domain.Entities.Users;
 
@@ -9,7 +10,6 @@ public class User : AuditableEntity, IAggregateRoot
 {
     public string Email { get; private set; } = string.Empty;
     public string PhoneNumber { get; private set; } = string.Empty;
-    public string? IdentityNumber { get; private set; }
     public string FullName { get; private set; } = string.Empty;
     public string? Gender { get; private set; }
     public DateOnly? DateOfBirth { get; private set; }

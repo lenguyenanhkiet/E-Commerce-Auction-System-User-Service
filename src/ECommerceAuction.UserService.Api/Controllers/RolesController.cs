@@ -4,7 +4,7 @@ using ECommerceAuction.UserService.Application.Features.Roles.DeleteRole;
 using ECommerceAuction.UserService.Application.Features.Roles.GetRoleById;
 using ECommerceAuction.UserService.Application.Features.Roles.GetRoles;
 using ECommerceAuction.UserService.Application.Features.Roles.UpdateRole;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

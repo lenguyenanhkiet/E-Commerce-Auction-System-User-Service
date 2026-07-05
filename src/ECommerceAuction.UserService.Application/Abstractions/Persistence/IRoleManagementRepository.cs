@@ -1,3 +1,4 @@
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 
 namespace ECommerceAuction.UserService.Application.Abstractions.Persistence;

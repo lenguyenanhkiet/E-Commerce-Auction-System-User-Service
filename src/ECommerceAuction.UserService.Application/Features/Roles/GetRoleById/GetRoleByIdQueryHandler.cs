@@ -2,7 +2,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Roles.Common;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 
 namespace ECommerceAuction.UserService.Application.Features.Roles.GetRoleById;
 
