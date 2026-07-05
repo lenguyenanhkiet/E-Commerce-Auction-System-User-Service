@@ -14,14 +14,17 @@ public sealed class GetProfileQueryHandler
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserRepository _userRepository;
     private readonly IUserOAuthRepository _userOAuthRepository;
+    private readonly IIdentityVerificationRepository _identityVerificationRepository;
     public GetProfileQueryHandler(
         ICurrentUserService currentUserService,
         IUserRepository userRepository,
-        IUserOAuthRepository userOAuthRepository)
+        IUserOAuthRepository userOAuthRepository,
+        IIdentityVerificationRepository identityVerificationRepository)
     {
         _currentUserService = currentUserService;
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
+        _identityVerificationRepository = identityVerificationRepository;
     }
 
     public async Task<UserProfileResponse> Handle(
@@ -44,13 +47,14 @@ public sealed class GetProfileQueryHandler
         }
         var roles = await _userOAuthRepository.GetActiveRoleCodesAsync(user.Id, cancellationToken);
         var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(user.Id, cancellationToken);
+        var identityVerification = await _identityVerificationRepository.GetByUserIdAsync(user.Id, cancellationToken);
 
         return new UserProfileResponse(
             Id: user.Id,
             FullName: user.FullName,
             Email: user.Email,
             PhoneNumber: user.PhoneNumber,
-            IdentityNumber: user.IdentityNumber,
+            IdentityNumber: identityVerification?.IdentityNumber,
             Gender: user.Gender,
             Address: user.Address,
             DateOfBirth: user.DateOfBirth,
