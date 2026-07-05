@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
+using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Repositories;
@@ -35,7 +36,8 @@ public static class DependencyInjection
         services.AddScoped<IUserPasswordHistoryRepository, UserPasswordHistoryRepository>();
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
         services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
-
+        services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
+        services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
         return services;
     }
 }
