@@ -123,7 +123,15 @@ public class User : AuditableEntity, IAggregateRoot
     /// </summary>
     public void UpdateProfile(string phoneNumber, string address)
     {
-        PhoneNumber = phoneNumber.Trim();
+        var newPhoneNumber = phoneNumber.Trim();
+
+        // Changing to a different phone number invalidates the previous OTP verification.
+        if (!string.Equals(PhoneNumber, newPhoneNumber, StringComparison.Ordinal))
+        {
+            IsPhoneConfirmed = false;
+        }
+
+        PhoneNumber = newPhoneNumber;
         Address = address.Trim();
         UpdatedAt = DateTime.UtcNow;
     }
@@ -138,7 +146,11 @@ public class User : AuditableEntity, IAggregateRoot
         IsEmailConfirmed = true;
         UpdatedAt = DateTime.UtcNow;
     }
-
+    public void ConfirmPhoneChange()
+    {
+        IsPhoneConfirmed = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
     /// <summary>
     /// Adds a role assignment if the role is not already assigned.
