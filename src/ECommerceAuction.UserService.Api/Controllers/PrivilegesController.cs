@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Api.Authorization;
 using ECommerceAuction.UserService.Application.Features.Roles.GetPrivileges;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

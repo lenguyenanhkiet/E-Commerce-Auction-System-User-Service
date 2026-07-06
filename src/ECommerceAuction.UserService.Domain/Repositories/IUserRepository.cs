@@ -1,3 +1,4 @@
+using ECommerceAuction.UserService.Domain.Entities.Reputation;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 
 namespace ECommerceAuction.UserService.Domain.Repositories;

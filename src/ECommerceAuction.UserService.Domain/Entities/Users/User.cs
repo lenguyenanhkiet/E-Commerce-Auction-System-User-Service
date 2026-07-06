@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Entities.Reputation;
 
 namespace ECommerceAuction.UserService.Domain.Entities.Users;
 
@@ -9,7 +10,6 @@ public class User : AuditableEntity, IAggregateRoot
 {
     public string Email { get; private set; } = string.Empty;
     public string PhoneNumber { get; private set; } = string.Empty;
-    public string? IdentityNumber { get; private set; }
     public string FullName { get; private set; } = string.Empty;
     public string? Gender { get; private set; }
     public DateOnly? DateOfBirth { get; private set; }
@@ -123,7 +123,15 @@ public class User : AuditableEntity, IAggregateRoot
     /// </summary>
     public void UpdateProfile(string phoneNumber, string address)
     {
-        PhoneNumber = phoneNumber.Trim();
+        var newPhoneNumber = phoneNumber.Trim();
+
+        // Changing to a different phone number invalidates the previous OTP verification.
+        if (!string.Equals(PhoneNumber, newPhoneNumber, StringComparison.Ordinal))
+        {
+            IsPhoneConfirmed = false;
+        }
+
+        PhoneNumber = newPhoneNumber;
         Address = address.Trim();
         UpdatedAt = DateTime.UtcNow;
     }
@@ -138,7 +146,11 @@ public class User : AuditableEntity, IAggregateRoot
         IsEmailConfirmed = true;
         UpdatedAt = DateTime.UtcNow;
     }
-
+    public void ConfirmPhoneChange()
+    {
+        IsPhoneConfirmed = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
 
     /// <summary>
     /// Adds a role assignment if the role is not already assigned.

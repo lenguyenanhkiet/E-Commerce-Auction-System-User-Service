@@ -34,15 +34,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique()
             .HasFilter("[phone_number] IS NOT NULL");
 
-        builder.Property(x => x.IdentityNumber)
-            .HasColumnName("identity_number")
-            .HasColumnType("nvarchar(50)")
-            .IsRequired(false);
-
-        builder.HasIndex(x => x.IdentityNumber)
-            .IsUnique()
-            .HasFilter("[identity_number] IS NOT NULL");
-
         builder.Property(x => x.FullName)
             .HasColumnName("full_name")
             .HasColumnType("nvarchar(255)")

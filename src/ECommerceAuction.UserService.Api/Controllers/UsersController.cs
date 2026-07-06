@@ -1,6 +1,8 @@
 //Enter the necessary namespaces
 using ECommerceAuction.UserService.Application.Features.Users.GetProfile;
+using ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp;
 using ECommerceAuction.UserService.Application.Features.Users.UpdateProfile;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -82,7 +84,34 @@ public class UsersController : ControllerBase
             }
         });
     }
+
+    /// <summary>
+    /// POST /api/v1/users/me/phone/request-otp
+    /// Sends an SMS OTP to the authenticated user's phone number to verify it.
+    /// </summary>
+    [HttpPost("me/phone/request-otp")]
+    public async Task<IActionResult> RequestPhoneOtp(CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new RequestPhoneOtpCommand(), cancellationToken);
+        return Ok(new { message = "OTP sent via SMS.", data = result });
+    }
+
+    /// <summary>
+    /// POST /api/v1/users/me/phone/verify-otp
+    /// Verifies the OTP code sent to the authenticated user's phone number.
+    /// </summary>
+    [HttpPost("me/phone/verify-otp")]
+    public async Task<IActionResult> VerifyPhoneOtp(
+    [FromBody] VerifyPhoneOtpRequest request, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new VerifyPhoneOtpCommand(request.OtpCode), cancellationToken);
+        return Ok(new { message = "Phone number verified successfully.", data = result });
+    }
+    public sealed record VerifyPhoneOtpRequest(string OtpCode);
+
 }
+
+
 
 /// <summary>
 ///Request body for PUT /api/v1/users/me - Request body for the endpoint to update records

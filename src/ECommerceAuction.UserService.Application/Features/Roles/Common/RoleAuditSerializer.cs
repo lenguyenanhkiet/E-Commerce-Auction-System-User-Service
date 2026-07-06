@@ -1,5 +1,5 @@
 using System.Text.Json;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 
 namespace ECommerceAuction.UserService.Application.Features.Roles.Common;
 

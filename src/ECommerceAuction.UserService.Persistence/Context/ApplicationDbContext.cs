@@ -1,5 +1,9 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
+using ECommerceAuction.UserService.Domain.Entities.Reputation;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Entities.Sellers;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +26,9 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<UserAuditLog> UserAuditLogs => Set<UserAuditLog>();
     public DbSet<PasswordResetToken> PasswordResetTokens => Set<PasswordResetToken>();
     public DbSet<UserPasswordHistory> UserPasswordHistories => Set<UserPasswordHistory>();
+    public DbSet<SellerProfile> SellerProfiles => Set<SellerProfile>();
+    public DbSet<SellerApplicationHistory> SellerApplicationHistories => Set<SellerApplicationHistory>();
+    public DbSet<IdentityVerification> IdentityVerifications => Set<IdentityVerification>();
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {

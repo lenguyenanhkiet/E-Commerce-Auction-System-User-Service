@@ -10,10 +10,14 @@ public sealed class GetUsersQueryHandler
     : IQueryHandler<GetUsersQuery, PagedUsersResponse>
 {
     private readonly IUserRepository _userRepository;
+    private readonly IIdentityVerificationRepository _identityVerificationRepository;
 
-    public GetUsersQueryHandler(IUserRepository userRepository)
+    public GetUsersQueryHandler(
+        IUserRepository userRepository,
+        IIdentityVerificationRepository identityVerificationRepository)
     {
         _userRepository = userRepository;
+        _identityVerificationRepository = identityVerificationRepository;
     }
 
     public async Task<PagedUsersResponse> Handle(
@@ -40,13 +44,17 @@ public sealed class GetUsersQueryHandler
             pageSize: request.PageSize,
             cancellationToken: cancellationToken);
 
+        var userIds = result.Items.Select(user => user.Id).ToList();
+        var identityVerifications = await _identityVerificationRepository.GetByUserIdsAsync(userIds, cancellationToken);
+        var identityNumbersByUserId = identityVerifications.ToDictionary(iv => iv.UserId, iv => iv.IdentityNumber);
+
         var items = result.Items
             .Select(user => new AdminUserItem(
                 Id: user.Id,
                 FullName: user.FullName,
                 Email: user.Email,
                 PhoneNumber: user.PhoneNumber,
-                IdentityNumber: user.IdentityNumber,
+                IdentityNumber: identityNumbersByUserId.GetValueOrDefault(user.Id),
                 Gender: user.Gender,
                 Address: user.Address,
                 DateOfBirth: user.DateOfBirth))
