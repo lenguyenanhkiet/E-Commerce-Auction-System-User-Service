@@ -17,6 +17,7 @@ public class User : AuditableEntity, IAggregateRoot
 
     public string PasswordHash { get; private set; } = string.Empty;
     public bool MustChangePassword { get; private set; }
+    public DateTime? PasswordChangedAt { get; private set; }
 
     public string Status { get; private set; } = UserStatus.Active;
     public bool IsEmailConfirmed { get; private set; }
@@ -50,6 +51,8 @@ public class User : AuditableEntity, IAggregateRoot
         FailedLoginAttempts = 0;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
+        // The account is created with a password, so its age starts now.
+        PasswordChangedAt = CreatedAt;
     }
 
     /// <summary>
@@ -142,14 +145,14 @@ public class User : AuditableEntity, IAggregateRoot
     /// <summary>
     /// Records a failed local login attempt and temporarily locks the account after repeated failures.
     /// </summary>
-    public void RecordFailedLogin()
+    public void RecordFailedLogin(int maxAttempts = 5, int lockoutMinutes = 15)
     {
         FailedLoginAttempts++;
 
-        if (FailedLoginAttempts >= 5)
+        if (FailedLoginAttempts >= maxAttempts)
         {
             Status = UserStatus.Locked;
-            StatusExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            StatusExpiresAt = DateTime.UtcNow.AddMinutes(lockoutMinutes);
         }
 
         UpdatedAt = DateTime.UtcNow;
@@ -275,6 +278,7 @@ public class User : AuditableEntity, IAggregateRoot
         // ECA-6 OAuth2 Google: prevent account takeover when someone pre-created this email with an arbitrary password.
         PasswordHash = string.Empty;
         MustChangePassword = false;
+        PasswordChangedAt = null;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -285,6 +289,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         PasswordHash = newPasswordHash;
         MustChangePassword = false;
+        PasswordChangedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
     public void FlagMustChangePassword()

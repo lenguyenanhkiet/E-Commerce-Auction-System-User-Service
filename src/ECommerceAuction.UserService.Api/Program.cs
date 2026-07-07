@@ -60,6 +60,13 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 //Register services from the Infrastructure layer (authentication, cache, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+//Bind account security policy (lockout + password expiry) and start its background sweepers
+builder.Services.Configure<ECommerceAuction.UserService.Application.Common.Options.AccountPolicyOptions>(
+    builder.Configuration.GetSection(
+        ECommerceAuction.UserService.Application.Common.Options.AccountPolicyOptions.SectionName));
+builder.Services.AddHostedService<ECommerceAuction.UserService.Api.BackgroundJobs.AccountUnlockSweeperService>();
+builder.Services.AddHostedService<ECommerceAuction.UserService.Api.BackgroundJobs.PasswordExpirySweeperService>();
 builder.Services.AddAuthorization();
 builder.Services.AddSingleton<IAuthorizationPolicyProvider, PrivilegePolicyProvider>();
 builder.Services.AddScoped<IAuthorizationHandler, PrivilegeAuthorizationHandler>();

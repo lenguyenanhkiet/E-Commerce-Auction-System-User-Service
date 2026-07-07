@@ -1,9 +1,11 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Application.Common.Options;
 using ECommerceAuction.UserService.Application.Features.Auth.Common;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using Microsoft.Extensions.Options;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.CheckLocalAccount;
 
@@ -20,6 +22,7 @@ public sealed class CheckLocalAccountCommandHandler
     private readonly IJwtTokenService _jwtTokenService;
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly AccountPolicyOptions _accountPolicy;
 
     public CheckLocalAccountCommandHandler(
         IUserRepository userRepository,
@@ -27,7 +30,8 @@ public sealed class CheckLocalAccountCommandHandler
         IPasswordHasher passwordHasher,
         IJwtTokenService jwtTokenService,
         IRefreshTokenService refreshTokenService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IOptions<AccountPolicyOptions> accountPolicy)
     {
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
@@ -35,6 +39,7 @@ public sealed class CheckLocalAccountCommandHandler
         _jwtTokenService = jwtTokenService;
         _refreshTokenService = refreshTokenService;
         _unitOfWork = unitOfWork;
+        _accountPolicy = accountPolicy.Value;
     }
 
     /// <summary>
@@ -73,7 +78,9 @@ public sealed class CheckLocalAccountCommandHandler
 
         if (!isPasswordValid)
         {
-            user.RecordFailedLogin();
+            user.RecordFailedLogin(
+                _accountPolicy.MaxFailedLoginAttempts,
+                _accountPolicy.LockoutMinutes);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 
@@ -131,6 +138,7 @@ public sealed class CheckLocalAccountCommandHandler
         return new AuthResponse(
             accessToken.Value,
             RefreshToken: refreshToken,
-            ExpiresAt: accessToken.ExpiresAt);
+            ExpiresAt: accessToken.ExpiresAt,
+            MustChangePassword: user.MustChangePassword);
     }
 }

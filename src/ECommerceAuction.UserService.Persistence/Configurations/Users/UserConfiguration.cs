@@ -114,5 +114,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("bit")
             .HasDefaultValue(false)
             .IsRequired();
+
+        builder.Property(x => x.PasswordChangedAt)
+            .HasColumnName("password_changed_at")
+            .HasColumnType("datetime2(3)")
+            .IsRequired(false);
     }
 }
