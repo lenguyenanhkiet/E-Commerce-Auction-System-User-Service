@@ -4,6 +4,8 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.ChangeUserPassword;
 
@@ -20,19 +22,22 @@ public sealed class ChangeUserPasswordCommandHandler
     private readonly IPasswordHasher _passwordHasher;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public ChangeUserPasswordCommandHandler(
         IUserRepository userRepository,
         IUserPasswordHistoryRepository passwordHistoryRepository,
         IPasswordHasher passwordHasher,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _userRepository = userRepository;
         _passwordHistoryRepository = passwordHistoryRepository;
         _passwordHasher = passwordHasher;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<ChangeUserPasswordResponse> Handle(
@@ -74,6 +79,18 @@ public sealed class ChangeUserPasswordCommandHandler
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _publishEndpoint.Publish(
+            new UserPasswordChangedEvent
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                ChangedByAdmin = true,
+                ChangedAt = changedAt,
+                SourceService = "UserService"
+            },
+            cancellationToken);
 
         return new ChangeUserPasswordResponse(user.Id, changedAt);
     }

@@ -4,6 +4,8 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.DeleteUser;
 
@@ -15,15 +17,18 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
     private readonly IUserRepository _userRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public DeleteUserCommandHandler(
         IUserRepository userRepository,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _userRepository = userRepository;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task Handle(
@@ -54,5 +59,16 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await _publishEndpoint.Publish(
+            new UserDeletedEvent
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                DeletedAt = user.DeletedAt,
+                SourceService = "UserService"
+            },
+            cancellationToken);
     }
 }

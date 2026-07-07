@@ -15,6 +15,7 @@ public sealed class UpdateUserCommandHandlerTests
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly ICurrentUserService _currentUser = Fakes.CurrentUser(Guid.NewGuid());
     private readonly IUnitOfWork _unitOfWork = Fakes.UnitOfWork();
+    private readonly MassTransit.IPublishEndpoint _publish = Fakes.PublishEndpoint();
     private readonly IRoleManagementRepository _roleRepository;
     private readonly IReadOnlyDictionary<string, Role> _rolesByCode;
     private readonly List<UserAuditLog> _audits = new();
@@ -29,7 +30,7 @@ public sealed class UpdateUserCommandHandlerTests
     }
 
     private UpdateUserCommandHandler CreateSut() =>
-        new(_userRepository, _roleRepository, _currentUser, _unitOfWork);
+        new(_userRepository, _roleRepository, _currentUser, _unitOfWork, _publish);
 
     private User CreateUserWithRoles(params string[] roleCodes)
     {

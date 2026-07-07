@@ -17,9 +17,10 @@ public sealed class ChangeUserPasswordCommandHandlerTests
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
     private readonly ICurrentUserService _currentUser = Fakes.CurrentUser(Guid.NewGuid());
     private readonly IUnitOfWork _unitOfWork = Fakes.UnitOfWork();
+    private readonly MassTransit.IPublishEndpoint _publish = Fakes.PublishEndpoint();
 
     private ChangeUserPasswordCommandHandler CreateSut() =>
-        new(_userRepository, _historyRepository, _passwordHasher, _currentUser, _unitOfWork);
+        new(_userRepository, _historyRepository, _passwordHasher, _currentUser, _unitOfWork, _publish);
 
     private static User CreateUser() =>
         User.CreateByAdmin("user@test.local", "OLDHASH", "Test User", "0900000000", null, null, null);
@@ -77,7 +78,7 @@ public sealed class ChangeUserPasswordCommandHandlerTests
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.UserId.Returns((Guid?)null);
         var sut = new ChangeUserPasswordCommandHandler(
-            _userRepository, _historyRepository, _passwordHasher, currentUser, _unitOfWork);
+            _userRepository, _historyRepository, _passwordHasher, currentUser, _unitOfWork, _publish);
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
             sut.Handle(new ChangeUserPasswordCommand(Guid.NewGuid(), "NewPass@123"), CancellationToken.None));

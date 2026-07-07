@@ -6,6 +6,8 @@ using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.UpdateUser;
 
@@ -20,17 +22,20 @@ public sealed class UpdateUserCommandHandler
     private readonly IRoleManagementRepository _roleRepository;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public UpdateUserCommandHandler(
         IUserRepository userRepository,
         IRoleManagementRepository roleRepository,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<UpdateUserResponse> Handle(
@@ -84,11 +89,43 @@ public sealed class UpdateUserCommandHandler
             cancellationToken);
 
         // A null RoleCodes means "leave roles unchanged"; an explicit list reconciles them.
-        var finalRoleCodes = request.RoleCodes is null
-            ? await GetActiveRoleCodesAsync(user, cancellationToken)
-            : await ReconcileRolesAsync(user, request.RoleCodes, actorUserId, cancellationToken);
+        IReadOnlyList<string> finalRoleCodes;
+        var rolesChanged = false;
+        if (request.RoleCodes is null)
+        {
+            finalRoleCodes = await GetActiveRoleCodesAsync(user, cancellationToken);
+        }
+        else
+        {
+            (finalRoleCodes, rolesChanged) =
+                await ReconcileRolesAsync(user, request.RoleCodes, actorUserId, cancellationToken);
+        }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Publish integration events only after the change is durably persisted.
+        await _publishEndpoint.Publish(
+            new UserUpdatedEvent
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                SourceService = "UserService"
+            },
+            cancellationToken);
+
+        if (rolesChanged)
+        {
+            await _publishEndpoint.Publish(
+                new UserRoleAssignedEvent
+                {
+                    UserId = user.Id,
+                    Email = user.Email,
+                    Roles = finalRoleCodes,
+                    SourceService = "UserService"
+                },
+                cancellationToken);
+        }
 
         return new UpdateUserResponse(user.Id, IsUpdated: true, Roles: finalRoleCodes);
     }
@@ -97,7 +134,7 @@ public sealed class UpdateUserCommandHandler
     /// Reconciles the user's active roles to exactly match the requested codes, revoking and
     /// assigning as needed, and records a role-change audit entry when anything changes.
     /// </summary>
-    private async Task<IReadOnlyList<string>> ReconcileRolesAsync(
+    private async Task<(IReadOnlyList<string> Codes, bool Changed)> ReconcileRolesAsync(
         User user,
         IReadOnlyList<string> requestedRoleCodes,
         Guid actorUserId,
@@ -149,7 +186,7 @@ public sealed class UpdateUserCommandHandler
                 cancellationToken);
         }
 
-        return newRoleCodes;
+        return (newRoleCodes, rolesChanged);
     }
 
     /// <summary>

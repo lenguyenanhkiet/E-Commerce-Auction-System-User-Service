@@ -16,6 +16,7 @@ public sealed class CreateUserCommandHandlerTests
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
     private readonly ICurrentUserService _currentUser = Fakes.CurrentUser(Guid.NewGuid());
     private readonly IUnitOfWork _unitOfWork = Fakes.UnitOfWork();
+    private readonly MassTransit.IPublishEndpoint _publish = Fakes.PublishEndpoint();
     private readonly IRoleManagementRepository _roleRepository;
 
     public CreateUserCommandHandlerTests()
@@ -27,7 +28,7 @@ public sealed class CreateUserCommandHandlerTests
     }
 
     private CreateUserCommandHandler CreateSut() =>
-        new(_userRepository, _roleRepository, _passwordHasher, _currentUser, _unitOfWork);
+        new(_userRepository, _roleRepository, _passwordHasher, _currentUser, _unitOfWork, _publish);
 
     private static CreateUserCommand Command(IReadOnlyList<string>? roleCodes = null) =>
         new("New@Test.Local", "0901234567", "New User", "Secret@123", "Female",
@@ -132,7 +133,7 @@ public sealed class CreateUserCommandHandlerTests
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.UserId.Returns((Guid?)null);
         var sut = new CreateUserCommandHandler(
-            _userRepository, _roleRepository, _passwordHasher, currentUser, _unitOfWork);
+            _userRepository, _roleRepository, _passwordHasher, currentUser, _unitOfWork, _publish);
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
             sut.Handle(Command(), CancellationToken.None));

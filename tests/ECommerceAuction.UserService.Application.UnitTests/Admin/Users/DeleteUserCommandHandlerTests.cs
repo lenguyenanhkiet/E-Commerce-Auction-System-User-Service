@@ -14,8 +14,10 @@ public sealed class DeleteUserCommandHandlerTests
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly ICurrentUserService _currentUser = Fakes.CurrentUser(Guid.NewGuid());
     private readonly IUnitOfWork _unitOfWork = Fakes.UnitOfWork();
+    private readonly MassTransit.IPublishEndpoint _publish = Fakes.PublishEndpoint();
 
-    private DeleteUserCommandHandler CreateSut() => new(_userRepository, _currentUser, _unitOfWork);
+    private DeleteUserCommandHandler CreateSut() =>
+        new(_userRepository, _currentUser, _unitOfWork, _publish);
 
     private static User CreateUser() =>
         User.CreateByAdmin("victim@test.local", "HASH", "Victim", "0900000000", null, null, null);
@@ -53,7 +55,7 @@ public sealed class DeleteUserCommandHandlerTests
         var currentUser = Fakes.CurrentUser(user.Id);
         _userRepository.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
 
-        var sut = new DeleteUserCommandHandler(_userRepository, currentUser, _unitOfWork);
+        var sut = new DeleteUserCommandHandler(_userRepository, currentUser, _unitOfWork, _publish);
 
         await Assert.ThrowsAsync<BusinessRuleException>(() =>
             sut.Handle(new DeleteUserCommand(user.Id), CancellationToken.None));
@@ -65,7 +67,7 @@ public sealed class DeleteUserCommandHandlerTests
     {
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.UserId.Returns((Guid?)null);
-        var sut = new DeleteUserCommandHandler(_userRepository, currentUser, _unitOfWork);
+        var sut = new DeleteUserCommandHandler(_userRepository, currentUser, _unitOfWork, _publish);
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
             sut.Handle(new DeleteUserCommand(Guid.NewGuid()), CancellationToken.None));

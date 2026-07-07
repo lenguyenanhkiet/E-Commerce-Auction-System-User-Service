@@ -1,6 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
+using MassTransit;
 using NSubstitute;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Common;
@@ -53,4 +54,9 @@ internal static class Fakes
         unitOfWork.SaveChangesAsync(Arg.Any<CancellationToken>()).Returns(1);
         return unitOfWork;
     }
+
+    /// <summary>
+    /// Builds a no-op MassTransit publish endpoint for handlers that emit integration events.
+    /// </summary>
+    public static IPublishEndpoint PublishEndpoint() => Substitute.For<IPublishEndpoint>();
 }

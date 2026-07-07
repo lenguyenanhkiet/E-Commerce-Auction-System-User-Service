@@ -7,6 +7,8 @@ using ECommerceAuction.UserService.Domain.Entities.Reputation;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.CreateUser;
 
@@ -21,19 +23,22 @@ public sealed class CreateUserCommandHandler
     private readonly IPasswordHasher _passwordHasher;
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public CreateUserCommandHandler(
         IUserRepository userRepository,
         IRoleManagementRepository roleRepository,
         IPasswordHasher passwordHasher,
         ICurrentUserService currentUserService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
         _passwordHasher = passwordHasher;
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<CreateUserResponse> Handle(
@@ -94,6 +99,17 @@ public sealed class CreateUserCommandHandler
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+        // Announce the new account so other services (e.g. Notification) can react.
+        await _publishEndpoint.Publish(
+            new UserRegisteredEvent
+            {
+                UserId = user.Id,
+                Email = user.Email,
+                FullName = user.FullName,
+                SourceService = "UserService"
+            },
+            cancellationToken);
 
         return new CreateUserResponse(
             Id: user.Id,

@@ -38,6 +38,7 @@ public static class DependencyInjection
         services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
         services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
         services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         return services;
     }
 }
