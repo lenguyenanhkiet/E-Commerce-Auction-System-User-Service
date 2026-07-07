@@ -1,3 +1,4 @@
+using ECommerceAuction.UserService.Domain.Entities.Reputation;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Persistence.Context;
@@ -99,6 +100,8 @@ public class UserRepository : IUserRepository
         CancellationToken cancellationToken = default)
     {
         return await _context.Users
+            .Include(user => user.UserRoles)
+            .Include(user => user.ReputationProfile)
             .FirstOrDefaultAsync(
                 user =>
                     user.Id == userId &&
@@ -192,6 +195,7 @@ public class UserRepository : IUserRepository
 
         return (users, totalCount);
     }
+
 
     /// <summary>
     /// Retrieves a user by email address.

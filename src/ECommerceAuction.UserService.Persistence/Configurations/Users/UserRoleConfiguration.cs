@@ -17,8 +17,8 @@ public sealed class UserRoleConfiguration : IEntityTypeConfiguration<UserRole>
 
         builder.Property(userRole => userRole.Id)
             .HasColumnName("id")
-            .HasColumnType("uniqueidentifier");
-
+            .HasColumnType("uniqueidentifier")
+            .ValueGeneratedNever();
         builder.Property(userRole => userRole.UserId)
             .HasColumnName("user_id")
             .HasColumnType("uniqueidentifier")

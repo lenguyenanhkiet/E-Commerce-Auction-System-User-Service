@@ -1,4 +1,4 @@
-namespace ECommerceAuction.UserService.Domain.Entities.Users;
+namespace ECommerceAuction.UserService.Domain.Entities.Roles;
 
 /// <summary>
 /// Represents a fine-grained action that can be granted to an RBAC role.

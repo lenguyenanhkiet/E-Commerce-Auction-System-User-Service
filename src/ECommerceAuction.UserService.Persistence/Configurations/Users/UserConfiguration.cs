@@ -34,15 +34,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsUnique()
             .HasFilter("[phone_number] IS NOT NULL");
 
-        builder.Property(x => x.IdentityNumber)
-            .HasColumnName("identity_number")
-            .HasColumnType("nvarchar(50)")
-            .IsRequired(false);
-
-        builder.HasIndex(x => x.IdentityNumber)
-            .IsUnique()
-            .HasFilter("[identity_number] IS NOT NULL");
-
         builder.Property(x => x.FullName)
             .HasColumnName("full_name")
             .HasColumnType("nvarchar(255)")
@@ -68,16 +59,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("nvarchar(255)")
             .IsRequired();
 
-        builder.Property(x => x.PasswordChangedAt)
-            .HasColumnName("password_changed_at")
-            .HasColumnType("datetime2(3)")
-            .IsRequired(false);
-
         builder.Property(x => x.Status)
             .HasColumnName("status")
             .HasColumnType("nvarchar(30)")
             .HasDefaultValue("ACTIVE")
             .IsRequired();
+
+        builder.Property(x => x.StatusExpiresAt)
+            .HasColumnName("status_expires_at")
+            .HasColumnType("datetime2")
+            .IsRequired(false);
 
         builder.Property(x => x.IsEmailConfirmed)
             .HasColumnName("email_verified")
@@ -97,11 +88,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(0)
             .IsRequired();
 
-        builder.Property(x => x.LockedUntil)
-            .HasColumnName("locked_until")
-            .HasColumnType("datetime2(3)")
-            .IsRequired(false);
-
+       
         builder.Property(x => x.LastLoginAt)
             .HasColumnName("last_login_at")
             .HasColumnType("datetime2(3)")
@@ -121,5 +108,11 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("deleted_at")
             .HasColumnType("datetime2(3)")
             .IsRequired(false);
+
+        builder.Property(x => x.MustChangePassword)
+            .HasColumnName("must_change_password")
+            .HasColumnType("bit")
+            .HasDefaultValue(false)
+            .IsRequired();
     }
 }

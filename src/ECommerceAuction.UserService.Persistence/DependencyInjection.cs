@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
+using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Repositories;
@@ -22,16 +23,21 @@ public static class DependencyInjection
     {
         services.AddDbContext<ApplicationDbContext>(options =>
         {
-
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"));
-
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(30),
+                    errorNumbersToAdd: null));
         });
 
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserPasswordHistoryRepository, UserPasswordHistoryRepository>();
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
         services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
-
+        services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
+        services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
         return services;
     }
 }

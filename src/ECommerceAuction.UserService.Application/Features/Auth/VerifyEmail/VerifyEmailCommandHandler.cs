@@ -2,8 +2,12 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
+using ECommerceAuction.UserService.Domain.Entities.Reputation;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+
+using MassTransit;
+using Nexus.Shared.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 
@@ -17,17 +21,19 @@ public sealed class VerifyEmailCommandHandler
     private readonly IUserRepository _userRepository;
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IUnitOfWork _unitOfWork;
-
+    private readonly IPublishEndpoint _publishEndpoint;
     public VerifyEmailCommandHandler(
         ICacheService cacheService,
         IUserRepository userRepository,
         IUserOAuthRepository userOAuthRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IPublishEndpoint publishEndpoint)
     {
         _cacheService = cacheService;
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
         _unitOfWork = unitOfWork;
+        _publishEndpoint = publishEndpoint;
     }
 
     /// <summary>
@@ -67,7 +73,7 @@ public sealed class VerifyEmailCommandHandler
             await RemovePendingRegistrationAsync(pendingUser, cancellationToken);
             throw new InvalidOperationException("The phone number already exists.");
         }
-
+        // Create new account
         var user = new User(
             pendingUser.Id,
             pendingUser.Email,
@@ -75,17 +81,13 @@ public sealed class VerifyEmailCommandHandler
             pendingUser.FullName,
             pendingUser.PhoneNumber);
 
+        var now = DateTime.UtcNow;
         // A successfully verified email gives the user the first reputation point.
         var reputationProfile = ReputationProfile.CreateForVerifiedEmail(user.Id);
 
-<<<<<<< HEAD
         // SQL user is created only after the email OTP is correct.
-=======
-        //Pass - VerifyEmail: SQL user is created only after the email OTP is correct.
->>>>>>> develop
         await _userRepository.AddAsync(user, cancellationToken);
         await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);
-
         // Every verified local account receives the default BUYER role for future token claims.
         await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
 
@@ -99,7 +101,14 @@ public sealed class VerifyEmailCommandHandler
             cancellationToken);
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+        await _publishEndpoint.Publish(new UserRegisteredEvent
+        {
+            UserId = user.Id,
+            Email = user.Email,
+            FullName = user.FullName,
+            SourceService = "UserService",
+            CorrelationId = pendingUser.CorrelationId
+        }, cancellationToken);
         await RemovePendingRegistrationAsync(pendingUser, cancellationToken);
 
         return user.Id;

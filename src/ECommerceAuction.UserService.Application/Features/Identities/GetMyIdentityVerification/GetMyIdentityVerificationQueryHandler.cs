@@ -1,0 +1,33 @@
+﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Domain.Repositories;
+using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace ECommerceAuction.UserService.Application.Features.Identities.GetMyIdentityVerification
+{
+    public sealed class GetMyIdentityVerificationQueryHandler
+    : IQueryHandler<GetMyIdentityVerificationQuery, IdentityVerificationResponse?>
+    {
+        private readonly IIdentityVerificationRepository _identityVerificationRepository;
+        public GetMyIdentityVerificationQueryHandler(IIdentityVerificationRepository identityVerificationRepository)
+        {
+            _identityVerificationRepository = identityVerificationRepository;
+        }
+
+        public async Task<IdentityVerificationResponse?> Handle(GetMyIdentityVerificationQuery request, CancellationToken cancellationToken)
+        {
+            var verification = await _identityVerificationRepository.GetByUserIdAsync(request.UserId, cancellationToken);
+
+            return verification is null
+            ? null
+            : new IdentityVerificationResponse(
+                verification.Id,
+                verification.Status,
+                verification.ConfidenceScore,
+                verification.RejectionReason,
+                verification.SubmittedAt,
+                verification.VerifiedAt);
+        }
+    }
+}

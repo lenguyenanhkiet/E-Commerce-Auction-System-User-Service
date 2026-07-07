@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Repositories;
 
@@ -12,13 +13,18 @@ public sealed class GetProfileQueryHandler
 {
     private readonly ICurrentUserService _currentUserService;
     private readonly IUserRepository _userRepository;
-
+    private readonly IUserOAuthRepository _userOAuthRepository;
+    private readonly IIdentityVerificationRepository _identityVerificationRepository;
     public GetProfileQueryHandler(
         ICurrentUserService currentUserService,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        IUserOAuthRepository userOAuthRepository,
+        IIdentityVerificationRepository identityVerificationRepository)
     {
         _currentUserService = currentUserService;
         _userRepository = userRepository;
+        _userOAuthRepository = userOAuthRepository;
+        _identityVerificationRepository = identityVerificationRepository;
     }
 
     public async Task<UserProfileResponse> Handle(
@@ -39,17 +45,25 @@ public sealed class GetProfileQueryHandler
             throw new KeyNotFoundException(
                 "User information not found.");
         }
+        var roles = await _userOAuthRepository.GetActiveRoleCodesAsync(user.Id, cancellationToken);
+        var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(user.Id, cancellationToken);
+        var identityVerification = await _identityVerificationRepository.GetByUserIdAsync(user.Id, cancellationToken);
 
         return new UserProfileResponse(
             Id: user.Id,
             FullName: user.FullName,
             Email: user.Email,
             PhoneNumber: user.PhoneNumber,
-            IdentityNumber: user.IdentityNumber,
+            IdentityNumber: identityVerification?.IdentityNumber,
             Gender: user.Gender,
             Address: user.Address,
             DateOfBirth: user.DateOfBirth,
             IsEmailConfirmed: user.IsEmailConfirmed,
-            IsPhoneConfirmed: user.IsPhoneConfirmed);
+            IsPhoneConfirmed: user.IsPhoneConfirmed,
+            Reputation: user.ReputationProfile is null
+        ? new UserReputationResponse(0, "Silver")
+        : new UserReputationResponse(user.ReputationProfile.Score, user.ReputationProfile.TrustLevel),
+            Roles: roles,
+            Privileges: privileges);
     }
 }

@@ -1,0 +1,63 @@
+stages:
+  - build_and_push
+  - deploy_staging
+
+variables:
+  DOCKER_IMAGE_NAME: "$DOCKER_HUB_USER/user-service:$CI_COMMIT_SHORT_SHA"
+  SERVICE_NAME_STAGING: "user-service-staging"
+  TARGET_PORT: "8080"
+
+# ---------- STAGE 1: BUILD & PUSH IMAGE ----------
+dockerize:
+  stage: build_and_push
+  script:
+    - echo "Building Docker image..."
+
+    - docker login -u $env:DOCKER_HUB_USER -p $env:DOCKER_HUB_PASS
+
+    - docker build -t $env:DOCKER_IMAGE_NAME .
+
+    - echo "Pushing image to Docker Hub..."
+    - docker push $env:DOCKER_IMAGE_NAME
+
+  only:
+    - staging
+
+# ---------- STAGE 2: DEPLOY TO AZURE ----------
+deploy_to_azure:
+  stage: deploy_staging
+  script:
+    - |
+      echo "Connecting to Azure..."
+
+      $azureCreds = $env:AZURE_CREDENTIALS | ConvertFrom-Json
+
+      az login `
+        --service-principal `
+        -u $azureCreds.clientId `
+        -p $azureCreds.clientSecret `
+        --tenant $azureCreds.tenantId
+
+      echo "Configuring private Docker Hub registry..."
+
+      az containerapp registry set `
+        --name $env:SERVICE_NAME_STAGING `
+        --resource-group $env:AZURE_RESOURCE_GROUP `
+        --server index.docker.io `
+        --username $env:DOCKER_HUB_USER `
+        --password $env:DOCKER_HUB_PASS
+
+      echo "Deploying image..."
+
+      az containerapp update `
+        --name $env:SERVICE_NAME_STAGING `
+        --resource-group $env:AZURE_RESOURCE_GROUP `
+        --image $env:DOCKER_IMAGE_NAME `
+        --set-env-vars `
+        "ConnectionStrings__DefaultConnection=$env:DB_CONNECTION_STRING" `
+        "RabbitMQ__Host=$env:RABBITMQ_HOST" `
+        "RabbitMQ__Username=$env:RABBITMQ_USERNAME" `
+        "RabbitMQ__Password=$env:RABBITMQ_PASSWORD" `
+        "RabbitMQ__VHost=$env:RABBITMQ_VHOST"
+  only:
+    - staging
