@@ -92,4 +92,9 @@ public static class UserAuditActions
     public const string RoleCreated = "ROLE_CREATED";
     public const string RoleUpdated = "ROLE_UPDATED";
     public const string RoleDeleted = "ROLE_DELETED";
+    public const string UserCreated = "USER_CREATED";
+    public const string UserUpdated = "USER_UPDATED";
+    public const string UserDeleted = "USER_DELETED";
+    public const string UserPasswordChangedByAdmin = "USER_PASSWORD_CHANGED_BY_ADMIN";
+    public const string UserRoleAssigned = "USER_ROLE_ASSIGNED";
 }

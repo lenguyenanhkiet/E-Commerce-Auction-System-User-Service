@@ -17,6 +17,7 @@ public class User : AuditableEntity, IAggregateRoot
 
     public string PasswordHash { get; private set; } = string.Empty;
     public bool MustChangePassword { get; private set; }
+    public DateTime? PasswordChangedAt { get; private set; }
 
     public string Status { get; private set; } = UserStatus.Active;
     public bool IsEmailConfirmed { get; private set; }
@@ -50,6 +51,8 @@ public class User : AuditableEntity, IAggregateRoot
         FailedLoginAttempts = 0;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
+        // The account is created with a password, so its age starts now.
+        PasswordChangedAt = CreatedAt;
     }
 
     /// <summary>
@@ -81,16 +84,75 @@ public class User : AuditableEntity, IAggregateRoot
     }
 
     /// <summary>
+    /// Creates a local account by an administrator with the full set of profile fields.
+    /// Admin-created accounts are trusted, so the email is marked as confirmed.
+    /// </summary>
+    public static User CreateByAdmin(
+        string email,
+        string passwordHash,
+        string fullName,
+        string phoneNumber,
+        string? gender,
+        DateOnly? dateOfBirth,
+        string? address)
+    {
+        var user = new User(email, passwordHash, fullName, phoneNumber)
+        {
+            Gender = string.IsNullOrWhiteSpace(gender) ? null : gender.Trim(),
+            DateOfBirth = dateOfBirth,
+            Address = string.IsNullOrWhiteSpace(address) ? null : address.Trim()
+        };
+
+        return user;
+    }
+
+    /// <summary>
+    /// Updates the editable profile fields on behalf of an administrator.
+    /// Email is handled separately through <see cref="ChangeEmailByAdmin"/>.
+    /// </summary>
+    public void AdminUpdate(
+        string fullName,
+        string? gender,
+        DateOnly? dateOfBirth,
+        string? address)
+    {
+        FullName = fullName.Trim();
+        Gender = string.IsNullOrWhiteSpace(gender) ? null : gender.Trim();
+        DateOfBirth = dateOfBirth;
+        Address = string.IsNullOrWhiteSpace(address) ? null : address.Trim();
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Applies an email change performed by an administrator directly, without a verification round-trip.
+    /// </summary>
+    public void ChangeEmailByAdmin(string newEmail)
+    {
+        Email = newEmail.Trim().ToLowerInvariant();
+        IsEmailConfirmed = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Marks the account as soft-deleted so it is excluded from active queries.
+    /// </summary>
+    public void SoftDelete()
+    {
+        DeletedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
     /// Records a failed local login attempt and temporarily locks the account after repeated failures.
     /// </summary>
-    public void RecordFailedLogin()
+    public void RecordFailedLogin(int maxAttempts = 5, int lockoutMinutes = 15)
     {
         FailedLoginAttempts++;
 
-        if (FailedLoginAttempts >= 5)
+        if (FailedLoginAttempts >= maxAttempts)
         {
             Status = UserStatus.Locked;
-            StatusExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            StatusExpiresAt = DateTime.UtcNow.AddMinutes(lockoutMinutes);
         }
 
         UpdatedAt = DateTime.UtcNow;
@@ -216,6 +278,7 @@ public class User : AuditableEntity, IAggregateRoot
         // ECA-6 OAuth2 Google: prevent account takeover when someone pre-created this email with an arbitrary password.
         PasswordHash = string.Empty;
         MustChangePassword = false;
+        PasswordChangedAt = null;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -226,6 +289,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         PasswordHash = newPasswordHash;
         MustChangePassword = false;
+        PasswordChangedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
     public void FlagMustChangePassword()

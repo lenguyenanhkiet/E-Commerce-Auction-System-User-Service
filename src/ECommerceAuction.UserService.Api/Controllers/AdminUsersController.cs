@@ -1,5 +1,12 @@
 //Enter the necessary namespaces
+using ECommerceAuction.UserService.Api.Authorization;
+using ECommerceAuction.UserService.Application.Features.Admin.Users.ChangeUserPassword;
+using ECommerceAuction.UserService.Application.Features.Admin.Users.CreateUser;
+using ECommerceAuction.UserService.Application.Features.Admin.Users.DeleteUser;
+using ECommerceAuction.UserService.Application.Features.Admin.Users.GetUserById;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.GetUsers;
+using ECommerceAuction.UserService.Application.Features.Admin.Users.UpdateUser;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -8,11 +15,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace ECommerceAuction.UserService.Api.Controllers;
 
 /// <summary>
-///Admin-only user management endpoints - User management endpoints for admin only
+///Admin user management endpoints, protected by fine-grained RBAC privileges.
 /// </summary>
 [ApiController] //Specify this as an API controller
 [Route("api/v1/admin/users")] //Defines a root route for all endpoints in the controller
-[Authorize(Roles = "ADMIN")] //Requires users to have the "Admin" role to access
+[Authorize] //Require an authenticated user; each endpoint enforces its own privilege
 public class AdminUsersController : ControllerBase
 {
     //ISender object from MediatR, used to send Queries and Commands
@@ -37,6 +44,7 @@ public class AdminUsersController : ControllerBase
     ///Default sort: FullName ASC (Default sort by FullName from A to Z)
     /// </summary>
     [HttpGet] //Identify this as the GET endpoint at route /api/v1/admin/users
+    [RequirePrivilege(PrivilegeCodes.UserList)]
     public async Task<IActionResult> GetUsers(
         [FromQuery] string? search, //Search keyword (null if not available)
         [FromQuery] string? gender, //Filter by gender (null if not filtered)
@@ -65,4 +73,123 @@ public class AdminUsersController : ControllerBase
             data = result
         });
     }
+
+    /// <summary>
+    /// GET /api/v1/admin/users/{id} — view the detail of a single user.
+    /// </summary>
+    [HttpGet("{id:guid}")]
+    [RequirePrivilege(PrivilegeCodes.UserView)]
+    public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(new GetUserByIdQuery(id), cancellationToken);
+
+        return Ok(new
+        {
+            message = "Retrieved user successfully.",
+            data = result
+        });
+    }
+
+    /// <summary>
+    /// POST /api/v1/admin/users — create a new user account.
+    /// </summary>
+    [HttpPost]
+    [RequirePrivilege(PrivilegeCodes.UserCreate)]
+    public async Task<IActionResult> CreateUser(
+        [FromBody] CreateUserCommand command,
+        CancellationToken cancellationToken)
+    {
+        var result = await _sender.Send(command, cancellationToken);
+
+        return CreatedAtAction(
+            nameof(GetUserById),
+            new { id = result.Id },
+            new
+            {
+                message = "User created successfully.",
+                data = result
+            });
+    }
+
+    /// <summary>
+    /// PUT /api/v1/admin/users/{id} — update an existing user's information.
+    /// </summary>
+    [HttpPut("{id:guid}")]
+    [RequirePrivilege(PrivilegeCodes.UserUpdate)]
+    public async Task<IActionResult> UpdateUser(
+        Guid id,
+        [FromBody] UpdateUserRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateUserCommand(
+            UserId: id,
+            FullName: request.FullName,
+            Email: request.Email,
+            Gender: request.Gender,
+            DateOfBirth: request.DateOfBirth,
+            Address: request.Address,
+            RoleCodes: request.RoleCodes);
+
+        var result = await _sender.Send(command, cancellationToken);
+
+        return Ok(new
+        {
+            message = "User updated successfully.",
+            data = result
+        });
+    }
+
+    /// <summary>
+    /// DELETE /api/v1/admin/users/{id} — soft-delete a user account.
+    /// </summary>
+    [HttpDelete("{id:guid}")]
+    [RequirePrivilege(PrivilegeCodes.UserDelete)]
+    public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
+    {
+        await _sender.Send(new DeleteUserCommand(id), cancellationToken);
+        return NoContent();
+    }
+
+    /// <summary>
+    /// POST /api/v1/admin/users/{id}/password — set a user's password.
+    /// </summary>
+    [HttpPost("{id:guid}/password")]
+    [RequirePrivilege(PrivilegeCodes.UserChangePassword)]
+    public async Task<IActionResult> ChangeUserPassword(
+        Guid id,
+        [FromBody] ChangeUserPasswordRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new ChangeUserPasswordCommand(
+            UserId: id,
+            NewPassword: request.NewPassword,
+            RequireChangeOnNextLogin: request.RequireChangeOnNextLogin);
+
+        var result = await _sender.Send(command, cancellationToken);
+
+        return Ok(new
+        {
+            message = "User password changed successfully.",
+            data = result
+        });
+    }
 }
+
+/// <summary>
+/// Request body for PUT /api/v1/admin/users/{id}.
+/// Omit <see cref="RoleCodes"/> (null) to leave roles unchanged; supply a list to reconcile them.
+/// </summary>
+public sealed record UpdateUserRequest(
+    string FullName,
+    string? Email,
+    string? Gender,
+    DateOnly? DateOfBirth,
+    string? Address,
+    IReadOnlyList<string>? RoleCodes = null);
+
+/// <summary>
+/// Request body for POST /api/v1/admin/users/{id}/password.
+/// </summary>
+public sealed record ChangeUserPasswordRequest(
+    string NewPassword,
+    bool RequireChangeOnNextLogin = true);

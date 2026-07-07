@@ -31,6 +31,15 @@ public class UserRole
             Status = UserRoleStatuses.Active
         };
     }
+
+    /// <summary>
+    /// Revokes an active assignment so the role no longer grants access.
+    /// </summary>
+    public void Revoke()
+    {
+        Status = UserRoleStatuses.Revoked;
+        RevokedAt = DateTime.UtcNow;
+    }
 }
 
 /// <summary>
