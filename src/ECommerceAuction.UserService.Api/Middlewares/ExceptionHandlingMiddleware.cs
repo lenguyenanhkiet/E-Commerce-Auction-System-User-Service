@@ -1,6 +1,6 @@
+﻿using FluentValidation;
 using System.Text.Json;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using FluentValidation;
 
 namespace ECommerceAuction.UserService.Api.Middlewares;
 
@@ -75,6 +75,7 @@ public sealed class ExceptionHandlingMiddleware
             await context.Response.WriteAsync(JsonSerializer.Serialize(response));
         }
     }
+
 
     private static string GetTitle(int statusCode)
     {

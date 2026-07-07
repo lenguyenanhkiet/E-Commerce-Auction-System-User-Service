@@ -116,6 +116,30 @@ public class User : AuditableEntity, IAggregateRoot
     }
 
     /// <summary>
+    /// Updates the user's editable profile fields.
+    /// Email change is intentionally NOT applied here — it must go through
+    /// the email-verification flow in Notification Service first.
+    /// </summary>
+    public void UpdateProfile(string phoneNumber, string address)
+    {
+        PhoneNumber = phoneNumber.Trim();
+        Address = address.Trim();
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Called after Notification Service confirms email ownership via the
+    /// verify-email-change link. Applies the new email value directly.
+    /// </summary>
+    public void ConfirmEmailChange(string newEmail)
+    {
+        Email = newEmail.Trim().ToLowerInvariant();
+        IsEmailConfirmed = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+
+    /// <summary>
     /// Adds a role assignment if the role is not already assigned.
     /// </summary>
     public void AssignRole(UserRole role)
@@ -178,6 +202,16 @@ public class User : AuditableEntity, IAggregateRoot
     {
         // ECA-6 OAuth2 Google: prevent account takeover when someone pre-created this email with an arbitrary password.
         PasswordHash = string.Empty;
+        PasswordChangedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Updates the user's password hash.
+    /// </summary>
+    public void ChangePassword(string newPasswordHash)
+    {
+        PasswordHash = newPasswordHash;
         PasswordChangedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
