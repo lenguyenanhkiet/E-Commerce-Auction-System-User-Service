@@ -1,7 +1,6 @@
-using ECommerceAuction.UserService.Api.Authorization;
+using ECommerceAuction.UserService.Application.Authorization;
 using ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.GetAuditLogById;
 using ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.GetAuditLogs;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,7 +29,7 @@ public sealed class AuditLogsController : ControllerBase
     /// action, actorUserId, targetUserId, entityType, fromUtc, toUtc, page (default 1), pageSize (default 20, max 100).
     /// </summary>
     [HttpGet]
-    [RequirePrivilege(PrivilegeCodes.AuditLogView)]
+    [Authorize(Policy = Permissions.AuditLogs.View)]
     public async Task<IActionResult> GetAuditLogs(
         [FromQuery] string? action,
         [FromQuery] Guid? actorUserId,
@@ -65,7 +64,7 @@ public sealed class AuditLogsController : ControllerBase
     /// GET /api/v1/admin/audit-logs/{id} — view a single audit log entry.
     /// </summary>
     [HttpGet("{id:guid}")]
-    [RequirePrivilege(PrivilegeCodes.AuditLogView)]
+    [Authorize(Policy = Permissions.AuditLogs.View)]
     public async Task<IActionResult> GetAuditLogById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetAuditLogByIdQuery(id), cancellationToken);

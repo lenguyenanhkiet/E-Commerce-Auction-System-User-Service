@@ -1,4 +1,5 @@
-﻿using ECommerceAuction.UserService.Application.Features.Admin.Sellers.ApproveSeller;
+﻿using ECommerceAuction.UserService.Application.Authorization;
+using ECommerceAuction.UserService.Application.Features.Admin.Sellers.ApproveSeller;
 using ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSellerApplicationById;
 using ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSellerApplications;
 using ECommerceAuction.UserService.Application.Features.Admin.Sellers.RejectSeller;
@@ -10,7 +11,7 @@ namespace ECommerceAuction.UserService.Api.Controllers
 {
     [ApiController]
     [Route("api/v1/admin/sellers")]
-    [Authorize(Roles = "ADMIN")]
+    [Authorize]
     public class AdminSellerController : ControllerBase
     {
         private readonly ISender _sender;
@@ -23,6 +24,7 @@ namespace ECommerceAuction.UserService.Api.Controllers
         /// GET /api/v1/admin/sellers — list applications, optionally filtered by status.
         /// </summary>
         [HttpGet]
+        [Authorize(Policy = Permissions.Sellers.ListApplications)]
         public async Task<IActionResult> GetSellerApplications(
         [FromQuery] string? status,
         [FromQuery] int page = 1,
@@ -42,6 +44,7 @@ namespace ECommerceAuction.UserService.Api.Controllers
         /// GET /api/v1/admin/sellers/{id} — view full detail of one application.
         /// </summary>
         [HttpGet("{id:guid}")]
+        [Authorize(Policy = Permissions.Sellers.ViewApplication)]
         public async Task<IActionResult> GetSellerApplicationById(Guid id, CancellationToken cancellationToken)
         {
             var result = await _sender.Send(new GetSellerApplicationByIdQuery(id), cancellationToken);
@@ -52,6 +55,7 @@ namespace ECommerceAuction.UserService.Api.Controllers
         /// PUT /api/v1/admin/sellers/{id}/approve
         /// </summary>
         [HttpPut("{id:guid}/approve")]
+        [Authorize(Policy = Permissions.Sellers.ApproveApplication)]
         public async Task<IActionResult> Approve(Guid id, CancellationToken cancellationToken)
         {
             var adminUserId = GetCurrentUserId();
@@ -64,6 +68,7 @@ namespace ECommerceAuction.UserService.Api.Controllers
         /// PUT /api/v1/admin/sellers/{id}/reject
         /// </summary>
         [HttpPut("{id:guid}/reject")]
+        [Authorize(Policy = Permissions.Sellers.RejectApplication)]
         public async Task<IActionResult> Reject(
             Guid id,
             [FromBody] RejectSellerRequest request,
