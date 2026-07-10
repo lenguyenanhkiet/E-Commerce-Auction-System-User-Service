@@ -1,14 +1,16 @@
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Text;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using ECommerceAuction.UserService.Infrastructure.Caching;
 using ECommerceAuction.UserService.Infrastructure.CurrentUser;
 using ECommerceAuction.UserService.Infrastructure.IdentityVerification;
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 
 
 namespace ECommerceAuction.UserService.Infrastructure;
@@ -77,6 +79,41 @@ public static class DependencyInjection
                 };
             });
 
+        //Configure MassTransit to use RabbitMq as the message broker
+        //MassTransit is a library that helps handle sending/receiving messages from queues
+        services.AddMassTransit(x =>
+        {
+            //Configure to use RabbitMq as service transport
+            x.UsingRabbitMq((context, cfg) =>
+            {
+
+                var host = configuration["RabbitMQ:Host"] ?? "rabbitmq";
+                var username = configuration["RabbitMQ:Username"] ?? "guest";
+                var password = configuration["RabbitMQ:Password"] ?? "guest";
+                var vhost = configuration["RabbitMQ:VHost"] ?? "/";
+                var useSsl = !string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase);
+
+                var scheme = useSsl ? "amqps" : "amqp";
+                var port = useSsl ? 5671 : 5672;
+                var hostUri = new Uri($"{scheme}://{host}:{port}/{Uri.EscapeDataString(vhost)}");
+                cfg.Host(hostUri, h =>
+                {
+                    h.Username(username);
+                    h.Password(password);
+                    if (useSsl)
+                    {
+                        h.UseSsl(ssl =>
+                        {
+                            ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
+                            ssl.ServerName = host;
+                        });
+                    }
+                });
+                //Configure endpoints to automatically map messages
+                cfg.ConfigureEndpoints(context);
+            });
+
+        });
 
         var redisConnectionString = configuration.GetConnectionString("RedisConnection");
         if (!string.IsNullOrWhiteSpace(redisConnectionString))
@@ -104,7 +141,6 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IIdentityVerificationProvider, MockIdentityVerificationProvider>();
-
         return services;
     }
 }

@@ -46,10 +46,15 @@ public sealed class JwtTokenService : IJwtTokenService
             new(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new(ClaimTypes.NameIdentifier, userId.ToString()),
             new(ClaimTypes.Email, email),
-            new(ClaimTypes.Name, email)
+            new(ClaimTypes.Name, email),
+            // Resource services (e.g. Catalog) distinguish user tokens from service
+            // tokens via the token_use claim; user logins must be tagged as "user".
+            new("token_use", "user")
         };
 
-        claims.AddRange(roles.Select(role => new Claim(ClaimTypes.Role, role)));
+        // Emit roles under the short "role" claim type so downstream services that set
+        // RoleClaimType = "role" match; ClaimTypes.Role serializes to a long URI they miss.
+        claims.AddRange(roles.Select(role => new Claim("role", role)));
         claims.AddRange(privileges.Select(privilege => new Claim("privilege", privilege)));
 
         var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_options.SecretKey));

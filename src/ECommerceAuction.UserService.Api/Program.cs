@@ -6,50 +6,16 @@ using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
 using ECommerceAuction.UserService.Persistence.Context;
+using ECommerceAuction.UserService.Persistence.Seeders;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authorization;
 
 //Create a builder to configure the web application's services
 var builder = WebApplication.CreateBuilder(args);
-
-//Configure MassTransit to use RabbitMq as the message broker
-//MassTransit is a library that helps handle sending/receiving messages from queues
-builder.Services.AddMassTransit(x =>
-{
-    //Configure to use RabbitMq as service transport
-    x.UsingRabbitMq((context, cfg) =>
-    {
-
-        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
-        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
-        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
-        var vhost = builder.Configuration["RabbitMQ:VHost"] ?? "/";
-        var useSsl = !string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase);
-
-        var scheme = useSsl ? "amqps" : "amqp";
-        var port = useSsl ? 5671 : 5672;
-        var hostUri = new Uri($"{scheme}://{host}:{port}/{Uri.EscapeDataString(vhost)}");
-        cfg.Host(hostUri, h =>
-        {
-            h.Username(username);
-            h.Password(password);
-            if (useSsl)
-            {
-                h.UseSsl(ssl =>
-                {
-                    ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
-                    ssl.ServerName = host; 
-                });
-            }
-        });
-        //Configure endpoints to automatically map messages
-        cfg.ConfigureEndpoints(context);
-    });
-
-});
 //Register the Controllers service - allows the application to handle HTTP requests
 builder.Services.AddControllers();
 //Register for the gRPC service - allows the application to support gRPC communication
@@ -67,9 +33,12 @@ builder.Services.Configure<ECommerceAuction.UserService.Application.Common.Optio
         ECommerceAuction.UserService.Application.Common.Options.AccountPolicyOptions.SectionName));
 builder.Services.AddHostedService<ECommerceAuction.UserService.Api.BackgroundJobs.AccountUnlockSweeperService>();
 builder.Services.AddHostedService<ECommerceAuction.UserService.Api.BackgroundJobs.PasswordExpirySweeperService>();
+// Dynamic policy provider: any [Authorize(Policy = "...")] name is treated as a permission code
+// and checked against the "privilege" claims on the JWT (see PermissionPolicyProvider).
 builder.Services.AddAuthorization();
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, PrivilegePolicyProvider>();
-builder.Services.AddScoped<IAuthorizationHandler, PrivilegeAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 builder.Services.AddEndpointsApiExplorer();
 
 //Configure Swagger/OpenAPI for API documentation
@@ -153,6 +122,23 @@ if (app.Environment.IsProduction() || app.Environment.EnvironmentName == "Stagin
     var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
     db.Database.Migrate();
 }
+
+// Seed the permission catalog (Privileges table) from the compile-time Permissions class, every
+// startup, in every environment — authorization depends on these rows existing. A failure here
+// (e.g. schema not migrated yet in Development) must not take the whole service down.
+try
+{
+    using var permissionScope = app.Services.CreateScope();
+    var dbContext = permissionScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    await PermissionSeeder.SeedAsync(dbContext);
+}
+catch (Exception exception)
+{
+    app.Logger.LogWarning(
+        exception,
+        "Failed to seed the permission catalog. Permission-protected endpoints may reject valid requests until this is resolved.");
+}
+
 app.Run();
 
 

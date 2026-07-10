@@ -68,7 +68,7 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
         user.ReputationProfile.AddTaxVerificationPoint();
         user.ReputationProfile.AddBusinessLicenseVerificationPoint();
         user.ReputationProfile.AddBusinessAddressVerificationPoint();
-        // TODO: Chưa update identity và địa chỉ
+        
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _publishEndpoint.Publish(new SellerApprovedEvent

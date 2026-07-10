@@ -1,12 +1,11 @@
 //Enter the necessary namespaces
-using ECommerceAuction.UserService.Api.Authorization;
+using ECommerceAuction.UserService.Application.Authorization;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.ChangeUserPassword;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.CreateUser;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.DeleteUser;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.GetUserById;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.GetUsers;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.UpdateUser;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -44,7 +43,7 @@ public class AdminUsersController : ControllerBase
     ///Default sort: FullName ASC (Default sort by FullName from A to Z)
     /// </summary>
     [HttpGet] //Identify this as the GET endpoint at route /api/v1/admin/users
-    [RequirePrivilege(PrivilegeCodes.UserList)]
+    [Authorize(Policy = Permissions.Users.List)]
     public async Task<IActionResult> GetUsers(
         [FromQuery] string? search, //Search keyword (null if not available)
         [FromQuery] string? gender, //Filter by gender (null if not filtered)
@@ -78,7 +77,7 @@ public class AdminUsersController : ControllerBase
     /// GET /api/v1/admin/users/{id} — view the detail of a single user.
     /// </summary>
     [HttpGet("{id:guid}")]
-    [RequirePrivilege(PrivilegeCodes.UserView)]
+    [Authorize(Policy = Permissions.Users.View)]
     public async Task<IActionResult> GetUserById(Guid id, CancellationToken cancellationToken)
     {
         var result = await _sender.Send(new GetUserByIdQuery(id), cancellationToken);
@@ -94,7 +93,7 @@ public class AdminUsersController : ControllerBase
     /// POST /api/v1/admin/users — create a new user account.
     /// </summary>
     [HttpPost]
-    [RequirePrivilege(PrivilegeCodes.UserCreate)]
+    [Authorize(Policy = Permissions.Users.Create)]
     public async Task<IActionResult> CreateUser(
         [FromBody] CreateUserCommand command,
         CancellationToken cancellationToken)
@@ -115,7 +114,7 @@ public class AdminUsersController : ControllerBase
     /// PUT /api/v1/admin/users/{id} — update an existing user's information.
     /// </summary>
     [HttpPut("{id:guid}")]
-    [RequirePrivilege(PrivilegeCodes.UserUpdate)]
+    [Authorize(Policy = Permissions.Users.Update)]
     public async Task<IActionResult> UpdateUser(
         Guid id,
         [FromBody] UpdateUserRequest request,
@@ -143,7 +142,7 @@ public class AdminUsersController : ControllerBase
     /// DELETE /api/v1/admin/users/{id} — soft-delete a user account.
     /// </summary>
     [HttpDelete("{id:guid}")]
-    [RequirePrivilege(PrivilegeCodes.UserDelete)]
+    [Authorize(Policy = Permissions.Users.Delete)]
     public async Task<IActionResult> DeleteUser(Guid id, CancellationToken cancellationToken)
     {
         await _sender.Send(new DeleteUserCommand(id), cancellationToken);
@@ -154,7 +153,7 @@ public class AdminUsersController : ControllerBase
     /// POST /api/v1/admin/users/{id}/password — set a user's password.
     /// </summary>
     [HttpPost("{id:guid}/password")]
-    [RequirePrivilege(PrivilegeCodes.UserChangePassword)]
+    [Authorize(Policy = Permissions.Users.ChangePassword)]
     public async Task<IActionResult> ChangeUserPassword(
         Guid id,
         [FromBody] ChangeUserPasswordRequest request,
