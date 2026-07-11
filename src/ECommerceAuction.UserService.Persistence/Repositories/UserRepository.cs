@@ -15,6 +15,11 @@ public class UserRepository : IUserRepository
         _context = context;
     }
 
+    public async Task<User?> GetIdWithAddressesAsync(Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.Users.Include(u => u.Addresses.Where(a => a.DeletedAt == null)).FirstOrDefaultAsync(u => u.Id == userId &&  u.DeletedAt == null);  
+    }
+
     public async Task<bool> CheckEmailExistsAsync(
         string email,
         CancellationToken cancellationToken = default)
@@ -244,4 +249,6 @@ public class UserRepository : IUserRepository
     {
         await _context.UserAuditLogs.AddAsync(auditLog, cancellationToken);
     }
+
+    
 }

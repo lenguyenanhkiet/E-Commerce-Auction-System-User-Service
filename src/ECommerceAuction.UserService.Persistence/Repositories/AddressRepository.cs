@@ -12,10 +12,12 @@ namespace ECommerceAuction.UserService.Persistence.Repositories;
 public class AddressRepository : IAddressRepository
 {
     private readonly ApplicationDbContext _context;
+
     public AddressRepository(ApplicationDbContext context)
     {
         _context = context;
     }
+
     public async Task<List<Address>> GetUserAddressesAsync(Guid userId, CancellationToken cancellationToken)
     {
         return await _context.Addresses.Where(a => a.UserId == userId && a.DeletedAt == null).OrderByDescending(a => a.IsDefault).ThenByDescending(a => a.CreatedAt).ToListAsync(cancellationToken);
@@ -27,7 +29,7 @@ public class AddressRepository : IAddressRepository
 
         if (!existingAddresses.Any() || address.IsDefault)
         {
-            foreach(var existingAddress in existingAddresses.Where(a => a.IsDefault))
+            foreach (var existingAddress in existingAddresses.Where(a => a.IsDefault))
             {
                 existingAddress.UnsetAsDefault();
             }
@@ -71,7 +73,6 @@ public class AddressRepository : IAddressRepository
         return await _context.Addresses.FirstOrDefaultAsync(a => a.UserId == userId && a.IsDefault && a.DeletedAt == null, cancellationToken);
     }
 
-
     public async Task SetDefaultAddressAsync(Guid userId, Guid addressId, CancellationToken cancellationToken)
     {
         // Get all active address this user
@@ -90,6 +91,7 @@ public class AddressRepository : IAddressRepository
 
         targetAddress.SetAsDefault();
     }
+
     /// <summary>
     /// Update Address
     /// </summary>
@@ -101,7 +103,7 @@ public class AddressRepository : IAddressRepository
 
     public async Task<IReadOnlyList<Address>> GetDefaultAddressesByUserIdsAsync(IReadOnlyCollection<Guid> userIds, CancellationToken cancellationToken = default)
     {
-        if (userIds.Count == 0 )
+        if (userIds.Count == 0)
         {
             return [];
         }
