@@ -55,9 +55,13 @@ deploy_to_azure:
         --image $env:DOCKER_IMAGE_NAME `
         --set-env-vars `
         "ConnectionStrings__DefaultConnection=$env:DB_CONNECTION_STRING" `
+        "ConnectionStrings__RedisConnection=$env:REDIS_HOST_STAGING,ssl=$env:REDIS_SSL_STAGING,password=$env:REDIS_PASSWORD_STAGING" `
         "RabbitMQ__Host=$env:RABBITMQ_HOST" `
         "RabbitMQ__Username=$env:RABBITMQ_USERNAME" `
         "RabbitMQ__Password=$env:RABBITMQ_PASSWORD" `
         "RabbitMQ__VHost=$env:RABBITMQ_VHOST"
+        "Jwt__SecretKey=$env:JWT_SECRETKEY" `
+        "Jwt__Issuer=$env:JWT_ISSUER" `
+        "Jwt__Audience=$env:JWT_AUDIENCE" `
   only:
     - staging

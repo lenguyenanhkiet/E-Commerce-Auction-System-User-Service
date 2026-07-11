@@ -10,6 +10,7 @@ namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;
 public sealed class GetUserByIdQueryHandlerTests
 {
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
+
     private readonly IIdentityVerificationRepository _identityRepository =
         Substitute.For<IIdentityVerificationRepository>();
 
@@ -17,7 +18,7 @@ public sealed class GetUserByIdQueryHandlerTests
 
     private static User CreateUser() =>
         User.CreateByAdmin("user@test.local", "HASH", "Test User", "0900000000", "Male",
-            new DateOnly(1990, 1, 1), "HCM");
+            new DateOnly(1990, 1, 1));
 
     [Fact]
     public async Task Handle_ReturnsMappedDetail_WhenUserExists()

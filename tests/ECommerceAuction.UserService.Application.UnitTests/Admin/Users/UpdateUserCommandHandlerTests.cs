@@ -34,7 +34,7 @@ public sealed class UpdateUserCommandHandlerTests
 
     private User CreateUserWithRoles(params string[] roleCodes)
     {
-        var user = User.CreateByAdmin("target@test.local", "HASH", "Target", "0900000000", null, null, null);
+        var user = User.CreateByAdmin("target@test.local", "HASH", "Target", "0900000000", null, null);
         foreach (var code in roleCodes)
         {
             user.AssignRole(UserRole.Assign(user.Id, _rolesByCode[code].Id, Guid.NewGuid()));

@@ -38,7 +38,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
         /// Minor/moderate violations: spam, repeated reports, minor auction fraud.
         /// Time period / Interval: Time-limited (a few days to a few weeks); expires automatically.
         /// </summary>
-        public const string Bloced = "BLOCKED";
+        public const string Blocked = "BLOCKED";
 
         /// <summary>
         ///Account has limited features - can log in but not allowed to bid.

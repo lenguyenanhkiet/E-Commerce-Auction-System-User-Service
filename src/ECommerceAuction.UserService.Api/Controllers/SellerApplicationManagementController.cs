@@ -9,14 +9,17 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceAuction.UserService.Api.Controllers
 {
+    /// <summary>
+    /// Seller Application: Admin and Sp Staff can approve, reject application to become a seller
+    /// </summary>
     [ApiController]
-    [Route("api/v1/admin/sellers")]
+    [Route("api/v1/management/sellers-applications")]
     [Authorize]
-    public class AdminSellerController : ControllerBase
+    public class SellerApplicationManagementController : ControllerBase
     {
         private readonly ISender _sender;
 
-        public AdminSellerController(ISender sender)
+        public SellerApplicationManagementController(ISender sender)
         {
             _sender = sender;
         }

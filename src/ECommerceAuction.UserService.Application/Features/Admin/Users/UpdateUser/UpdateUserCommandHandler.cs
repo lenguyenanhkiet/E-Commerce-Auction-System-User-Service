@@ -74,8 +74,8 @@ public sealed class UpdateUserCommandHandler
         user.AdminUpdate(
             fullName: request.FullName,
             gender: request.Gender,
-            dateOfBirth: request.DateOfBirth,
-            address: request.Address);
+            dateOfBirth: request.DateOfBirth
+           );
 
         await _userRepository.AddAuditLogAsync(
             UserAuditLog.Create(
@@ -256,7 +256,6 @@ public sealed class UpdateUserCommandHandler
             user.Email,
             user.Gender,
             user.DateOfBirth,
-            user.Address
         });
     }
 }

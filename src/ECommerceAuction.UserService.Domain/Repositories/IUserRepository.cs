@@ -8,6 +8,8 @@ namespace ECommerceAuction.UserService.Domain.Repositories;
 /// </summary>
 public interface IUserRepository
 {
+
+    Task<User?> GetIdWithAddressesAsync(Guid userId, CancellationToken cancellationToken = default);
     /// <summary>
     /// Checks whether an active email already exists in SQL.
     /// </summary>

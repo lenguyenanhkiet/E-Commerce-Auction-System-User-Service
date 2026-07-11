@@ -47,7 +47,7 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
             throw new BusinessRuleException("You cannot delete your own account.");
         }
 
-        user.SoftDelete();
+        user.AdminSoftDeleteUser();
 
         await _userRepository.AddAuditLogAsync(
             UserAuditLog.Create(

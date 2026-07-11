@@ -12,8 +12,10 @@ namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;
 public sealed class ChangeUserPasswordCommandHandlerTests
 {
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
+
     private readonly IUserPasswordHistoryRepository _historyRepository =
         Substitute.For<IUserPasswordHistoryRepository>();
+
     private readonly IPasswordHasher _passwordHasher = Substitute.For<IPasswordHasher>();
     private readonly ICurrentUserService _currentUser = Fakes.CurrentUser(Guid.NewGuid());
     private readonly IUnitOfWork _unitOfWork = Fakes.UnitOfWork();
@@ -23,7 +25,7 @@ public sealed class ChangeUserPasswordCommandHandlerTests
         new(_userRepository, _historyRepository, _passwordHasher, _currentUser, _unitOfWork, _publish);
 
     private static User CreateUser() =>
-        User.CreateByAdmin("user@test.local", "OLDHASH", "Test User", "0900000000", null, null, null);
+        User.CreateByAdmin("user@test.local", "OLDHASH", "Test User", "0900000000", null, null);
 
     [Fact]
     public async Task Handle_UpdatesPassword_StoresHistory_AndForcesChange_ByDefault()

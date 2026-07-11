@@ -11,3 +11,6 @@
 # Local backup files generated during setup/review
 _backup_*/
 *_backup_*.yml
+
+.claude
+.codegraph

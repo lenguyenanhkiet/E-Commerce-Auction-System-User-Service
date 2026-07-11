@@ -42,7 +42,7 @@ public sealed class GetUserByIdQueryHandler
             PhoneNumber: user.PhoneNumber,
             IdentityNumber: identityVerification?.IdentityNumber,
             Gender: user.Gender,
-            Address: user.Address,
+            Address: user.GetDefaultAddress()?.Street,
             DateOfBirth: user.DateOfBirth,
             Status: user.Status,
             IsEmailConfirmed: user.IsEmailConfirmed,
