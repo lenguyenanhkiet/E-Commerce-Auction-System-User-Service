@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Application.Features.Users.UpdateAddress;
+namespace ECommerceAuction.UserService.Application.Features.Users.UserAddress.UpdateAddress;
 
 public class UpdateAddressCommandValidator : AbstractValidator<UpdateAddressCommand>
 {
@@ -23,10 +23,6 @@ public class UpdateAddressCommandValidator : AbstractValidator<UpdateAddressComm
             .MaximumLength(100)
             .WithMessage("Province cannot exceed 100 characters.");
 
-        RuleFor(x => x.City)
-            .MaximumLength(50)
-            .WithMessage("City cannot exceed 50 characters.");
-
         RuleFor(x => x.Ward)
             .MaximumLength(100)
             .WithMessage("Ward cannot exceed 100 characters.");
@@ -35,5 +31,4 @@ public class UpdateAddressCommandValidator : AbstractValidator<UpdateAddressComm
             .MaximumLength(50)
             .WithMessage("Type cannot exceed 50 characters.");
     }
-
 }

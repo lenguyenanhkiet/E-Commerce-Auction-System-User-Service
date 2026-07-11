@@ -13,6 +13,7 @@ public sealed class GetUsersQueryHandler
     private readonly IUserRepository _userRepository;
     private readonly IIdentityVerificationRepository _identityVerificationRepository;
     private readonly IAddressRepository _addressRepository;
+
     public GetUsersQueryHandler(
         IUserRepository userRepository,
         IIdentityVerificationRepository identityVerificationRepository,
@@ -66,7 +67,7 @@ public sealed class GetUsersQueryHandler
                     Gender: user.Gender,
                     Address: address is null
                         ? null
-                        : $"{address.Street},{address.Ward}, {address.City}, {address.Province}",
+                        : $"{address.Street},{address.Ward}, {address.Province}",
                     DateOfBirth: user.DateOfBirth);
             })
             .ToList();

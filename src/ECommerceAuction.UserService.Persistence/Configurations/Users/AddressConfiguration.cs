@@ -11,12 +11,11 @@ public sealed class AddressConfiguration : IEntityTypeConfiguration<Address>
 {
     public void Configure(EntityTypeBuilder<Address> builder)
     {
-        builder.ToTable("Addresses","user");
+        builder.ToTable("Addresses", "user");
         builder.HasKey(a => a.Id);
         builder.Property(a => a.RecipientName).IsRequired().HasMaxLength(255);
         builder.Property(a => a.RecipientPhone).IsRequired().HasMaxLength(12);
         builder.Property(a => a.Province).IsRequired().HasMaxLength(50);
-        builder.Property(a => a.City).IsRequired().HasMaxLength(50);
         builder.Property(a => a.Ward).IsRequired().HasMaxLength(50);
         builder.Property(a => a.Street).IsRequired().HasMaxLength(255);
         builder.Property(a => a.Type).HasMaxLength(50);

@@ -35,9 +35,7 @@ public sealed record AddressResponse(
     string RecipientPhone,
     string Street,
     string Province,
-    string City,
     string Ward,
     string Type,
     bool IsDefault
     );
-

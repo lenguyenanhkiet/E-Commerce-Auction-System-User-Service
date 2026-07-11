@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Application.Features.Users.UpdateAddress;
+namespace ECommerceAuction.UserService.Application.Features.Users.UserAddress.UpdateAddress;
 
 public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressCommand, UpdateAddressResponse>
 {
@@ -16,6 +16,7 @@ public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressC
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<UpdateAddressCommandHandler> _logger;
     private readonly ICurrentUserService _currentUserService;
+
     public UpdateAddressCommandHandler(IAddressRepository addressRepository, IUnitOfWork unitOfWork, ICurrentUserService currentUserService, ILogger<UpdateAddressCommandHandler> logger)
     {
         _addressRepository = addressRepository;
@@ -26,7 +27,6 @@ public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressC
 
     public async Task<UpdateAddressResponse> Handle(UpdateAddressCommand request, CancellationToken cancellationToken)
     {
-        
         // Verify user exists
         var userId = _currentUserService.UserId
             ?? throw new UnauthorizedAccessException("User information not found in JWT.");
@@ -56,7 +56,6 @@ public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressC
             request.RecipientPhone,
             request.Street,
             request.Province,
-            request.City,
             request.Ward,
             request.Type
             );
@@ -83,7 +82,7 @@ public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressC
             // Only update address fields
             await _addressRepository.UpdateAddressAsync(address, cancellationToken);
         }
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         _logger.LogInformation($"Successfully updated Address {request.AddressId} for User {userId}");
         return new UpdateAddressResponse
@@ -92,7 +91,6 @@ public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressC
                 address.RecipientName,
                 address.RecipientPhone,
                 address.Province,
-                address.City,
                 address.Ward,
                 address.Street,
                 address.Type,

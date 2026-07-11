@@ -20,7 +20,7 @@ public sealed class DeleteUserCommandHandlerTests
         new(_userRepository, _currentUser, _unitOfWork, _publish);
 
     private static User CreateUser() =>
-        User.CreateByAdmin("victim@test.local", "HASH", "Victim", "0900000000", null, null, null);
+        User.CreateByAdmin("victim@test.local", "HASH", "Victim", "0900000000", null, null);
 
     [Fact]
     public async Task Handle_SoftDeletesUserAndWritesAudit()

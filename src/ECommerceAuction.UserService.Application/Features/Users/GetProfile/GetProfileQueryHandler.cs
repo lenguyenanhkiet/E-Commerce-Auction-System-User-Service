@@ -18,6 +18,7 @@ public sealed class GetProfileQueryHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IIdentityVerificationRepository _identityVerificationRepository;
     private readonly IAddressRepository _addressRepository;
+
     public GetProfileQueryHandler(
         ICurrentUserService currentUserService,
         IUserRepository userRepository,
@@ -66,7 +67,6 @@ public sealed class GetProfileQueryHandler
                 a.RecipientPhone,
                 a.Street,
                 a.Province,
-                a.City,
                 a.Ward,
                 a.Type,
                 a.IsDefault)).ToList(),

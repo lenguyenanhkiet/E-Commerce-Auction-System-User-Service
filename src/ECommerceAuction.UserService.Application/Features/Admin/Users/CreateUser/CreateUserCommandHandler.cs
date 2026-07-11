@@ -70,8 +70,8 @@ public sealed class CreateUserCommandHandler
             fullName: request.FullName,
             phoneNumber: phoneNumber,
             gender: request.Gender,
-            dateOfBirth: request.DateOfBirth,
-            address: request.Address);
+            dateOfBirth: request.DateOfBirth
+            );
 
         foreach (var role in roles)
         {

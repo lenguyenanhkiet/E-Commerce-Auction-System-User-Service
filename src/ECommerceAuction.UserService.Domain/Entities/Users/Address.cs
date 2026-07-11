@@ -9,6 +9,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
     public class Address : AuditableEntity, IAggregateRoot
     {
         public Guid UserId { get; private set; }
+
         [Required]
         [StringLength(200)]
         public string RecipientName { get; private set; } = string.Empty;
@@ -18,10 +19,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
         public string RecipientPhone { get; private set; } = string.Empty;
 
         [StringLength(50)]
-        public string? Province { get; private set; } 
-
-        [StringLength(50)]
-        public string? City { get; private set; } 
+        public string? Province { get; private set; }
 
         [StringLength(50)]
         public string? Ward { get; private set; }
@@ -32,37 +30,37 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
 
         // Home, Work, Other
         [StringLength(50)]
-        public string? Type { get; private set; } 
+        public string? Type { get; private set; }
 
         public bool IsDefault { get; private set; } = false;
 
         public User User { get; private set; } = null!;
 
-        protected Address(){ }
+        protected Address()
+        { }
 
         public Address(
             Guid userId,
             string recipientName,
             string recipientPhone,
+            string province,
+            string ward,
             string street,
-            string? province = null,
-            string? city = null,
-            string? ward = null,
-            string? type = null,
+            string type,
             bool isDefault = false)
         {
             UserId = userId;
             RecipientName = recipientName.Trim();
             RecipientPhone = recipientPhone.Trim();
             Province = string.IsNullOrWhiteSpace(province) ? null : province.Trim(); ;
-            City = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
-            Ward = string.IsNullOrWhiteSpace(ward)? null: ward.Trim();
+            Ward = string.IsNullOrWhiteSpace(ward) ? null : ward.Trim();
             Street = street.Trim();
             Type = string.IsNullOrWhiteSpace(type) ? null : type.Trim(); ;
             IsDefault = isDefault;
             CreatedAt = DateTime.UtcNow;
             UpdatedAt = DateTime.UtcNow;
         }
+
         /// <summary>
         /// Update Address information
         /// </summary>
@@ -72,7 +70,6 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
             string recipientPhone,
             string street,
             string? province = null,
-            string? city = null,
             string? ward = null,
             string? type = null
             )
@@ -80,21 +77,20 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users
             RecipientName = recipientName.Trim();
             RecipientPhone = recipientPhone.Trim();
             Province = string.IsNullOrWhiteSpace(province) ? null : province.Trim(); ;
-            City = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
             Ward = string.IsNullOrWhiteSpace(ward) ? null : ward.Trim();
             Street = street.Trim();
-            Type = string.IsNullOrWhiteSpace(type) ? null : type.Trim(); 
+            Type = string.IsNullOrWhiteSpace(type) ? null : type.Trim();
             UpdatedAt = DateTime.UtcNow;
         }
-        
+
         public void SetAsDefault()
         {
             IsDefault = true;
-            UpdatedAt  = DateTime.UtcNow;
+            UpdatedAt = DateTime.UtcNow;
         }
 
-        public void UnsetAsDefault() 
-        { 
+        public void UnsetAsDefault()
+        {
             IsDefault = false;
             UpdatedAt = DateTime.UtcNow;
         }

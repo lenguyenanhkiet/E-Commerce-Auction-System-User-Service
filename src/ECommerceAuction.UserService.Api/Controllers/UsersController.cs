@@ -1,10 +1,14 @@
-//Enter the necessary namespaces
+using ECommerceAuction.UserService.Api.Controllers.Contracts.Requests;
+using ECommerceAuction.UserService.Application.Features.Users.DeleteAddress;
 using ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 using ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp;
-using ECommerceAuction.UserService.Application.Features.Users.UpdateAddress;
 using ECommerceAuction.UserService.Application.Features.Users.UpdateProfile;
+using ECommerceAuction.UserService.Application.Features.Users.UserAddress.CreateAddress;
+using ECommerceAuction.UserService.Application.Features.Users.UserAddress.GetAddressById;
+using ECommerceAuction.UserService.Application.Features.Users.UserAddress.GetListAddresses;
+using ECommerceAuction.UserService.Application.Features.Users.UserAddress.SetDefaultAddress;
+using ECommerceAuction.UserService.Application.Features.Users.UserAddress.UpdateAddress;
 using ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp;
-using ECommerceAuction.UserService.Domain.Entities.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -108,11 +112,9 @@ public class UsersController : ControllerBase
         var result = await _sender.Send(new VerifyPhoneOtpCommand(request.OtpCode), cancellationToken);
         return Ok(new { message = "Phone number verified successfully.", data = result });
     }
-    public sealed record VerifyPhoneOtpRequest(string OtpCode);
-
 
     [HttpPut("addresses/{addressId:guid}")]
-    public async Task<IActionResult> UpdateAddess( Guid addressId,
+    public async Task<IActionResult> UpdateAddess(Guid addressId,
         [FromBody] UpdateAddressRequest request, CancellationToken cancellationToken)
     {
         var command = new UpdateAddressCommand(
@@ -120,31 +122,78 @@ public class UsersController : ControllerBase
             request.RecipientName,
             request.RecipientPhone,
             request.Province,
-            request.City,
             request.Ward,
             request.Street,
             request.Type,
             request.IsDefault);
-        var response = await _sender.Send(command, cancellationToken);  
-        return Ok(new {message = "Address updated successfully", data = response });
+        var response = await _sender.Send(command, cancellationToken);
+        return Ok(new { message = "Address updated successfully", data = response });
     }
-    public sealed record UpdateAddressRequest(
-        string RecipientName,
-        string RecipientPhone,
-        string Province,
-        string City,
-        string Ward,
-        string Street,
-        string Type,
-        bool IsDefault);
+
+    /// <summary>
+    /// POST /api/v1/users/addresses
+    /// Create a new address for the currently logged-in user.
+    /// </summary>
+    [HttpPost("addresses")]
+    public async Task<IActionResult> CreateAddress([FromBody] CreateAddressRequest request, CancellationToken cancellationToken)
+    {
+        var command = new CreateAddressCommand
+            (
+                request.RecipientName,
+                request.RecipientPhone,
+                request.Province,
+                request.Ward,
+                request.Street,
+                request.Type,
+                request.IsDefault
+            );
+        var response = await _sender.Send(command, cancellationToken);
+        // 201 Created
+        return StatusCode(StatusCodes.Status201Created,
+    new { message = "Address created successfully", data = response });
+    }
+
+    /// <summary>
+    /// GET /api/v1/users/addresses
+    /// Get a list of the addresses of the currently logged-in users.
+    /// </summary>
+    [HttpGet("addresses")]
+    public async Task<IActionResult> GetAddresses(CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetAddressesQuery(), cancellationToken);
+        return Ok(new { messase = "Retrieved addresses successfully", data = response });
+    }
+
+    /// <summary>
+    /// GET /api/v1/users/addresses/{addressId}
+    /// Get the details of the address of the currently logged-in user.
+    /// </summary>
+    [HttpGet("addresses/{addressId:guid}")]
+    public async Task<IActionResult> GetAddressById(Guid addressId, CancellationToken cancellationToken)
+    {
+        var response = await _sender.Send(new GetAddressByIdQuery(addressId), cancellationToken);
+        return Ok(new { message = "Retrieved address successfully", data = response });
+    }
+
+    /// <summary>
+    /// DELETE /api/v1/users/addresses/{addressId}
+    /// Soft delete the address of the currently logged-in user.
+    /// </summary
+    [HttpDelete("addresses/{addressId:guid}")]
+    public async Task<IActionResult> DeleteAddress(Guid addressId, CancellationToken cancellationToken)
+    {
+        await _sender.Send(new DeleteAddressCommand(addressId), cancellationToken);
+        return Ok(new { message = "Address deleted successfully" });
+    }
+
+    /// <summary>
+    /// PATCH /api/v1/users/addresses/{addressId}/default
+    /// Set the default IP address for the logged-in user.
+    /// </summary
+    [HttpPatch("addresses/{addressId:guid}/default")]
+    public async Task<IActionResult> SetDefaultAddress(Guid addressId, CancellationToken cancellationToken)
+    {
+        await _sender.Send(new SetDefaultAddressCommand(addressId), cancellationToken);
+        return Ok(new { message = "Default address set succesfully" });
+    }
 }
-
-
-
-/// <summary>
-///Request body for PUT /api/v1/users/me - Request body for the endpoint to update records
-///Defines the data structure that the client sends to the server
-/// </summary>
-public sealed record UpdateProfileRequest(
-    string PhoneNumber, //New phone number
-    string? NewEmail); //New email (can be null if you do not want to change)
