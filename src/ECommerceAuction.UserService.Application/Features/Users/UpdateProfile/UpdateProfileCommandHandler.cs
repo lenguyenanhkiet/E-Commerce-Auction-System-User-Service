@@ -54,8 +54,8 @@ public sealed class UpdateProfileCommandHandler
 
         // Phone number and address can be updated immediately.
         user.UpdateProfile(
-            request.PhoneNumber,
-            request.Address);
+            request.PhoneNumber
+            );
 
         var emailVerificationSent = false;
 

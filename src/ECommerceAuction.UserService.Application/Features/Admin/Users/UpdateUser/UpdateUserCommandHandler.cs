@@ -256,7 +256,6 @@ public sealed class UpdateUserCommandHandler
             user.Email,
             user.Gender,
             user.DateOfBirth,
-            user.Address
         });
     }
 }

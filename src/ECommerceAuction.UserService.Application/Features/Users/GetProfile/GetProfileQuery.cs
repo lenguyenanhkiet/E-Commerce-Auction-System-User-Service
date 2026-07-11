@@ -1,4 +1,5 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Domain.Entities.Users;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 
@@ -17,7 +18,7 @@ public sealed record UserProfileResponse(
     string PhoneNumber,
     string? IdentityNumber,
     string? Gender,
-    string? Address,
+    IReadOnlyList<AddressResponse> AddressList,
     DateOnly? DateOfBirth,
     bool IsEmailConfirmed,
     bool IsPhoneConfirmed,
@@ -29,4 +30,14 @@ public sealed record UserReputationResponse(
     int Score,
     string Trust_level
 );
+public sealed record AddressResponse(
+    string RecipientName,
+    string RecipientPhone,
+    string Street,
+    string Province,
+    string City,
+    string Ward,
+    string Type,
+    bool IsDefault
+    );
 

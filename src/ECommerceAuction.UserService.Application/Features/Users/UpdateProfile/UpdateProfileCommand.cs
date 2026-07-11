@@ -8,7 +8,6 @@ namespace ECommerceAuction.UserService.Application.Features.Users.UpdateProfile;
 /// </summary>
 public sealed record UpdateProfileCommand(
     string PhoneNumber,
-    string Address,
     string? NewEmail)
     : ICommand<UpdateProfileResponse>;
 

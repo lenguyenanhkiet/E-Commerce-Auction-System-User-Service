@@ -1,8 +1,10 @@
 //Enter the necessary namespaces
 using ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 using ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp;
+using ECommerceAuction.UserService.Application.Features.Users.UpdateAddress;
 using ECommerceAuction.UserService.Application.Features.Users.UpdateProfile;
 using ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp;
+using ECommerceAuction.UserService.Domain.Entities.Users;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -65,7 +67,6 @@ public class UsersController : ControllerBase
         //Create an UpdateProfileCommand command with data from the request
         var command = new UpdateProfileCommand(
             PhoneNumber: request.PhoneNumber, //Update phone number
-            Address: request.Address, //Update address
             NewEmail: request.NewEmail); //New email (if any)
 
         //Send commands through MediatR to handle profile updates
@@ -109,6 +110,33 @@ public class UsersController : ControllerBase
     }
     public sealed record VerifyPhoneOtpRequest(string OtpCode);
 
+
+    [HttpPut("addresses/{addressId:guid}")]
+    public async Task<IActionResult> UpdateAddess( Guid addressId,
+        [FromBody] UpdateAddressRequest request, CancellationToken cancellationToken)
+    {
+        var command = new UpdateAddressCommand(
+            addressId,
+            request.RecipientName,
+            request.RecipientPhone,
+            request.Province,
+            request.City,
+            request.Ward,
+            request.Street,
+            request.Type,
+            request.IsDefault);
+        var response = await _sender.Send(command, cancellationToken);  
+        return Ok(new {message = "Address updated successfully", data = response });
+    }
+    public sealed record UpdateAddressRequest(
+        string RecipientName,
+        string RecipientPhone,
+        string Province,
+        string City,
+        string Ward,
+        string Street,
+        string Type,
+        bool IsDefault);
 }
 
 
@@ -119,5 +147,4 @@ public class UsersController : ControllerBase
 /// </summary>
 public sealed record UpdateProfileRequest(
     string PhoneNumber, //New phone number
-    string Address, //New address
     string? NewEmail); //New email (can be null if you do not want to change)
