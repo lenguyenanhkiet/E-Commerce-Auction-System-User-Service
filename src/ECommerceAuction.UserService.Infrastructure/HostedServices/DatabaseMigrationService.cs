@@ -24,11 +24,11 @@ public class DatabaseMigrationService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        if (!_environment.IsProduction())
-        {
-            _logger.LogInformation("Skipping migration");
-            return;
-        }
+        //if (!_environment.IsProduction())
+        //{
+        //    _logger.LogInformation("Skipping migration");
+        //    return;
+        //}
 
         using var scope = _serviceProvider.CreateScope();
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
