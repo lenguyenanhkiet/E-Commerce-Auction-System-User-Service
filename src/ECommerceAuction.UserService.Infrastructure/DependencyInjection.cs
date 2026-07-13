@@ -2,6 +2,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using ECommerceAuction.UserService.Infrastructure.Caching;
 using ECommerceAuction.UserService.Infrastructure.CurrentUser;
+using ECommerceAuction.UserService.Infrastructure.HostedServices;
 using ECommerceAuction.UserService.Infrastructure.IdentityVerification;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
-
 
 namespace ECommerceAuction.UserService.Infrastructure;
 
@@ -27,7 +27,6 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-
         services.Configure<JwtOptions>(configuration.GetSection(JwtOptions.SectionName));
         services.Configure<GoogleOAuthOptions>(configuration.GetSection(GoogleOAuthOptions.SectionName));
 
@@ -86,7 +85,6 @@ public static class DependencyInjection
             //Configure to use RabbitMq as service transport
             x.UsingRabbitMq((context, cfg) =>
             {
-
                 var host = configuration["RabbitMQ:Host"] ?? "rabbitmq";
                 var username = configuration["RabbitMQ:Username"] ?? "guest";
                 var password = configuration["RabbitMQ:Password"] ?? "guest";
@@ -112,7 +110,6 @@ public static class DependencyInjection
                 //Configure endpoints to automatically map messages
                 cfg.ConfigureEndpoints(context);
             });
-
         });
 
         var redisConnectionString = configuration.GetConnectionString("RedisConnection");
@@ -141,6 +138,8 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddScoped<IIdentityVerificationProvider, MockIdentityVerificationProvider>();
+        services.AddHostedService<DatabaseMigrationService>();
+
         return services;
     }
 }
