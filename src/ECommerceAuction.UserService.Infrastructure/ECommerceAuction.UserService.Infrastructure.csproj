@@ -9,6 +9,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
     <ProjectReference Include="..\ECommerceAuction.UserService.Domain\ECommerceAuction.UserService.Domain.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Persistence\ECommerceAuction.UserService.Persistence.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

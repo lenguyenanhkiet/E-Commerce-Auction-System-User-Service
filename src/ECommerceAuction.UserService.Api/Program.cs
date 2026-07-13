@@ -44,7 +44,6 @@ builder.Services.AddEndpointsApiExplorer();
 //Configure Swagger/OpenAPI for API documentation
 builder.Services.AddSwaggerGen(options =>
 {
-
     //Add security definition for Bearer token (JWT)
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -59,7 +58,6 @@ builder.Services.AddSwaggerGen(options =>
         //Location of the security header
         In = ParameterLocation.Header,
         Description = "Enter JWT access token. Example: Bearer eyJhbGciOi..."
-
     });
 
     // Swagger sends the authorized JWT to protected RBAC APIs.
@@ -90,8 +88,8 @@ builder.Services.AddCors(options =>
 //Build web applications from the builder
 var app = builder.Build();
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 //Use custom error handling middleware to catch unexpected exceptions
 app.UseMiddleware<ExceptionHandlingMiddleware>();
@@ -115,14 +113,6 @@ app.UseAuthorization();
 app.MapGrpcService<InternalHealthGrpcService>();
 //Register all controller endpoints
 app.MapControllers();
-// Auto Migration when app run
-if (app.Environment.IsProduction() || app.Environment.EnvironmentName == "Staging")
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-}
-
 // Seed the permission catalog (Privileges table) from the compile-time Permissions class, every
 // startup, in every environment — authorization depends on these rows existing. A failure here
 // (e.g. schema not migrated yet in Development) must not take the whole service down.
@@ -140,5 +130,3 @@ catch (Exception exception)
 }
 
 app.Run();
-
-
