@@ -95,6 +95,7 @@ app.UseSwaggerUI();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 //If it is not a Development environment, force the use of HTTPS
+
 if (!app.Environment.IsDevelopment())
 {
     //Redirect all HTTP requests to HTTPS
@@ -113,20 +114,7 @@ app.UseAuthorization();
 app.MapGrpcService<InternalHealthGrpcService>();
 //Register all controller endpoints
 app.MapControllers();
-// Seed the permission catalog (Privileges table) from the compile-time Permissions class, every
-// startup, in every environment — authorization depends on these rows existing. A failure here
-// (e.g. schema not migrated yet in Development) must not take the whole service down.
-try
-{
-    using var permissionScope = app.Services.CreateScope();
-    var dbContext = permissionScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    await PermissionSeeder.SeedAsync(dbContext);
-}
-catch (Exception exception)
-{
-    app.Logger.LogWarning(
-        exception,
-        "Failed to seed the permission catalog. Permission-protected endpoints may reject valid requests until this is resolved.");
-}
-
+// Database migration AND permission-catalog seeding both run on startup in the
+// DatabaseMigrationService hosted service (Infrastructure), in that order — migrate first, then
+// seed — so the schema exists before seeding. Nothing schema-related runs here in Program.cs.
 app.Run();
