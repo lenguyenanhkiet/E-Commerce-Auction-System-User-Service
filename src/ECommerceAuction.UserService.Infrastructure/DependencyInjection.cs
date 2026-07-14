@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Application.Abstractions.Services;
+﻿using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using ECommerceAuction.UserService.Infrastructure.Caching;
 using ECommerceAuction.UserService.Infrastructure.CurrentUser;
@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
@@ -94,6 +95,7 @@ public static class DependencyInjection
                 var scheme = useSsl ? "amqps" : "amqp";
                 var port = useSsl ? 5671 : 5672;
                 var hostUri = new Uri($"{scheme}://{host}:{port}/{Uri.EscapeDataString(vhost)}");
+
                 cfg.Host(hostUri, h =>
                 {
                     h.Username(username);
