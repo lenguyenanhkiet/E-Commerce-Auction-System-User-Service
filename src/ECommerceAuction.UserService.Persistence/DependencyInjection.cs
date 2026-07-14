@@ -33,11 +33,14 @@ public static class DependencyInjection
 
         services.AddScoped<IUnitOfWork>(provider => provider.GetRequiredService<ApplicationDbContext>());
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IAddressRepository, AddressRepository>();
         services.AddScoped<IUserPasswordHistoryRepository, UserPasswordHistoryRepository>();
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
         services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
         services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
         services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
+        services.AddScoped<IAuditLogRepository, AuditLogRepository>();
+        services.AddScoped<IAccountMaintenanceRepository, AccountMaintenanceRepository>();
         return services;
     }
 }

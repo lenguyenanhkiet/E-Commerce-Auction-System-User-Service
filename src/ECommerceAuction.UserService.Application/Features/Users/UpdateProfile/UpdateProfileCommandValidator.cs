@@ -16,12 +16,6 @@ public sealed class UpdateProfileCommandValidator
             .Matches(@"^[0-9]{9,15}$")
             .WithMessage("Phone number must contain between 9 and 15 digits.");
 
-        RuleFor(command => command.Address)
-            .NotEmpty()
-            .WithMessage("Address cannot be empty.")
-            .MaximumLength(500)
-            .WithMessage("Address cannot exceed 500 characters.");
-
         RuleFor(command => command.NewEmail)
             .EmailAddress()
             .WithMessage("Invalid email format.")

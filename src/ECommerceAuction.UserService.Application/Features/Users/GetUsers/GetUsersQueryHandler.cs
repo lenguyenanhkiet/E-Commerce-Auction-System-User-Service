@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.GetUsers;
@@ -11,13 +12,16 @@ public sealed class GetUsersQueryHandler
 {
     private readonly IUserRepository _userRepository;
     private readonly IIdentityVerificationRepository _identityVerificationRepository;
+    private readonly IAddressRepository _addressRepository;
 
     public GetUsersQueryHandler(
         IUserRepository userRepository,
-        IIdentityVerificationRepository identityVerificationRepository)
+        IIdentityVerificationRepository identityVerificationRepository,
+        IAddressRepository addressRepository)
     {
         _userRepository = userRepository;
         _identityVerificationRepository = identityVerificationRepository;
+        _addressRepository = addressRepository;
     }
 
     public async Task<PagedUsersResponse> Handle(
@@ -48,16 +52,24 @@ public sealed class GetUsersQueryHandler
         var identityVerifications = await _identityVerificationRepository.GetByUserIdsAsync(userIds, cancellationToken);
         var identityNumbersByUserId = identityVerifications.ToDictionary(iv => iv.UserId, iv => iv.IdentityNumber);
 
+        var defaultAddresses = await _addressRepository.GetDefaultAddressesByUserIdsAsync(userIds, cancellationToken);
+        var addressByUserId = defaultAddresses.ToDictionary(a => a.UserId, a => a);
         var items = result.Items
-            .Select(user => new AdminUserItem(
-                Id: user.Id,
-                FullName: user.FullName,
-                Email: user.Email,
-                PhoneNumber: user.PhoneNumber,
-                IdentityNumber: identityNumbersByUserId.GetValueOrDefault(user.Id),
-                Gender: user.Gender,
-                Address: user.Address,
-                DateOfBirth: user.DateOfBirth))
+            .Select(user =>
+            {
+                var address = addressByUserId.GetValueOrDefault(user.Id);
+                return new AdminUserItem(
+                    Id: user.Id,
+                    FullName: user.FullName,
+                    Email: user.Email,
+                    PhoneNumber: user.PhoneNumber,
+                    IdentityNumber: identityNumbersByUserId.GetValueOrDefault(user.Id),
+                    Gender: user.Gender,
+                    Address: address is null
+                        ? null
+                        : $"{address.Street},{address.Ward}, {address.Province}",
+                    DateOfBirth: user.DateOfBirth);
+            })
             .ToList();
 
         var totalPages = result.TotalCount == 0

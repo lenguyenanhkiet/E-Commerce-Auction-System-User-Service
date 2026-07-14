@@ -20,6 +20,10 @@ public sealed class NotFoundException : ApplicationExceptionBase
 {
     public NotFoundException(string message) : base(message) { }
 }
+public sealed class UserNotFoundException : ApplicationExceptionBase
+{
+    public UserNotFoundException(string message) : base(message) { }
+}
 
 public sealed class ConflictException : ApplicationExceptionBase
 {

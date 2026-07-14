@@ -1,7 +1,7 @@
-using ECommerceAuction.UserService.Api.Authorization;
+using ECommerceAuction.UserService.Application.Authorization;
 using ECommerceAuction.UserService.Application.Features.Roles.GetPrivileges;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceAuction.UserService.Api.Controllers;
@@ -18,7 +18,7 @@ public sealed class PrivilegesController : ControllerBase
     }
 
     [HttpGet]
-    [RequirePrivilege(PrivilegeCodes.RoleView)]
+    [Authorize(Policy = Permissions.Roles.View)]
     public async Task<IActionResult> GetPrivileges(CancellationToken cancellationToken)
     {
         return Ok(await _sender.Send(new GetPrivilegesQuery(), cancellationToken));

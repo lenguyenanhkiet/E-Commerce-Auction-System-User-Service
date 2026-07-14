@@ -1,7 +1,9 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using MassTransit.NewIdProviders;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 
@@ -15,16 +17,20 @@ public sealed class GetProfileQueryHandler
     private readonly IUserRepository _userRepository;
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IIdentityVerificationRepository _identityVerificationRepository;
+    private readonly IAddressRepository _addressRepository;
+
     public GetProfileQueryHandler(
         ICurrentUserService currentUserService,
         IUserRepository userRepository,
         IUserOAuthRepository userOAuthRepository,
-        IIdentityVerificationRepository identityVerificationRepository)
+        IIdentityVerificationRepository identityVerificationRepository,
+        IAddressRepository addressRepository)
     {
         _currentUserService = currentUserService;
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
         _identityVerificationRepository = identityVerificationRepository;
+        _addressRepository = addressRepository;
     }
 
     public async Task<UserProfileResponse> Handle(
@@ -48,7 +54,7 @@ public sealed class GetProfileQueryHandler
         var roles = await _userOAuthRepository.GetActiveRoleCodesAsync(user.Id, cancellationToken);
         var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(user.Id, cancellationToken);
         var identityVerification = await _identityVerificationRepository.GetByUserIdAsync(user.Id, cancellationToken);
-
+        var addresses = await _addressRepository.GetUserAddressesAsync(user.Id, cancellationToken);
         return new UserProfileResponse(
             Id: user.Id,
             FullName: user.FullName,
@@ -56,7 +62,14 @@ public sealed class GetProfileQueryHandler
             PhoneNumber: user.PhoneNumber,
             IdentityNumber: identityVerification?.IdentityNumber,
             Gender: user.Gender,
-            Address: user.Address,
+            AddressList: addresses.Select(a => new AddressResponse(
+                a.RecipientName,
+                a.RecipientPhone,
+                a.Street,
+                a.Province,
+                a.Ward,
+                a.Type,
+                a.IsDefault)).ToList(),
             DateOfBirth: user.DateOfBirth,
             IsEmailConfirmed: user.IsEmailConfirmed,
             IsPhoneConfirmed: user.IsPhoneConfirmed,

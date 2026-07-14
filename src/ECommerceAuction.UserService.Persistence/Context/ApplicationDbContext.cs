@@ -16,6 +16,7 @@ namespace ECommerceAuction.UserService.Persistence.Context;
 public sealed class ApplicationDbContext : DbContext, IUnitOfWork
 {
     public DbSet<User> Users => Set<User>();
+    public DbSet<Address> Addresses => Set<Address>();
     public DbSet<Role> Roles => Set<Role>();
     public DbSet<Privilege> Privileges => Set<Privilege>();
     public DbSet<RolePrivilege> RolePrivileges => Set<RolePrivilege>();

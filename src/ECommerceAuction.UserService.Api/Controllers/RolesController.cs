@@ -1,11 +1,11 @@
-using ECommerceAuction.UserService.Api.Authorization;
+using ECommerceAuction.UserService.Application.Authorization;
 using ECommerceAuction.UserService.Application.Features.Roles.CreateRole;
 using ECommerceAuction.UserService.Application.Features.Roles.DeleteRole;
 using ECommerceAuction.UserService.Application.Features.Roles.GetRoleById;
 using ECommerceAuction.UserService.Application.Features.Roles.GetRoles;
 using ECommerceAuction.UserService.Application.Features.Roles.UpdateRole;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ECommerceAuction.UserService.Api.Controllers;
@@ -25,7 +25,7 @@ public sealed class RolesController : ControllerBase
     }
 
     [HttpGet]
-    [RequirePrivilege(PrivilegeCodes.RoleList)]
+    [Authorize(Policy = Permissions.Roles.List)]
     public async Task<IActionResult> GetRoles(
         [FromQuery] GetRolesQuery query,
         CancellationToken cancellationToken)
@@ -34,14 +34,14 @@ public sealed class RolesController : ControllerBase
     }
 
     [HttpGet("{roleId:guid}")]
-    [RequirePrivilege(PrivilegeCodes.RoleView)]
+    [Authorize(Policy = Permissions.Roles.View)]
     public async Task<IActionResult> GetRoleById(Guid roleId, CancellationToken cancellationToken)
     {
         return Ok(await _sender.Send(new GetRoleByIdQuery(roleId), cancellationToken));
     }
 
     [HttpPost]
-    [RequirePrivilege(PrivilegeCodes.RoleCreate)]
+    [Authorize(Policy = Permissions.Roles.Create)]
     public async Task<IActionResult> CreateRole(
         [FromBody] CreateRoleCommand command,
         CancellationToken cancellationToken)
@@ -51,7 +51,7 @@ public sealed class RolesController : ControllerBase
     }
 
     [HttpPut("{roleId:guid}")]
-    [RequirePrivilege(PrivilegeCodes.RoleUpdate)]
+    [Authorize(Policy = Permissions.Roles.Update)]
     public async Task<IActionResult> UpdateRole(
         Guid roleId,
         [FromBody] UpdateRoleRequest request,
@@ -67,7 +67,7 @@ public sealed class RolesController : ControllerBase
     }
 
     [HttpDelete("{roleId:guid}")]
-    [RequirePrivilege(PrivilegeCodes.RoleDelete)]
+    [Authorize(Policy = Permissions.Roles.Delete)]
     public async Task<IActionResult> DeleteRole(Guid roleId, CancellationToken cancellationToken)
     {
         await _sender.Send(new DeleteRoleCommand(roleId), cancellationToken);

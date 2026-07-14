@@ -49,11 +49,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("date")
             .IsRequired(false);
 
-        builder.Property(x => x.Address)
-            .HasColumnName("address")
-            .HasColumnType("nvarchar(max)")
-            .IsRequired(false);
-
         builder.Property(x => x.PasswordHash)
             .HasColumnName("password_hash")
             .HasColumnType("nvarchar(255)")
@@ -114,5 +109,10 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("bit")
             .HasDefaultValue(false)
             .IsRequired();
+
+        builder.Property(x => x.PasswordChangedAt)
+            .HasColumnName("password_changed_at")
+            .HasColumnType("datetime2(3)")
+            .IsRequired(false);
     }
 }

@@ -386,6 +386,66 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("SellerProfiles", "user");
                 });
 
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Address", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Province")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("RecipientName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("RecipientPhone")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<string>("Street")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Type")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Ward")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("UserId", "IsDefault")
+                        .HasFilter("[DeletedAt] IS NULL");
+
+                    b.ToTable("Addresses", "user");
+                });
+
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -433,10 +493,6 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<string>("Address")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("address");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2(3)")
                         .HasColumnName("created_at");
@@ -451,6 +507,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
                     b.Property<string>("Email")
                         .IsRequired()
+                        .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("email");
 
@@ -462,10 +519,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
                     b.Property<string>("FullName")
                         .IsRequired()
+                        .HasMaxLength(200)
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("full_name");
 
                     b.Property<string>("Gender")
+                        .HasMaxLength(10)
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("gender");
 
@@ -491,12 +550,17 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("must_change_password");
 
+                    b.Property<DateTime?>("PasswordChangedAt")
+                        .HasColumnType("datetime2(3)")
+                        .HasColumnName("password_changed_at");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("password_hash");
 
                     b.Property<string>("PhoneNumber")
+                        .HasMaxLength(12)
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("phone_number");
 
@@ -821,6 +885,17 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Address", b =>
+                {
+                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
+                        .WithMany("Addresses")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserExternalLogin", b =>
                 {
                     b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
@@ -865,6 +940,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.User", b =>
                 {
+                    b.Navigation("Addresses");
+
                     b.Navigation("ReputationProfile");
 
                     b.Navigation("UserRoles");

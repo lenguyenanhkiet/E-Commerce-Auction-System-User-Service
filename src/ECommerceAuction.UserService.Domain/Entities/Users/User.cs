@@ -1,5 +1,6 @@
 using ECommerceAuction.UserService.Domain.Common;
 using ECommerceAuction.UserService.Domain.Entities.Reputation;
+using System.ComponentModel.DataAnnotations;
 
 namespace ECommerceAuction.UserService.Domain.Entities.Users;
 
@@ -8,15 +9,29 @@ namespace ECommerceAuction.UserService.Domain.Entities.Users;
 /// </summary>
 public class User : AuditableEntity, IAggregateRoot
 {
+    [Required]
+    [EmailAddress]
+    [StringLength(255)]
     public string Email { get; private set; } = string.Empty;
-    public string PhoneNumber { get; private set; } = string.Empty;
-    public string FullName { get; private set; } = string.Empty;
-    public string? Gender { get; private set; }
-    public DateOnly? DateOfBirth { get; private set; }
-    public string? Address { get; private set; }
 
+    [Phone]
+    [StringLength(12)]
+    public string PhoneNumber { get; private set; } = string.Empty;
+
+    [Required]
+    [StringLength(200)]
+    public string FullName { get; private set; } = string.Empty;
+
+    [StringLength(10)]
+    public string? Gender { get; private set; }
+
+    public DateOnly? DateOfBirth { get; private set; }
+
+    [Required]
     public string PasswordHash { get; private set; } = string.Empty;
+
     public bool MustChangePassword { get; private set; }
+    public DateTime? PasswordChangedAt { get; private set; }
 
     public string Status { get; private set; } = UserStatus.Active;
     public bool IsEmailConfirmed { get; private set; }
@@ -29,6 +44,8 @@ public class User : AuditableEntity, IAggregateRoot
     private readonly List<UserRole> _userRoles = new();
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
+    private readonly List<Address> _addresses = new();
+    public IReadOnlyCollection<Address> Addresses => _addresses.AsReadOnly();
     public ReputationProfile? ReputationProfile { get; private set; }
 
     protected User()
@@ -50,6 +67,8 @@ public class User : AuditableEntity, IAggregateRoot
         FailedLoginAttempts = 0;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = CreatedAt;
+        // The account is created with a password, so its age starts now.
+        PasswordChangedAt = CreatedAt;
     }
 
     /// <summary>
@@ -81,16 +100,73 @@ public class User : AuditableEntity, IAggregateRoot
     }
 
     /// <summary>
+    /// Creates a local account by an administrator with the full set of profile fields.
+    /// Admin-created accounts are trusted, so the email is marked as confirmed.
+    /// </summary>
+    public static User CreateByAdmin(
+        string email,
+        string passwordHash,
+        string fullName,
+        string phoneNumber,
+        string? gender,
+        DateOnly? dateOfBirth
+        )
+    {
+        var user = new User(email, passwordHash, fullName, phoneNumber)
+        {
+            Gender = string.IsNullOrWhiteSpace(gender) ? null : gender.Trim(),
+            DateOfBirth = dateOfBirth,
+        };
+        return user;
+    }
+
+    /// <summary>
+    /// Updates the editable profile fields on behalf of an administrator.
+    /// Email is handled separately through <see cref="ChangeEmailByAdmin"/>.
+    /// </summary>
+    public void AdminUpdate(
+        string fullName,
+        string? gender,
+        DateOnly? dateOfBirth
+        )
+    {
+        FullName = fullName.Trim();
+        Gender = string.IsNullOrWhiteSpace(gender) ? null : gender.Trim();
+        DateOfBirth = dateOfBirth;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Applies an email change performed by an administrator directly, without a verification round-trip.
+    /// </summary>
+    public void ChangeEmailByAdmin(string newEmail)
+    {
+        Email = newEmail.Trim().ToLowerInvariant();
+        IsEmailConfirmed = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Marks the account as soft-deleted so it is excluded from active queries.
+    /// </summary>
+    public void AdminSoftDeleteUser()
+    {
+        Status = UserStatus.Banned;
+        DeletedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
     /// Records a failed local login attempt and temporarily locks the account after repeated failures.
     /// </summary>
-    public void RecordFailedLogin()
+    public void RecordFailedLogin(int maxAttempts = 5, int lockoutMinutes = 15)
     {
         FailedLoginAttempts++;
 
-        if (FailedLoginAttempts >= 5)
+        if (FailedLoginAttempts >= maxAttempts)
         {
             Status = UserStatus.Locked;
-            StatusExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            StatusExpiresAt = DateTime.UtcNow.AddMinutes(lockoutMinutes);
         }
 
         UpdatedAt = DateTime.UtcNow;
@@ -121,7 +197,7 @@ public class User : AuditableEntity, IAggregateRoot
     /// Email change is intentionally NOT applied here — it must go through
     /// the email-verification flow in Notification Service first.
     /// </summary>
-    public void UpdateProfile(string phoneNumber, string address)
+    public void UpdateProfile(string phoneNumber)
     {
         var newPhoneNumber = phoneNumber.Trim();
 
@@ -132,7 +208,6 @@ public class User : AuditableEntity, IAggregateRoot
         }
 
         PhoneNumber = newPhoneNumber;
-        Address = address.Trim();
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -146,6 +221,7 @@ public class User : AuditableEntity, IAggregateRoot
         IsEmailConfirmed = true;
         UpdatedAt = DateTime.UtcNow;
     }
+
     public void ConfirmPhoneChange()
     {
         IsPhoneConfirmed = true;
@@ -163,6 +239,30 @@ public class User : AuditableEntity, IAggregateRoot
         }
 
         _userRoles.Add(role);
+    }
+
+    public void AddAddress(Address address)
+    {
+        if (address.UserId != Id)
+        {
+            throw new InvalidOperationException("Address must belong to this user.");
+        }
+        _addresses.Add(address);
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Gets the default address for this user
+    /// </summary>
+    /// <returns>Address IsDefault</returns>
+    public Address? GetDefaultAddress()
+    {
+        return _addresses.FirstOrDefault(a => a.IsDefault && a.DeletedAt == null);
+    }
+
+    public IReadOnlyCollection<Address> GetActiveAddresses()
+    {
+        return _addresses.Where(a => a.DeletedAt == null).ToList().AsReadOnly();
     }
 
     /// <summary>
@@ -216,6 +316,7 @@ public class User : AuditableEntity, IAggregateRoot
         // ECA-6 OAuth2 Google: prevent account takeover when someone pre-created this email with an arbitrary password.
         PasswordHash = string.Empty;
         MustChangePassword = false;
+        PasswordChangedAt = null;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -226,8 +327,10 @@ public class User : AuditableEntity, IAggregateRoot
     {
         PasswordHash = newPasswordHash;
         MustChangePassword = false;
+        PasswordChangedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
+
     public void FlagMustChangePassword()
     {
         MustChangePassword = true;

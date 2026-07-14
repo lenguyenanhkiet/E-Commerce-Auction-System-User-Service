@@ -6,5 +6,6 @@ namespace ECommerceAuction.UserService.Application.Features.Auth.Common;
 public sealed record AuthResponse(
     string AccessToken,
     string? RefreshToken,
-    DateTime ExpiresAt);
+    DateTime ExpiresAt,
+    bool MustChangePassword = false);
 

@@ -6,50 +6,16 @@ using ECommerceAuction.UserService.Application;
 using ECommerceAuction.UserService.Infrastructure;
 using ECommerceAuction.UserService.Persistence;
 using ECommerceAuction.UserService.Persistence.Context;
+using ECommerceAuction.UserService.Persistence.Seeders;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using Microsoft.AspNetCore.Authorization;
 
 //Create a builder to configure the web application's services
 var builder = WebApplication.CreateBuilder(args);
-
-//Configure MassTransit to use RabbitMq as the message broker
-//MassTransit is a library that helps handle sending/receiving messages from queues
-builder.Services.AddMassTransit(x =>
-{
-    //Configure to use RabbitMq as service transport
-    x.UsingRabbitMq((context, cfg) =>
-    {
-
-        var host = builder.Configuration["RabbitMQ:Host"] ?? "rabbitmq";
-        var username = builder.Configuration["RabbitMQ:Username"] ?? "guest";
-        var password = builder.Configuration["RabbitMQ:Password"] ?? "guest";
-        var vhost = builder.Configuration["RabbitMQ:VHost"] ?? "/";
-        var useSsl = !string.Equals(host, "rabbitmq", StringComparison.OrdinalIgnoreCase);
-
-        var scheme = useSsl ? "amqps" : "amqp";
-        var port = useSsl ? 5671 : 5672;
-        var hostUri = new Uri($"{scheme}://{host}:{port}/{Uri.EscapeDataString(vhost)}");
-        cfg.Host(hostUri, h =>
-        {
-            h.Username(username);
-            h.Password(password);
-            if (useSsl)
-            {
-                h.UseSsl(ssl =>
-                {
-                    ssl.Protocol = System.Security.Authentication.SslProtocols.Tls12;
-                    ssl.ServerName = host; 
-                });
-            }
-        });
-        //Configure endpoints to automatically map messages
-        cfg.ConfigureEndpoints(context);
-    });
-
-});
 //Register the Controllers service - allows the application to handle HTTP requests
 builder.Services.AddControllers();
 //Register for the gRPC service - allows the application to support gRPC communication
@@ -60,15 +26,24 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 //Register services from the Infrastructure layer (authentication, cache, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+//Bind account security policy (lockout + password expiry) and start its background sweepers
+builder.Services.Configure<ECommerceAuction.UserService.Application.Common.Options.AccountPolicyOptions>(
+    builder.Configuration.GetSection(
+        ECommerceAuction.UserService.Application.Common.Options.AccountPolicyOptions.SectionName));
+builder.Services.AddHostedService<ECommerceAuction.UserService.Api.BackgroundJobs.AccountUnlockSweeperService>();
+builder.Services.AddHostedService<ECommerceAuction.UserService.Api.BackgroundJobs.PasswordExpirySweeperService>();
+// Dynamic policy provider: any [Authorize(Policy = "...")] name is treated as a permission code
+// and checked against the "privilege" claims on the JWT (see PermissionPolicyProvider).
 builder.Services.AddAuthorization();
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, PrivilegePolicyProvider>();
-builder.Services.AddScoped<IAuthorizationHandler, PrivilegeAuthorizationHandler>();
+builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
+builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+
 builder.Services.AddEndpointsApiExplorer();
 
 //Configure Swagger/OpenAPI for API documentation
 builder.Services.AddSwaggerGen(options =>
 {
-
     //Add security definition for Bearer token (JWT)
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
@@ -83,7 +58,6 @@ builder.Services.AddSwaggerGen(options =>
         //Location of the security header
         In = ParameterLocation.Header,
         Description = "Enter JWT access token. Example: Bearer eyJhbGciOi..."
-
     });
 
     // Swagger sends the authorized JWT to protected RBAC APIs.
@@ -114,13 +88,14 @@ builder.Services.AddCors(options =>
 //Build web applications from the builder
 var app = builder.Build();
 
-    app.UseSwagger();
-    app.UseSwaggerUI();
+app.UseSwagger();
+app.UseSwaggerUI();
 
 //Use custom error handling middleware to catch unexpected exceptions
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 //If it is not a Development environment, force the use of HTTPS
+
 if (!app.Environment.IsDevelopment())
 {
     //Redirect all HTTP requests to HTTPS
@@ -139,13 +114,7 @@ app.UseAuthorization();
 app.MapGrpcService<InternalHealthGrpcService>();
 //Register all controller endpoints
 app.MapControllers();
-// Auto Migration when app run
-if (app.Environment.IsProduction() || app.Environment.EnvironmentName == "Staging")
-{
-    using var scope = app.Services.CreateScope();
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-}
+// Database migration AND permission-catalog seeding both run on startup in the
+// DatabaseMigrationService hosted service (Infrastructure), in that order — migrate first, then
+// seed — so the schema exists before seeding. Nothing schema-related runs here in Program.cs.
 app.Run();
-
-
