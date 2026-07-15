@@ -77,6 +77,24 @@ public static class DependencyInjection
                         }
                     }
                 };
+            })
+            .AddJwtBearer(ServiceAuthSchemes.ServiceJwt, options =>
+            {
+                // Validates internal service-to-service tokens (token_use=service). Same
+                // signing key/issuer as user tokens, but a distinct internal audience.
+                options.MapInboundClaims = false;
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtOptions.Issuer,
+                    ValidAudience = jwtOptions.InternalAudience,
+                    IssuerSigningKey = new SymmetricSecurityKey(
+                        Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+                    ClockSkew = TimeSpan.Zero
+                };
             });
 
         //Configure MassTransit to use RabbitMq as the message broker
@@ -130,8 +148,12 @@ public static class DependencyInjection
 
         services.AddHttpContextAccessor();
 
+        services.Configure<InternalAuthOptions>(
+            configuration.GetSection(InternalAuthOptions.SectionName));
+
         services.AddScoped<ICacheService, RedisCacheService>();
         services.AddScoped<IJwtTokenService, JwtTokenService>();
+        services.AddScoped<IServiceTokenIssuer, ServiceTokenIssuer>();
         services.AddScoped<IRefreshTokenService, RefreshTokenService>();
         services.AddScoped<ITokenRevocationService, TokenRevocationService>();
         services.AddHttpClient<IGoogleOAuthService, GoogleOAuthService>();

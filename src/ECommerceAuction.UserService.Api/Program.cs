@@ -129,6 +129,9 @@ app.UseAuthorization();
 
 //Register gRPC service for health check
 app.MapGrpcService<InternalHealthGrpcService>();
+//Register internal service-to-service gRPC endpoints consumed by the Catalog Service.
+app.MapGrpcService<UserSellerEligibilityGrpcService>();
+app.MapGrpcService<UserProfileGrpcService>();
 //Register all controller endpoints
 app.MapControllers();
 // Database migration AND permission-catalog seeding both run on startup in the
