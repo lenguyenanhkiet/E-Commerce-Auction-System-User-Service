@@ -99,7 +99,8 @@ public sealed class ExchangeLoginCodeCommandHandler
         return new AuthResponse(
             accessToken.Value,
             RefreshToken: refreshToken,
-            ExpiresAt: accessToken.ExpiresAt
+            ExpiresAt: accessToken.ExpiresAt,
+            Status: user.Status
             );
     }
 }

@@ -7,5 +7,5 @@ public sealed record AuthResponse(
     string AccessToken,
     string? RefreshToken,
     DateTime ExpiresAt,
+    string Status,
     bool MustChangePassword = false);
-
