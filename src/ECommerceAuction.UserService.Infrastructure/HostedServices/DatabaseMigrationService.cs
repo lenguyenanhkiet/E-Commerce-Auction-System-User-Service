@@ -31,16 +31,13 @@ public sealed class DatabaseMigrationService : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-        // Only auto-migrate on deployed servers. Local (non-docker) development manages its own
-        // schema; the docker-compose container runs with ASPNETCORE_ENVIRONMENT=Production and
-        // therefore does migrate on startup.
-        if (!_environment.IsProduction() && !_environment.IsStaging())
-        {
-            _logger.LogInformation(
-                "Skipping automatic migration in the {Environment} environment.",
-                _environment.EnvironmentName);
-            return;
-        }
+        // Auto-migrate on every startup, in every environment. The docker-compose containers and
+        // the deployed servers all rely on this, and the environment label is not a reliable gate
+        // (local docker may run as Development). `dotnet ef` design-time commands do not start
+        // hosted services, so they are unaffected.
+        _logger.LogInformation(
+            "Running startup database migration + permission seeding ({Environment}).",
+            _environment.EnvironmentName);
 
         using var scope = _serviceProvider.CreateScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
