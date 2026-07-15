@@ -93,7 +93,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(0)
             .IsRequired();
 
-       
+        builder.Property(x => x.AuthProvider)
+            .HasColumnName("auth_provider")
+            .HasColumnType("nvarchar(20)")
+            .HasDefaultValue("LOCAL")
+            .IsRequired();
+
         builder.Property(x => x.LastLoginAt)
             .HasColumnName("last_login_at")
             .HasColumnType("datetime2(3)")
