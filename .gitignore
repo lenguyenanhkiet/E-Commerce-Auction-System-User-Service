@@ -7,7 +7,7 @@
 *.suo
 .env
 .env.*
-
+appsettings.Development.json
 # Local backup files generated during setup/review
 _backup_*/
 *_backup_*.yml
