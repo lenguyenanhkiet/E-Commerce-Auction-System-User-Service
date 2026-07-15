@@ -8,6 +8,8 @@ using ECommerceAuction.UserService.Persistence;
 using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Seeders;
 using MassTransit;
+using Microsoft.Extensions.FileProviders;
+using Nexus.Upload.src.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -26,6 +28,9 @@ builder.Services.AddApplication();
 builder.Services.AddPersistence(builder.Configuration);
 //Register services from the Infrastructure layer (authentication, cache, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+//Register the shared image-upload library (Nexus.Upload). Storage provider is chosen from the
+//"UploadService" config section: Local for dev/local-docker, DigitalOcean Spaces in Production.
+builder.Services.AddNexusUpload(builder.Configuration);
 
 //Bind account security policy (lockout + password expiry) and start its background sweepers
 builder.Services.Configure<ECommerceAuction.UserService.Application.Common.Options.AccountPolicyOptions>(
@@ -93,6 +98,18 @@ app.UseSwaggerUI();
 
 //Use custom error handling middleware to catch unexpected exceptions
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+// Serve files saved by the Local storage provider at /uploads (no effect for the Spaces provider,
+// which returns absolute DigitalOcean URLs). Physical folder matches UploadService:Local:BaseDirectory.
+var uploadsPath = Path.Combine(
+    app.Environment.ContentRootPath,
+    builder.Configuration["UploadService:Local:BaseDirectory"] ?? "uploads");
+Directory.CreateDirectory(uploadsPath);
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadsPath),
+    RequestPath = "/uploads"
+});
 
 //If it is not a Development environment, force the use of HTTPS
 
