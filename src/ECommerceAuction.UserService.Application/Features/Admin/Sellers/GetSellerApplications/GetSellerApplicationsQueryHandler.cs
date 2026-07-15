@@ -14,6 +14,7 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSel
         {
             _sellerProfileRepository = sellerProfileRepository;
         }
+
         public async Task<PagedSellerApplicationsResponse> Handle(GetSellerApplicationsQuery request, CancellationToken cancellationToken)
         {
             var (items, totalCount) = await _sellerProfileRepository.GetPagedAsync(
@@ -23,7 +24,7 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSel
             cancellationToken);
 
             var summaries = items
-                .Select(p => new SellerApplicationSummaryResponse(p.Id, p.UserId, p.SellerType, p.Status, p.SubmittedAt))
+                .Select(p => new SellerApplicationSummaryResponse(p.Id, p.UserId, p.SellerType, p.Status, p.BusinessName, p.Address, p.BankName, p.BankAccountNumber, p.BankAccountHolder, p.SubmittedAt))
                 .ToList();
 
             return new PagedSellerApplicationsResponse(summaries, totalCount, request.Page, request.PageSize);
