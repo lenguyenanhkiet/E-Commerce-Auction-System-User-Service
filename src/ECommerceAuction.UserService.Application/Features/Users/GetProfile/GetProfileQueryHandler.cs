@@ -62,6 +62,7 @@ public sealed class GetProfileQueryHandler
             PhoneNumber: user.PhoneNumber,
             IdentityNumber: identityVerification?.IdentityNumber,
             Gender: user.Gender,
+            AvatarUrl: user.AvatarUrl,
             AddressList: addresses.Select(a => new AddressResponse(
                 a.RecipientName,
                 a.RecipientPhone,

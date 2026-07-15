@@ -27,6 +27,12 @@ public class User : AuditableEntity, IAggregateRoot
 
     public DateOnly? DateOfBirth { get; private set; }
 
+    [StringLength(500)]
+    public string? AvatarUrl { get; private set; }
+
+    [StringLength(500)]
+    public string? AvatarKey { get; private set; }
+
     [Required]
     public string PasswordHash { get; private set; } = string.Empty;
 
@@ -225,6 +231,17 @@ public class User : AuditableEntity, IAggregateRoot
     public void ConfirmPhoneChange()
     {
         IsPhoneConfirmed = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    /// <summary>
+    /// Sets the user's avatar image URL and its storage key after a successful upload.
+    /// Passing null/empty clears both.
+    /// </summary>
+    public void SetAvatar(string? avatarUrl, string? avatarKey)
+    {
+        AvatarUrl = string.IsNullOrWhiteSpace(avatarUrl) ? null : avatarUrl.Trim();
+        AvatarKey = string.IsNullOrWhiteSpace(avatarKey) ? null : avatarKey.Trim();
         UpdatedAt = DateTime.UtcNow;
     }
 

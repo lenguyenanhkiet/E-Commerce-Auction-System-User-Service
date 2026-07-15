@@ -49,6 +49,16 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnType("date")
             .IsRequired(false);
 
+        builder.Property(x => x.AvatarUrl)
+            .HasColumnName("avatar_url")
+            .HasColumnType("nvarchar(500)")
+            .IsRequired(false);
+
+        builder.Property(x => x.AvatarKey)
+            .HasColumnName("avatar_key")
+            .HasColumnType("nvarchar(500)")
+            .IsRequired(false);
+
         builder.Property(x => x.PasswordHash)
             .HasColumnName("password_hash")
             .HasColumnType("nvarchar(255)")
