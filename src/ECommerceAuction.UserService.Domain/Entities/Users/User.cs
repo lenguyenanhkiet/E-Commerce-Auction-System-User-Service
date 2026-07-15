@@ -47,6 +47,9 @@ public class User : AuditableEntity, IAggregateRoot
     public DateTime? StatusExpiresAt { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
 
+    [StringLength(20)]
+    public string AuthProvider { get; private set; } = AuthProviders.Local;
+
     private readonly List<UserRole> _userRoles = new();
     public IReadOnlyCollection<UserRole> UserRoles => _userRoles.AsReadOnly();
 
@@ -100,6 +103,7 @@ public class User : AuditableEntity, IAggregateRoot
             Status = UserStatus.Active,
             IsEmailConfirmed = true,
             FailedLoginAttempts = 0,
+            AuthProvider = AuthProviders.Google,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow
         };

@@ -54,7 +54,7 @@ public sealed class UserExternalLogin : AuditableEntity
     {
         return new UserExternalLogin(
             userId,
-            ExternalLoginProviders.Google,
+            AuthProviders.Google,
             providerUserId,
             providerEmail.Trim().ToLowerInvariant(),
             providerDisplayName?.Trim());
@@ -87,14 +87,6 @@ public sealed class UserExternalLogin : AuditableEntity
         LastLoginAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
     }
-}
-
-/// <summary>
-/// Defines supported external identity providers.
-/// </summary>
-public static class ExternalLoginProviders
-{
-    public const string Google = "GOOGLE";
 }
 
 /// <summary>

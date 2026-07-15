@@ -23,6 +23,7 @@ public sealed record UserProfileResponse(
     DateOnly? DateOfBirth,
     bool IsEmailConfirmed,
     bool IsPhoneConfirmed,
+    string AuthProvider,
     UserReputationResponse Reputation,
     IReadOnlyCollection<string> Roles,
     IReadOnlyCollection<string> Privileges);
