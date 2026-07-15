@@ -139,6 +139,7 @@ public sealed class CheckLocalAccountCommandHandler
             accessToken.Value,
             RefreshToken: refreshToken,
             ExpiresAt: accessToken.ExpiresAt,
+            Status: user.Status,
             MustChangePassword: user.MustChangePassword);
     }
 }

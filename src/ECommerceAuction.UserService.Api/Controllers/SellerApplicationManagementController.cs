@@ -23,8 +23,9 @@ namespace ECommerceAuction.UserService.Api.Controllers
         {
             _sender = sender;
         }
+
         /// <summary>
-        /// GET /api/v1/admin/sellers — list applications, optionally filtered by status.
+        /// GET api/v1/management/sellers-applications — list applications, optionally filtered by status.
         /// </summary>
         [HttpGet]
         [Authorize(Policy = Permissions.Sellers.ListApplications)]
@@ -43,8 +44,9 @@ namespace ECommerceAuction.UserService.Api.Controllers
                 data = result
             });
         }
+
         /// <summary>
-        /// GET /api/v1/admin/sellers/{id} — view full detail of one application.
+        /// GET api/v1/management/sellers-applications/{id} — view full detail of one application.
         /// </summary>
         [HttpGet("{id:guid}")]
         [Authorize(Policy = Permissions.Sellers.ViewApplication)]
@@ -54,8 +56,9 @@ namespace ECommerceAuction.UserService.Api.Controllers
 
             return Ok(new { message = "Retrieved seller application successfully.", data = result });
         }
+
         /// <summary>
-        /// PUT /api/v1/admin/sellers/{id}/approve
+        /// PUT api/v1/management/sellers-applications/{id}/approve
         /// </summary>
         [HttpPut("{id:guid}/approve")]
         [Authorize(Policy = Permissions.Sellers.ApproveApplication)]
@@ -68,7 +71,7 @@ namespace ECommerceAuction.UserService.Api.Controllers
         }
 
         /// <summary>
-        /// PUT /api/v1/admin/sellers/{id}/reject
+        /// PUT api/v1/management/sellers-applications/{id}/reject
         /// </summary>
         [HttpPut("{id:guid}/reject")]
         [Authorize(Policy = Permissions.Sellers.RejectApplication)]
@@ -92,6 +95,6 @@ namespace ECommerceAuction.UserService.Api.Controllers
                 : throw new UnauthorizedAccessException("Missing or invalid user id claim.");
         }
     }
-    public sealed record RejectSellerRequest(string Reason);
 
+    public sealed record RejectSellerRequest(string Reason);
 }

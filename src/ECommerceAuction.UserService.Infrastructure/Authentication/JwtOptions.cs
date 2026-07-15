@@ -12,4 +12,13 @@ public sealed class JwtOptions
     public string SecretKey { get; init; } = string.Empty;
     public int AccessTokenExpirationMinutes { get; init; } = 60;
     public int RefreshTokenExpirationDays { get; init; } = 7;
+
+    /// <summary>
+    /// Audience stamped on internal service-to-service tokens (token_use=service),
+    /// distinct from the user-facing <see cref="Audience"/>.
+    /// </summary>
+    public string InternalAudience { get; init; } = "user-service";
+
+    /// <summary>Lifetime (minutes) of issued service-to-service tokens.</summary>
+    public int ServiceTokenExpirationMinutes { get; init; } = 5;
 }

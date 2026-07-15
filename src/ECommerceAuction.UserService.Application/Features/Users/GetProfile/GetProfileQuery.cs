@@ -18,6 +18,7 @@ public sealed record UserProfileResponse(
     string PhoneNumber,
     string? IdentityNumber,
     string? Gender,
+    string? AvatarUrl,
     IReadOnlyList<AddressResponse> AddressList,
     DateOnly? DateOfBirth,
     bool IsEmailConfirmed,

@@ -38,6 +38,12 @@ public static class DependencyInjection
         services.AddScoped<IUserOAuthRepository, UserOAuthRepository>();
         services.AddScoped<IRoleManagementRepository, RoleManagementRepository>();
         services.AddScoped<ISellerProfileRepository, SellerProfileRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Application.Abstractions.Services.IInternalUserQueries,
+            InternalUserQueries>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Application.Abstractions.Services.IRbacRegistrar,
+            RbacRegistrar>();
         services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IAccountMaintenanceRepository, AccountMaintenanceRepository>();

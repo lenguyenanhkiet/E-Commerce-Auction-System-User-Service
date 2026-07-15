@@ -9,12 +9,17 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSel
         string? Status,
         int Page = 1,
         int PageSize = 20) : IQuery<PagedSellerApplicationsResponse>;
-    
+
     public sealed record SellerApplicationSummaryResponse(
     Guid Id,
     Guid UserId,
     string SellerType,
     string Status,
+    string BusninessName,
+    string Address,
+    string BankAccountNumber,
+    string BankName,
+    string BankAccountHolder,
     DateTime SubmittedAt);
 
     // ASSUMPTION: your project likely already has a shared PagedResult<T> type used by
