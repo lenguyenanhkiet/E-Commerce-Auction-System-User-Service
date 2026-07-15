@@ -41,6 +41,9 @@ public static class DependencyInjection
         services.AddScoped<
             ECommerceAuction.UserService.Application.Abstractions.Services.IInternalUserQueries,
             InternalUserQueries>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Application.Abstractions.Services.IRbacRegistrar,
+            RbacRegistrar>();
         services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IAccountMaintenanceRepository, AccountMaintenanceRepository>();

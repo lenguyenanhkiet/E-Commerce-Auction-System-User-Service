@@ -42,10 +42,14 @@ public sealed class ServiceTokenIssuer : IServiceTokenIssuer
         var client = _internal.Clients.FirstOrDefault(
             c => string.Equals(c.ClientId, clientId, StringComparison.Ordinal));
 
+        // A request may ask for several space-delimited scopes; every one must be allowed.
+        var requestedScopes = scope.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+
         if (client is null ||
             string.IsNullOrEmpty(client.ClientSecret) ||
             !FixedTimeEquals(client.ClientSecret, clientSecret) ||
-            !client.AllowedScopes.Contains(scope, StringComparer.Ordinal))
+            requestedScopes.Length == 0 ||
+            requestedScopes.Any(s => !client.AllowedScopes.Contains(s, StringComparer.Ordinal)))
         {
             return null;
         }
