@@ -7,7 +7,7 @@ using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit;
-using Nexus.Shared.Contracts.Events.User;
+using Nexus.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.UpdateUser;
 

@@ -5,7 +5,7 @@ using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
 using ECommerceAuction.UserService.Domain.Entities.Sellers;
 using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit;
-using Nexus.Shared.Contracts.Events.Seller;
+using Nexus.Contracts.Events.Seller;
 using System;
 using System.Collections.Generic;
 using System.Text;
