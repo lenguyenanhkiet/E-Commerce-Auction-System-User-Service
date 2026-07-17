@@ -9,7 +9,7 @@ using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Seeders;
 using MassTransit;
 using Microsoft.Extensions.FileProviders;
-using Nexus.Upload.src.Extensions;
+using Nexus.Upload.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;

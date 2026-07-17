@@ -4,7 +4,7 @@ using ECommerceAuction.UserService.Application.Features.Identities.SubmitIdentit
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nexus.Upload.src.Core;
+using Nexus.Upload.Core;
 using System.Security.Claims;
 
 namespace ECommerceAuction.UserService.Api.Controllers;

@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Application.Services.IdentityMatching;
 using Microsoft.Extensions.Logging;
 using Nexus.Ocr;
 using Nexus.Ocr.Models;
-using Nexus.Upload.src.Core;
+using Nexus.Upload.Core;
 
 namespace ECommerceAuction.UserService.Infrastructure.IdentityVerification;
 

@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>9b92dfe9-377d-49d0-b577-a157a112b6f5</UserSecretsId>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.8">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Nexus.Contracts" Version="2.0.0" />
+    <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.17.0" />
+    <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.17.0" />
+    <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
+    <PackageReference Include="Qyl.OpenTelemetry.AutoInstrumentation.EntityFrameworkCore" Version="5.2.0" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+    <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
+    <PackageReference Include="Nexus.Upload" Version="1.0.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ECommerceAuction.UserService.Application\ECommerceAuction.UserService.Application.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Infrastructure\ECommerceAuction.UserService.Infrastructure.csproj" />
+    <ProjectReference Include="..\ECommerceAuction.UserService.Persistence\ECommerceAuction.UserService.Persistence.csproj" />
+  </ItemGroup>
+ 
+  <ItemGroup>
+    <Protobuf Include="Protos\internal_health.proto" GrpcServices="Server" />
+  </ItemGroup>
+</Project>
