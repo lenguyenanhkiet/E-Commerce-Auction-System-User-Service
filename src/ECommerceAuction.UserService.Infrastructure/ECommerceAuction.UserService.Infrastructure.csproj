@@ -4,6 +4,8 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.8" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="10.0.8" />
+    <PackageReference Include="Nexus.Ocr" Version="1.0.0" />
+    <PackageReference Include="Nexus.Upload" Version="1.0.2" />
   </ItemGroup>
 
   <ItemGroup>
