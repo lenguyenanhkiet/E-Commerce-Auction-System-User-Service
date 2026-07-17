@@ -55,6 +55,19 @@ public sealed class IdentityMatcherTests
     }
 
     [Fact]
+    public void Match_Succeeds_WhenOcrInventsADiacriticTheCardDoesNotHave()
+    {
+        // Observed from Tesseract reading a rendered card: the card says "NGUYEN VAN A" and the user
+        // declares that, but the OCR pass returns "NGUYEN VĂN A". Folding has to cut both ways.
+        var outcome = IdentityMatcher.Match(
+            Declared(fullName: "NGUYEN VAN A"),
+            Extracted(fullName: "NGUYEN VĂN A", confidence: 0.82m),
+            MinimumConfidence);
+
+        Assert.True(outcome.IsMatch);
+    }
+
+    [Fact]
     public void Match_Fails_WhenNamesAreDifferentPeople()
     {
         var outcome = IdentityMatcher.Match(
