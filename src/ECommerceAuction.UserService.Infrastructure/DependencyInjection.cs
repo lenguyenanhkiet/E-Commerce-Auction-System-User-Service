@@ -1,4 +1,5 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Application.Services.IdentityMatching;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using ECommerceAuction.UserService.Infrastructure.Caching;
 using ECommerceAuction.UserService.Infrastructure.CurrentUser;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Nexus.Ocr.Extensions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
@@ -161,9 +163,46 @@ public static class DependencyInjection
         services.AddScoped<ILoginCodeService, LoginCodeService>();
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
-        services.AddScoped<IIdentityVerificationProvider, MockIdentityVerificationProvider>();
         services.AddHostedService<DatabaseMigrationService>();
 
+        AddIdentityVerification(services, configuration);
+
         return services;
+    }
+
+    /// <summary>
+    /// Wires identity verification. The mock reads no image and is Development-only: with it wired,
+    /// a submission is checked against a hard-coded card rather than the one the user uploaded.
+    /// </summary>
+    private static void AddIdentityVerification(
+        IServiceCollection services,
+        IConfiguration configuration)
+    {
+        services.Configure<IdentityVerificationOptions>(
+            configuration.GetSection(IdentityVerificationOptions.SectionName));
+
+        // The matching threshold is Application policy, so it binds its own options type.
+        services.Configure<IdentityMatchingOptions>(
+            configuration.GetSection(IdentityMatchingOptions.SectionName));
+
+        var options = configuration
+            .GetSection(IdentityVerificationOptions.SectionName)
+            .Get<IdentityVerificationOptions>() ?? new IdentityVerificationOptions();
+
+        if (options.UseMockProvider)
+        {
+            services.AddScoped<IIdentityVerificationProvider, MockIdentityVerificationProvider>();
+            return;
+        }
+
+        // Resolved against the assembly, not the working directory: "tessdata" alone finds the files
+        // when running from the project folder but not under Docker or IIS, and the engine only
+        // fails once it is first constructed.
+        var tessDataPath = string.IsNullOrWhiteSpace(options.TessDataPath)
+            ? Path.Combine(AppContext.BaseDirectory, "tessdata")
+            : options.TessDataPath;
+
+        services.AddNexusOcr(tessDataPath);
+        services.AddScoped<IIdentityVerificationProvider, NexusOcrIdentityVerificationProvider>();
     }
 }

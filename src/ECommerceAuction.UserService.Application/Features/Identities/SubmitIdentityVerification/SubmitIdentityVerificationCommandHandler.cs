@@ -2,9 +2,11 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Application.Services.IdentityMatching;
 using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
 using ECommerceAuction.UserService.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,21 +19,31 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
         private readonly IUserRepository _userRepository;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IIdentityVerificationProvider _identityVerificationProvider;
+        private readonly IdentityMatchingOptions _options;
 
         public SubmitIdentityVerificationCommandHandler(
             IIdentityVerificationRepository identityVerificationRepository,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork,
-            IIdentityVerificationProvider identityVerificationProvider)
+            IIdentityVerificationProvider identityVerificationProvider,
+            IOptions<IdentityMatchingOptions> options)
         {
             _identityVerificationRepository = identityVerificationRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _identityVerificationProvider = identityVerificationProvider;
+            _options = options.Value;
         }
+
         public async Task<SubmitIdentityVerificationResponse> Handle(SubmitIdentityVerificationCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken) ?? throw new NotFoundException("User not found.");
+
+            // Upload keys are "{service}/{imageType}/{ownerId}/...", and the caller hands them to us
+            // straight from the request. Without this, anyone could submit somebody else's uploaded
+            // card, let it read cleanly, declare the details it shows, and be verified as them.
+            EnsureImageBelongsToCaller(request.FrontImageKey, request.UserId);
+            EnsureImageBelongsToCaller(request.BackImageKey, request.UserId);
 
             var existingVerification = await _identityVerificationRepository.GetByUserIdAsync(request.UserId, cancellationToken);
 
@@ -39,13 +51,23 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
 
             var isFirstAttempt = existingVerification == null;
 
+            // Captured before Resubmit overwrites them, so the caller can drop the replaced files.
+            var previousImageKeys = new List<string>();
+
             if (existingVerification is null)
             {
                 verification = new IdentityVerification(
                     userId: request.UserId,
+                    fullName: request.FullName,
+                    gender: request.Gender,
+                    dateOfBirth: request.DateOfBirth,
                     identityNumber: request.IdentityNumber,
-                    request.FrontImageUrl,
-                    request.BackImageUrl
+                    issueDate: request.IssueDate,
+                    expiryDate: request.ExpiryDate,
+                    issuePlace: request.IssuePlace,
+                    permanentAddress: request.PermanentAddress,
+                    request.FrontImageKey,
+                    request.BackImageKey
                 );
             }
             else if (existingVerification.Status == IdentityVerificationStatus.Verified)
@@ -55,21 +77,43 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
             else
             {
                 // Status.Rejected -- Allow resubmission
-                existingVerification.Resubmit(request.IdentityNumber, request.FrontImageUrl, request.BackImageUrl);
+                CollectReplacedKey(previousImageKeys, existingVerification.IdentityFrontImageKey, request.FrontImageKey);
+                CollectReplacedKey(previousImageKeys, existingVerification.IdentityBackImageKey, request.BackImageKey);
+
+                existingVerification.Resubmit(request.FullName, request.Gender, request.DateOfBirth, request.IdentityNumber, request.IssueDate, request.ExpiryDate, request.IssuePlace, request.PermanentAddress, request.FrontImageKey, request.BackImageKey);
                 verification = existingVerification;
             }
-            // Call provider to verify identity
-            var result = await _identityVerificationProvider.VerifyAsync(
-            request.IdentityNumber, request.FrontImageUrl, request.BackImageUrl, cancellationToken);
+            // Read the card, then check it against what the user declared. Reading the image is not
+            // the same as agreeing with it: a legible card belonging to somebody else must not pass.
+            var extractionResult = await _identityVerificationProvider.ExtractAsync(
+                request.FrontImageKey, request.BackImageKey, cancellationToken);
 
-            if (result.IsMatch)
+            if (!extractionResult.Success || extractionResult.Extraction is null)
             {
-                verification.Verify(result.ConfidenceScore);
-                user.ReputationProfile?.AddIdentificationVerificationPoint();
+                verification.Reject(extractionResult.FailureReason ?? "Identity verification failed.");
             }
             else
             {
-                verification.Reject(result.FailureReason ?? "Identity verification failed.");
+                var declared = new IdentityDeclaration(
+                    request.FullName,
+                    request.Gender,
+                    request.DateOfBirth,
+                    request.IdentityNumber);
+
+                var outcome = IdentityMatcher.Match(
+                    declared,
+                    extractionResult.Extraction,
+                    _options.MinimumConfidence);
+
+                if (outcome.IsMatch)
+                {
+                    verification.Verify(extractionResult.Extraction.Confidence);
+                    user.ReputationProfile?.AddIdentificationVerificationPoint();
+                }
+                else
+                {
+                    verification.Reject(outcome.FailureReason ?? "Identity verification failed.");
+                }
             }
 
             if (isFirstAttempt)
@@ -89,7 +133,33 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
             }
 
             return new SubmitIdentityVerificationResponse(
-                verification.Id, verification.Status, verification.ConfidenceScore, verification.RejectionReason);
+                verification.Id, verification.Status, verification.ConfidenceScore, verification.RejectionReason,
+                previousImageKeys);
+        }
+
+        /// <summary>
+        /// Records the old key only when the resubmission actually replaced it — re-sending the same
+        /// key must not queue the file the record still points at for deletion.
+        /// </summary>
+        private static void CollectReplacedKey(List<string> replaced, string oldKey, string newKey)
+        {
+            if (!string.IsNullOrWhiteSpace(oldKey) &&
+                !string.Equals(oldKey, newKey, StringComparison.OrdinalIgnoreCase))
+            {
+                replaced.Add(oldKey);
+            }
+        }
+
+        /// <summary>
+        /// Mirrors the ownership guard the delete endpoint already applies to the same key space.
+        /// The message stays vague on purpose: whether a given key exists is not the caller's business.
+        /// </summary>
+        private static void EnsureImageBelongsToCaller(string key, Guid userId)
+        {
+            if (!key.Contains($"/{userId}/", StringComparison.OrdinalIgnoreCase))
+            {
+                throw new BusinessRuleException("The uploaded identity images are not valid for this account.");
+            }
         }
     }
 }
