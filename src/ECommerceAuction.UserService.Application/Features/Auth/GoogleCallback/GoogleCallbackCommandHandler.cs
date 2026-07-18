@@ -73,7 +73,7 @@ public sealed class GoogleCallbackCommandHandler
             }
 
             var externalLogin = await _userOAuthRepository.GetExternalLoginAsync(
-                ExternalLoginProviders.Google,
+                AuthProviders.Google,
                 googleUser.ProviderUserId,
                 cancellationToken);
 

@@ -17,6 +17,7 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSel
     string Status,
     string BusninessName,
     string Address,
+    string TaxCode,
     string BankAccountNumber,
     string BankName,
     string BankAccountHolder,

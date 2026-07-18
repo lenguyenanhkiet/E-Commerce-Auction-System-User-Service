@@ -74,6 +74,7 @@ public sealed class GetProfileQueryHandler
             DateOfBirth: user.DateOfBirth,
             IsEmailConfirmed: user.IsEmailConfirmed,
             IsPhoneConfirmed: user.IsPhoneConfirmed,
+            AuthProvider: user.AuthProvider,
             Reputation: user.ReputationProfile is null
         ? new UserReputationResponse(0, "Silver")
         : new UserReputationResponse(user.ReputationProfile.Score, user.ReputationProfile.TrustLevel),
