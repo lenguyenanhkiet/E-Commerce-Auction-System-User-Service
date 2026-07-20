@@ -108,6 +108,10 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
                 if (outcome.IsMatch)
                 {
                     verification.Verify(extractionResult.Extraction.Confidence);
+                    user.VerifyIdentity(
+                        extractionResult.Extraction.FullName ?? request.FullName,
+                        extractionResult.Extraction.Gender ?? request.Gender,
+                        extractionResult.Extraction.DateOfBirth ?? request.DateOfBirth);
                     user.ReputationProfile?.AddIdentificationVerificationPoint();
                 }
                 else
