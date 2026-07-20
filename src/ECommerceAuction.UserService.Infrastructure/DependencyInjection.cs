@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Nexus.Shared.Contracts.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
@@ -94,6 +95,24 @@ public static class DependencyInjection
                     IssuerSigningKey = new SymmetricSecurityKey(
                         Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
                     ClockSkew = TimeSpan.Zero
+                };
+                options.Events = new JwtBearerEvents
+                {
+                    OnChallenge = context =>
+                    {
+                        if (!context.HttpContext.Request.ContentType?.StartsWith("application/grpc", StringComparison.OrdinalIgnoreCase) ?? true)
+                        {
+                            return Task.CompletedTask;
+                        }
+
+                        context.HandleResponse();
+                        context.Response.StatusCode = 200;
+                        context.Response.ContentType = "application/grpc";
+                        context.Response.Headers["grpc-status"] = ((int)Grpc.Core.StatusCode.Unauthenticated).ToString(System.Globalization.CultureInfo.InvariantCulture);
+                        context.Response.Headers["grpc-message"] = Uri.EscapeDataString(GrpcCommonErrorCodes.ServiceTokenInvalid);
+                        context.Response.Headers[GrpcMetadataNames.ErrorCode] = GrpcCommonErrorCodes.ServiceTokenInvalid;
+                        return Task.CompletedTask;
+                    }
                 };
             });
 

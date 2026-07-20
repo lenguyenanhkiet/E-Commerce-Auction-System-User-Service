@@ -33,14 +33,11 @@ public sealed class ServiceTokenIssuer : IServiceTokenIssuer
             return null;
         }
 
-        // The requested audience must be this service's internal audience.
-        if (!string.Equals(audience, _jwt.InternalAudience, StringComparison.Ordinal))
-        {
-            return null;
-        }
-
         var client = _internal.Clients.FirstOrDefault(
             c => string.Equals(c.ClientId, clientId, StringComparison.Ordinal));
+        var allowedAudiences = client?.AllowedAudiences.Count > 0
+            ? client.AllowedAudiences
+            : [_jwt.InternalAudience];
 
         // A request may ask for several space-delimited scopes; every one must be allowed.
         var requestedScopes = scope.Split(' ', StringSplitOptions.RemoveEmptyEntries);
@@ -48,6 +45,7 @@ public sealed class ServiceTokenIssuer : IServiceTokenIssuer
         if (client is null ||
             string.IsNullOrEmpty(client.ClientSecret) ||
             !FixedTimeEquals(client.ClientSecret, clientSecret) ||
+            !allowedAudiences.Contains(audience, StringComparer.Ordinal) ||
             requestedScopes.Length == 0 ||
             requestedScopes.Any(s => !client.AllowedScopes.Contains(s, StringComparer.Ordinal)))
         {
@@ -71,7 +69,7 @@ public sealed class ServiceTokenIssuer : IServiceTokenIssuer
 
         var token = new JwtSecurityToken(
             issuer: _jwt.Issuer,
-            audience: _jwt.InternalAudience,
+            audience: audience,
             claims: claims,
             expires: expiresAt,
             signingCredentials: credentials);
