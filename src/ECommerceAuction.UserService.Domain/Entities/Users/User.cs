@@ -42,7 +42,7 @@ public class User : AuditableEntity, IAggregateRoot
     public string Status { get; private set; } = UserStatus.Active;
     public bool IsEmailConfirmed { get; private set; }
     public bool IsPhoneConfirmed { get; private set; }
-
+    public bool IsIdentityVerified { get; private set; }
     public int FailedLoginAttempts { get; private set; }
     public DateTime? StatusExpiresAt { get; private set; }
     public DateTime? LastLoginAt { get; private set; }
@@ -355,6 +355,15 @@ public class User : AuditableEntity, IAggregateRoot
     public void FlagMustChangePassword()
     {
         MustChangePassword = true;
+        UpdatedAt = DateTime.UtcNow;
+    }
+
+    public void VerifyIdentity(string legalFullName, string legelGender, DateOnly legalDateOfBirth)
+    {
+        IsIdentityVerified = true;
+        FullName = legalFullName;
+        Gender = legelGender;
+        DateOfBirth = legalDateOfBirth;
         UpdatedAt = DateTime.UtcNow;
     }
 }

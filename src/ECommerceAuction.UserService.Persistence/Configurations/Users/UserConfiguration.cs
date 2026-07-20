@@ -87,6 +87,12 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasDefaultValue(false)
             .IsRequired();
 
+        builder.Property(x => x.IsIdentityVerified)
+            .HasColumnName("identity_verified")
+            .HasColumnType("bit")
+            .HasDefaultValue(false)
+            .IsRequired();
+
         builder.Property(x => x.FailedLoginAttempts)
             .HasColumnName("failed_login_attempts")
             .HasColumnType("int")

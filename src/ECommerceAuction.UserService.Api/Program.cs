@@ -8,8 +8,9 @@ using ECommerceAuction.UserService.Persistence;
 using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Seeders;
 using MassTransit;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.FileProviders;
-using Nexus.Upload.src.Extensions;
+using Nexus.Upload.Extensions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -90,8 +91,33 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Kestrel only ever listens on plain HTTP (see Kestrel:Endpoints); TLS terminates upstream at the
+// gateway or the load balancer, which forwards the original scheme in X-Forwarded-Proto. Without
+// this, every request looks like http to the app: absolute URLs it generates come out http, and
+// RemoteIpAddress is the proxy rather than the caller.
+//
+// It also has to run before UseHttpsRedirection. That middleware needs a target port and quietly
+// does nothing without one, which is why plain Production currently neither loops nor enforces
+// HTTPS — but the moment an https port is configured (ASPNETCORE_HTTPS_PORT, or an https endpoint),
+// it starts 307-ing http requests back at the proxy, which forwards them as http again. Verified:
+// with ASPNETCORE_HTTPS_PORT=443 and no forwarded header a request 307s to https; with the header
+// it is served.
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+
+    // By default only loopback proxies are trusted, and the proxy here is another container or the
+    // load balancer — never loopback — so the headers would be dropped and the redirect loop would
+    // survive the fix. Clearing the lists trusts whatever forwards to us, which is only safe while
+    // the container is not reachable directly from the internet: publish it behind the gateway only.
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 //Build web applications from the builder
 var app = builder.Build();
+
+app.UseForwardedHeaders();
 
 app.UseSwagger();
 app.UseSwaggerUI();
@@ -129,7 +155,6 @@ app.UseAuthorization();
 
 //Register gRPC service for health check
 app.MapGrpcService<InternalHealthGrpcService>();
-//Register internal service-to-service gRPC endpoints consumed by the Catalog Service.
 app.MapGrpcService<UserSellerEligibilityGrpcService>();
 app.MapGrpcService<UserProfileGrpcService>();
 app.MapGrpcService<UserCommerceGrpcService>();

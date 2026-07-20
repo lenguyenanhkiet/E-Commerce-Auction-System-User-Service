@@ -24,7 +24,19 @@ public sealed class GetUserByIdQueryHandlerTests
     public async Task Handle_ReturnsMappedDetail_WhenUserExists()
     {
         var user = CreateUser();
-        var identity = new IdentityVerification(user.Id, "079123456789", "front.jpg", "back.jpg");
+        var identity = new IdentityVerification(
+            userId: user.Id,
+            fullName: "Le Nguyen Anh Kiet",
+            gender: "Nam",
+            dateOfBirth: new DateOnly(1990, 1, 1),
+            identityNumber: "079123456789",
+            issueDate: new DateOnly(2020, 1, 1),
+            expiryDate: new DateOnly(2040, 1, 1),
+            issuePlace: "Cục Cảnh sát QLHC về TTXH",
+            permanentAddress: "TP.HCM",
+            identityFrontImageKey: "front.jpg",
+            identityBackImageKey: "back.jpg"
+        );
 
         _userRepository.GetByIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(user);
         _identityRepository.GetByUserIdAsync(user.Id, Arg.Any<CancellationToken>()).Returns(identity);
@@ -66,4 +78,4 @@ public sealed class GetUserByIdQueryHandlerTests
         await Assert.ThrowsAsync<NotFoundException>(() =>
             CreateSut().Handle(new GetUserByIdQuery(missingId), CancellationToken.None));
     }
-}
+}
