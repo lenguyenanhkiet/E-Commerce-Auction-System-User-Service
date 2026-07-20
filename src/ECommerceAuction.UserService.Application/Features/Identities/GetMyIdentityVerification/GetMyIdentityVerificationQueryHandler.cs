@@ -10,6 +10,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.GetMyIden
     : IQueryHandler<GetMyIdentityVerificationQuery, IdentityVerificationResponse?>
     {
         private readonly IIdentityVerificationRepository _identityVerificationRepository;
+
         public GetMyIdentityVerificationQueryHandler(IIdentityVerificationRepository identityVerificationRepository)
         {
             _identityVerificationRepository = identityVerificationRepository;
@@ -23,8 +24,17 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.GetMyIden
             ? null
             : new IdentityVerificationResponse(
                 verification.Id,
+                verification.FullName,
+                verification.Gender,
+                verification.DateOfBirth,
+                verification.IdentityNumber,
+                verification.IssueDate,
+                verification.ExpiryDate,
+                verification.IssuePlace,
+                verification.PermanentAddress,
+                verification.IdentityFrontImageKey,
+                verification.IdentityBackImageKey,
                 verification.Status,
-                verification.ConfidenceScore,
                 verification.RejectionReason,
                 verification.SubmittedAt,
                 verification.VerifiedAt);

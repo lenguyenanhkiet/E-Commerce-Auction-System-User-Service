@@ -18,7 +18,7 @@ public sealed record UpdateProfileResponse(
 
 /// <summary>
 /// Integration event published for Notification Service.
-/// This contract should later be moved to Nexus.Shared.Contracts.
+/// This contract should later be moved to Nexus.Contracts.
 /// </summary>
 public sealed record ProfileEmailChangeRequested(
     Guid UserId,

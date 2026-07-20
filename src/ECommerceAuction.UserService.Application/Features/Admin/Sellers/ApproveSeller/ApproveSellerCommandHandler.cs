@@ -6,7 +6,7 @@ using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
-using Nexus.Shared.Contracts.Events.Seller;
+using Nexus.Contracts.Events.Seller;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.ApproveSeller;
 
@@ -83,4 +83,4 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
 
         return new ApproveSellerResponse(profile.Id, profile.Status, profile.ReviewedAt!.Value);
     }
-}
+}

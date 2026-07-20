@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit;
-using Nexus.Shared.Contracts.Events.User;
+using Nexus.Contracts.Events.User;
 using System;
 using System.Collections.Generic;
 using System.Security.Cryptography;

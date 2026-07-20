@@ -4,7 +4,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit;
-using Nexus.Shared.Contracts.Events.User;
+using Nexus.Contracts.Events.User;
 namespace ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
 
 /// <summary>

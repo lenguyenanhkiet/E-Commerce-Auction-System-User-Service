@@ -3,8 +3,8 @@ using ECommerceAuction.UserService.Application.Features.Users.SetAvatar;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Nexus.Upload.src.Models;
-using Nexus.Upload.src.Services;
+using Nexus.Upload.Models;
+using Nexus.Upload.Services;
 
 namespace ECommerceAuction.UserService.Api.Controllers;
 

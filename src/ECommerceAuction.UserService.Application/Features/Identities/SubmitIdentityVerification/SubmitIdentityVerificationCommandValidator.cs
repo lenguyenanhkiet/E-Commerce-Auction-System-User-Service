@@ -13,19 +13,12 @@ public sealed class SubmitIdentityVerificationCommandValidator : AbstractValidat
             .NotEmpty()
             .MaximumLength(50);
 
-        RuleFor(command => command.FrontImageUrl)
+        RuleFor(command => command.FrontImageKey)
             .NotEmpty()
-            .MaximumLength(500)
-            .Must(BeAValidUrl)
-            .WithMessage("FrontImageUrl must be a valid absolute URL.");
+            .MaximumLength(500);
 
-        RuleFor(command => command.BackImageUrl)
+        RuleFor(command => command.BackImageKey)
             .NotEmpty()
-            .MaximumLength(500)
-            .Must(BeAValidUrl)
-            .WithMessage("BackImageUrl must be a valid absolute URL.");
+            .MaximumLength(500);
     }
-
-    private static bool BeAValidUrl(string url) =>
-        Uri.TryCreate(url, UriKind.Absolute, out _);
 }

@@ -8,21 +8,44 @@ namespace ECommerceAuction.UserService.Domain.Entities.IdentityVerification
     public class IdentityVerification : AuditableEntity, IAggregateRoot
     {
         public Guid UserId { get; private set; }
+
+        // Citizen identity card information
+        public string FullName { get; private set; } = string.Empty;
+
+        public string Gender { get; private set; } = string.Empty;
+        public DateOnly DateOfBirth { get; private set; }
+
         public string IdentityNumber { get; private set; } = string.Empty;
-        public string IdentityFrontImageUrl { get; private set; } = string.Empty;
-        public string IdentityBackImageUrl { get; private set; } = string.Empty;
+        public DateOnly IssueDate { get; private set; }
+        public DateOnly ExpiryDate { get; private set; }
+        public string IssuePlace { get; private set; } = string.Empty;
+        public string PermanentAddress { get; private set; } = string.Empty;
+
+        public string IdentityFrontImageKey { get; private set; } = string.Empty;
+        public string IdentityBackImageKey { get; private set; } = string.Empty;
+
         public string Status { get; private set; } = IdentityVerificationStatus.Pending;
         public string? RejectionReason { get; private set; }
         public decimal? ConfidenceScore { get; private set; }
         public DateTime SubmittedAt { get; private set; }
         public DateTime? VerifiedAt { get; private set; }
         public string? VerifiedBy { get; private set; }
-        protected IdentityVerification() {}
+
+        protected IdentityVerification()
+        { }
+
         public IdentityVerification(
          Guid userId,
+         string fullName,
+         string gender,
+         DateOnly dateOfBirth,
          string identityNumber,
-         string identityFrontImageUrl,
-         string identityBackImageUrl)
+         DateOnly issueDate,
+         DateOnly expiryDate,
+         string issuePlace,
+         string permanentAddress,
+         string identityFrontImageKey,
+         string identityBackImageKey)
         {
             if (userId == Guid.Empty)
             {
@@ -33,19 +56,27 @@ namespace ECommerceAuction.UserService.Domain.Entities.IdentityVerification
                 throw new ArgumentException("Identity number is required.", nameof(identityNumber));
             }
 
-            if (string.IsNullOrWhiteSpace(identityFrontImageUrl) || string.IsNullOrWhiteSpace(identityBackImageUrl))
+            if (string.IsNullOrWhiteSpace(identityFrontImageKey) || string.IsNullOrWhiteSpace(identityBackImageKey))
             {
                 throw new ArgumentException("Both front and back identity images are required.");
             }
             UserId = userId;
+            FullName = fullName.Trim();
+            Gender = gender.Trim();
+            DateOfBirth = dateOfBirth;
             IdentityNumber = identityNumber.Trim();
-            IdentityFrontImageUrl = identityFrontImageUrl;
-            IdentityBackImageUrl = identityBackImageUrl;
+            IssueDate = issueDate;
+            ExpiryDate = expiryDate;
+            IssuePlace = issuePlace.Trim();
+            PermanentAddress = permanentAddress.Trim();
+            IdentityFrontImageKey = identityFrontImageKey.Trim();
+            IdentityBackImageKey = identityBackImageKey.Trim();
             Status = IdentityVerificationStatus.Pending;
             SubmittedAt = DateTime.UtcNow;
             CreatedAt = SubmittedAt;
             UpdatedAt = SubmittedAt;
         }
+
         /// <summary>
         /// Marks this verification as passed, based on the automated provider's result.
         /// </summary>
@@ -59,6 +90,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.IdentityVerification
             VerifiedBy = verifiedBy;
             UpdatedAt = VerifiedAt.Value;
         }
+
         /// <summary>
         /// Marks this verification as failed, based on the automated provider's result.
         /// </summary>
@@ -75,10 +107,11 @@ namespace ECommerceAuction.UserService.Domain.Entities.IdentityVerification
             VerifiedBy = verifiedBy;
             UpdatedAt = VerifiedAt.Value;
         }
+
         /// <summary>
         /// Allows resubmitting new number/images after a rejection (e.g. blurry photo, wrong number).
         /// </summary>
-        public void Resubmit(string identityNumber, string identityFrontImageUrl, string identityBackImageUrl)
+        public void Resubmit(string fullName, string gender, DateOnly dateOfBirth, string identityNumber, DateOnly issueDate, DateOnly expiryDate, string issuePlace, string permanentAddress, string identityFrontImageKey, string identityBackImageKey)
         {
             if (Status != IdentityVerificationStatus.Rejected)
             {
@@ -90,20 +123,27 @@ namespace ECommerceAuction.UserService.Domain.Entities.IdentityVerification
                 throw new ArgumentException("Identity number is required.", nameof(identityNumber));
             }
 
-            if (string.IsNullOrWhiteSpace(identityFrontImageUrl) || string.IsNullOrWhiteSpace(identityBackImageUrl))
+            if (string.IsNullOrWhiteSpace(identityFrontImageKey) || string.IsNullOrWhiteSpace(identityBackImageKey))
             {
                 throw new ArgumentException("Both front and back identity images are required.");
             }
-
+            FullName = fullName.Trim();
+            Gender = gender.Trim();
+            DateOfBirth = dateOfBirth;
             IdentityNumber = identityNumber.Trim();
-            IdentityFrontImageUrl = identityFrontImageUrl;
-            IdentityBackImageUrl = identityBackImageUrl;
+            IssueDate = issueDate;
+            ExpiryDate = expiryDate;
+            IssuePlace = issuePlace.Trim();
+            PermanentAddress = permanentAddress.Trim();
+            IdentityFrontImageKey = identityFrontImageKey.Trim();
+            IdentityBackImageKey = identityBackImageKey.Trim();
             Status = IdentityVerificationStatus.Pending;
             RejectionReason = null;
             ConfidenceScore = null;
             SubmittedAt = DateTime.UtcNow;
             UpdatedAt = SubmittedAt;
         }
+
         private void EnsureCanBeReviewed()
         {
             if (Status != IdentityVerificationStatus.Pending)
