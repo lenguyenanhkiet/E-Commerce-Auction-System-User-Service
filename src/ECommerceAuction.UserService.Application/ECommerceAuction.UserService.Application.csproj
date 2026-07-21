@@ -6,17 +6,18 @@
     <None Remove="Features\Auth\LoginOAuth2\**" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="FluentValidation" Version="12.1.1" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
-    <PackageReference Include="MassTransit" Version="8.5.10" />
-    <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.10" />
-    <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.10" />
-    <PackageReference Include="MediatR" Version="14.1.0" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
-    <PackageReference Include="Nexus.Contracts" Version="2.0.0" />
-  </ItemGroup>
+<ItemGroup>
+  <PackageReference Include="FluentValidation" Version="12.1.1" />
+  <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
+  <PackageReference Include="MassTransit" Version="8.5.10" />
+  <PackageReference Include="MassTransit.EntityFrameworkCore" Version="8.5.10" />
+  <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.10" />
+  <PackageReference Include="MediatR" Version="14.1.0" />
+  <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
 
+  <PackageReference Include="Nexus.Contracts" Version="2.0.0" />
+  <PackageReference Include="Nexus.Shared.Contracts" Version="2.1.0" />
+</ItemGroup>
   <ItemGroup>
     <Folder Include="Features\Admin\Sellers\GetSellerApplicationById\" />
     <Folder Include="Features\Admin\Sellers\GetSellerApplications\" />
