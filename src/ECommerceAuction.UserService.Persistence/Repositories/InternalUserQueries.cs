@@ -1,10 +1,10 @@
-using System.Globalization;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Entities.Sellers;
 using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Persistence.Context;
-using ECommerceAuction.UserService.Persistence.Seed;
 using Microsoft.EntityFrameworkCore;
+using System.Globalization;
 
 namespace ECommerceAuction.UserService.Persistence.Repositories;
 
@@ -39,7 +39,7 @@ public sealed class InternalUserQueries : IInternalUserQueries
                 user.Status,
                 user.UpdatedAt,
                 SellerRoleActive = user.UserRoles.Any(role =>
-                    role.RoleId == RbacSeedData.SellerRoleId &&
+                    role.Role.Code == RoleCodes.Seller &&
                     role.Status == UserRoleStatuses.Active &&
                     role.RevokedAt == null)
             })
@@ -202,7 +202,7 @@ public sealed class InternalUserQueries : IInternalUserQueries
                 user.AvatarUrl,
                 user.UpdatedAt,
                 SellerRoleActive = user.UserRoles.Any(role =>
-                    role.RoleId == RbacSeedData.SellerRoleId &&
+                    role.Role.Code == RoleCodes.Seller &&
                     role.Status == UserRoleStatuses.Active &&
                     role.RevokedAt == null),
                 SellerProfile = _db.SellerProfiles

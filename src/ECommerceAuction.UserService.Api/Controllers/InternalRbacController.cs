@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Application.Abstractions.Services;
+﻿using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -6,56 +6,60 @@ using Microsoft.AspNetCore.Mvc;
 namespace ECommerceAuction.UserService.Api.Controllers;
 
 /// <summary>
-/// Lets internal services register the privilege codes they own (and role grants for them)
-/// into the shared RBAC store. Requires a service token carrying the rbac.write scope.
+/// Internal endpoint other services call at startup to declare the privileges they own
+/// and how those map onto roles. Service-to-service only — never exposed to end users.
 /// </summary>
 [ApiController]
 [Route("api/v1/internal/rbac")]
 [Authorize(AuthenticationSchemes = ServiceAuthSchemes.ServiceJwt)]
 public sealed class InternalRbacController : ControllerBase
 {
-    public const string WriteScope = "user.internal.rbac.write";
+    private const string WriteScope = "user.internal.rbac.write";
 
     private readonly IRbacRegistrar _registrar;
+    private readonly ILogger<InternalRbacController> _logger;
 
-    public InternalRbacController(IRbacRegistrar registrar)
+    public InternalRbacController(IRbacRegistrar registrar, ILogger<InternalRbacController> logger)
     {
         _registrar = registrar;
+        _logger = logger;
     }
 
     /// <summary>
-    /// POST /api/v1/internal/rbac/privileges — upsert privileges + role grants (idempotent).
+    /// POST /api/v1/internal/rbac/privileges — register privileges and role grants.
+    /// Idempotent: services call this on every startup.
     /// </summary>
-    [HttpPost("privileges")]
-    public async Task<IActionResult> RegisterPrivileges(
-        [FromBody] RegisterPrivilegesRequest request,
-        CancellationToken cancellationToken)
-    {
-        var hasScope = User.FindAll("scope")
-            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries))
-            .Any(scope => string.Equals(scope, WriteScope, StringComparison.Ordinal));
 
-        if (!hasScope)
+    [HttpPost("privileges")]
+    public async Task<IActionResult> RegisterPrivileges([FromBody] RbacRegistrationRequest request, CancellationToken cancellationToken)
+    {
+        if (!HasWriteScope())
         {
+            _logger.LogWarning(
+                "RBAC registration refused for '{ServiceCode}': token lacks scope '{Scope}'.",
+                request.ServiceCode, WriteScope);
             return Forbid();
         }
 
-        await _registrar.RegisterAsync(
-            new RbacRegistrationRequest(
-                request.ServiceCode ?? string.Empty,
-                (request.Privileges ?? []).Select(p => new PrivilegeDefinition(p.Code, p.Description)).ToList(),
-                (request.RoleGrants ?? []).Select(g => new RoleGrant(g.RoleCode, g.PrivilegeCode)).ToList()),
-            cancellationToken);
+        if (string.IsNullOrWhiteSpace(request.ServiceCode))
+        {
+            return BadRequest(new { message = "A service code is required." });
+        }
 
-        return Ok(new { message = "RBAC registration applied." });
+        await _registrar.RegisterAsync(request, cancellationToken);
+
+        return Ok(new { message = $"RBAC registration accepted for '{request.ServiceCode}'." });
+    }
+
+    /// <summary>
+    /// The scope claim holds space-delimited values, so a token may carry several scopes.
+    /// </summary>
+    private bool HasWriteScope()
+    {
+        // The service scheme sets MapInboundClaims = false, so the claim stays "scope".
+        var scopes = User.FindAll("scope")
+            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+
+        return scopes.Contains(WriteScope, StringComparer.Ordinal);
     }
 }
-
-public sealed record RegisterPrivilegesRequest(
-    string? ServiceCode,
-    List<PrivilegeItem>? Privileges,
-    List<RoleGrantItem>? RoleGrants);
-
-public sealed record PrivilegeItem(string Code, string? Description);
-
-public sealed record RoleGrantItem(string RoleCode, string PrivilegeCode);
