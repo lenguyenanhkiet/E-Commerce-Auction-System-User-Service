@@ -7,7 +7,7 @@ namespace ECommerceAuction.UserService.Api.Controllers;
 
 /// <summary>
 /// Internal endpoint other services call at startup to declare the privileges they own
-/// and how those map onto roles. Service-to-service only — never exposed to end users.
+/// and how those privileges map onto system roles. This endpoint is service-to-service only.
 /// </summary>
 [ApiController]
 [Route("api/v1/internal/rbac")]
@@ -19,36 +19,77 @@ public sealed class InternalRbacController : ControllerBase
     private readonly IRbacRegistrar _registrar;
     private readonly ILogger<InternalRbacController> _logger;
 
-    public InternalRbacController(IRbacRegistrar registrar, ILogger<InternalRbacController> logger)
+    public InternalRbacController(
+        IRbacRegistrar registrar,
+        ILogger<InternalRbacController> logger)
     {
         _registrar = registrar;
         _logger = logger;
     }
 
     /// <summary>
-    /// POST /api/v1/internal/rbac/privileges — register privileges and role grants.
-    /// Idempotent: services call this on every startup.
+    /// Registers privileges and default system-role grants declared by one service.
+    /// The operation is idempotent and may safely be called on every service startup.
     /// </summary>
-
     [HttpPost("privileges")]
-    public async Task<IActionResult> RegisterPrivileges([FromBody] RbacRegistrationRequest request, CancellationToken cancellationToken)
+    public async Task<IActionResult> RegisterPrivileges(
+        [FromBody] RbacRegistrationRequest request,
+        CancellationToken cancellationToken)
     {
         if (!HasWriteScope())
         {
             _logger.LogWarning(
                 "RBAC registration refused for '{ServiceCode}': token lacks scope '{Scope}'.",
-                request.ServiceCode, WriteScope);
+                request.ServiceCode,
+                WriteScope);
+
             return Forbid();
         }
 
-        if (string.IsNullOrWhiteSpace(request.ServiceCode))
+        if (request.Privileges is null || request.RoleGrants is null)
         {
-            return BadRequest(new { message = "A service code is required." });
+            return BadRequest(new
+            {
+                message = "Privileges and RoleGrants are required."
+            });
         }
 
-        await _registrar.RegisterAsync(request, cancellationToken);
+        var serviceCode = NormalizeServiceCode(request.ServiceCode);
+        if (serviceCode is null)
+        {
+            return BadRequest(new
+            {
+                message = "ServiceCode is required and may contain only letters, digits, or hyphens."
+            });
+        }
 
-        return Ok(new { message = $"RBAC registration accepted for '{request.ServiceCode}'." });
+        var callerClientId = User.FindFirst("client_id")?.Value;
+        var expectedClientId = $"{serviceCode}-service";
+
+        if (!string.Equals(
+                callerClientId,
+                expectedClientId,
+                StringComparison.Ordinal))
+        {
+            _logger.LogWarning(
+                "RBAC registration service mismatch. Client '{ClientId}' attempted to register service '{ServiceCode}'.",
+                callerClientId,
+                serviceCode);
+
+            return Forbid();
+        }
+
+        var normalizedRequest = request with
+        {
+            ServiceCode = serviceCode
+        };
+
+        await _registrar.RegisterAsync(normalizedRequest, cancellationToken);
+
+        return Ok(new
+        {
+            message = $"RBAC registration accepted for '{serviceCode}'."
+        });
     }
 
     /// <summary>
@@ -56,10 +97,30 @@ public sealed class InternalRbacController : ControllerBase
     /// </summary>
     private bool HasWriteScope()
     {
-        // The service scheme sets MapInboundClaims = false, so the claim stays "scope".
         var scopes = User.FindAll("scope")
-            .SelectMany(claim => claim.Value.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+            .SelectMany(claim => claim.Value.Split(
+                ' ',
+                StringSplitOptions.RemoveEmptyEntries |
+                StringSplitOptions.TrimEntries));
 
         return scopes.Contains(WriteScope, StringComparer.Ordinal);
+    }
+
+    /// <summary>
+    /// Converts a service code into the canonical lowercase form used to bind
+    /// serviceCode=commerce to client_id=commerce-service.
+    /// </summary>
+    private static string? NormalizeServiceCode(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var normalized = value.Trim().ToLowerInvariant();
+        return normalized.All(character =>
+                char.IsLetterOrDigit(character) || character == '-')
+            ? normalized
+            : null;
     }
 }
