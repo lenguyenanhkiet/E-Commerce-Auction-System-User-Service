@@ -1,5 +1,4 @@
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;

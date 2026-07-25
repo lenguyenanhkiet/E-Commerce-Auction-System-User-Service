@@ -1,5 +1,4 @@
 using ECommerceAuction.UserService.Domain.Auditing;
-using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

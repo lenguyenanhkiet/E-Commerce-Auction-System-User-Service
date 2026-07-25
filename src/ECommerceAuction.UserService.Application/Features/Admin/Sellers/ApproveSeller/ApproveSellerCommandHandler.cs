@@ -2,7 +2,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Sellers;
-using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;

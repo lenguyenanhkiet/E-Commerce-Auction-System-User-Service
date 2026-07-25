@@ -1,6 +1,7 @@
-﻿namespace ECommerceAuction.UserService.Api.Controllers.Contracts.Requests;
+﻿namespace ECommerceAuction.UserService.Api.Contracts.Requests;
 
-public sealed record UpdateAddressRequest(
+public sealed record CreateAddressRequest
+    (
         string RecipientName,
         string RecipientPhone,
         string Province,

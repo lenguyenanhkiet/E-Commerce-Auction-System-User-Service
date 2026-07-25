@@ -1,4 +1,4 @@
-﻿namespace ECommerceAuction.UserService.Api.Controllers.Contracts.Requests;
+﻿namespace ECommerceAuction.UserService.Api.Contracts.Requests;
 
 public sealed record SubmitIdentityVerificationRequest
 (

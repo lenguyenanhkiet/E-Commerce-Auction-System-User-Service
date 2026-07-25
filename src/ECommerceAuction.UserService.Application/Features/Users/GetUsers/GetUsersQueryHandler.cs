@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Domain.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.GetUsers;
 

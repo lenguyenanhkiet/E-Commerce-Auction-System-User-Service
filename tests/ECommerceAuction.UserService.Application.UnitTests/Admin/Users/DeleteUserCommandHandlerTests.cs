@@ -4,7 +4,6 @@ using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.DeleteUser;
 using ECommerceAuction.UserService.Application.UnitTests.Common;
 using ECommerceAuction.UserService.Domain.Auditing;
-using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
 

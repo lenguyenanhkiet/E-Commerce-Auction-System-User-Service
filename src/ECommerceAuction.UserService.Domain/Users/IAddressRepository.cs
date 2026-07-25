@@ -1,9 +1,8 @@
-﻿using ECommerceAuction.UserService.Domain.Users;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Repositories
+namespace ECommerceAuction.UserService.Domain.Users
 {
     public interface IAddressRepository
     {

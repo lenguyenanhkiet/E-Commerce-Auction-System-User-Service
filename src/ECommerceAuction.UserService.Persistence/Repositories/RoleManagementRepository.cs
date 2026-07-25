@@ -1,4 +1,5 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
+using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;

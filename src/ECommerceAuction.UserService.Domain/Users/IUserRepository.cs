@@ -1,9 +1,8 @@
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Reputation;
-using ECommerceAuction.UserService.Domain.Users;
 
-namespace ECommerceAuction.UserService.Domain.Repositories;
+namespace ECommerceAuction.UserService.Domain.Users;
 
 /// <summary>
 /// Repository contract for local register/login and OAuth account lookup operations.

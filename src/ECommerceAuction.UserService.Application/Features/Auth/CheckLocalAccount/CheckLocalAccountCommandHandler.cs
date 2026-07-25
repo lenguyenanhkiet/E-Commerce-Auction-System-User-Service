@@ -5,7 +5,6 @@ using ECommerceAuction.UserService.Application.Common.Options;
 using ECommerceAuction.UserService.Application.Features.Auth.Common;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Authentication;
-using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Options;
 

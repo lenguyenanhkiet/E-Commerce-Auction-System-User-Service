@@ -1,6 +1,4 @@
-using ECommerceAuction.UserService.Domain.Authentication;
-
-namespace ECommerceAuction.UserService.Domain.Repositories;
+namespace ECommerceAuction.UserService.Domain.Authentication;
 
 /// <summary>
 /// Repository contract for storing and querying a user's previously used password hashes.

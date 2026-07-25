@@ -1,3 +1,4 @@
+using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Common;
 using ECommerceAuction.UserService.Domain.Reputation;
 using System.ComponentModel.DataAnnotations;

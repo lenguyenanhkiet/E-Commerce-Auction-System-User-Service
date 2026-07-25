@@ -2,7 +2,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Authentication;
-using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Sellers;
@@ -32,6 +32,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<SellerProfile> SellerProfiles => Set<SellerProfile>();
     public DbSet<SellerApplicationHistory> SellerApplicationHistories => Set<SellerApplicationHistory>();
     public DbSet<IdentityVerification> IdentityVerifications => Set<IdentityVerification>();
+
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {

@@ -3,8 +3,8 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
-using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
@@ -70,7 +70,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
                     request.BackImageKey
                 );
             }
-            else if (existingVerification.Status == IdentityVerificationStatus.Verified)
+            else if (existingVerification.Status == IdentityVerificationState.Verified)
             {
                 throw new BusinessRuleException("Identity has already been verified.");
             }

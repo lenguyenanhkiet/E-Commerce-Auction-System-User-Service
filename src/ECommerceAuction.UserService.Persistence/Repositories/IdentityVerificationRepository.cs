@@ -1,5 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Repositories;
+﻿using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System;

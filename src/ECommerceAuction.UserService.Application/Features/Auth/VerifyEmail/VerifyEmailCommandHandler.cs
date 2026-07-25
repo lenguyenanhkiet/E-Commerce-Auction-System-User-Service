@@ -3,7 +3,6 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
 using ECommerceAuction.UserService.Domain.Auditing;
-using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;

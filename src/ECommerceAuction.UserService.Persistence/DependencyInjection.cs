@@ -1,6 +1,11 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Rbac;
 using ECommerceAuction.UserService.Persistence.Repositories;

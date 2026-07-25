@@ -1,9 +1,9 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Nexus.Contracts.Events.Seller;
 using System;
@@ -55,7 +55,7 @@ namespace ECommerceAuction.UserService.Application.Features.Sellers.RegisterSell
             }
             // Identity must already be verified via POST /api/v1/identity-verifications.
             var identityVerification = await _identityVerificationRepository.GetByUserIdAsync(user.Id, cancellationToken);
-            if (identityVerification is null || identityVerification.Status != IdentityVerificationStatus.Verified)
+            if (identityVerification is null || identityVerification.Status != IdentityVerificationState.Verified)
             {
                 throw new BusinessRuleException("User must complete identity verification before registering as a seller.");
             }

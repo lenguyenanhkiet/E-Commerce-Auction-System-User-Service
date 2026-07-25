@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Api.Controllers.Contracts.Requests;
+using ECommerceAuction.UserService.Api.Contracts.Requests;
 using ECommerceAuction.UserService.Application.Features.Users.DeleteAddress;
 using ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 using ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp;

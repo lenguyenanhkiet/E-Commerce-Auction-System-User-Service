@@ -1,7 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.Common;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.GetAuditLogById;
 

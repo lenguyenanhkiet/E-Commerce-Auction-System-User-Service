@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Api.Controllers.Contracts.Requests;
+﻿using ECommerceAuction.UserService.Api.Contracts.Requests;
 using ECommerceAuction.UserService.Application.Features.Identities.GetMyIdentityVerification;
 using ECommerceAuction.UserService.Application.Features.Identities.SubmitIdentityVerification;
 using MediatR;

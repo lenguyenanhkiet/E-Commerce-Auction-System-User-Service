@@ -4,9 +4,9 @@ using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Identities.SubmitIdentityVerification;
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
 using ECommerceAuction.UserService.Domain.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Identities;
 

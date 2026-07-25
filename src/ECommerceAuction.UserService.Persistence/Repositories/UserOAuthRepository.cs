@@ -1,4 +1,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Users;
@@ -133,7 +135,7 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
         Guid userId,
         CancellationToken cancellationToken)
     {
-            // New OAuth users must receive the default BUYER role instead of using hard-coded roles.
+        // New OAuth users must receive the default BUYER role instead of using hard-coded roles.
         var buyerRole = await _dbContext.Roles
             .FirstOrDefaultAsync(role => role.Code == RoleCodes.Buyer, cancellationToken);
 

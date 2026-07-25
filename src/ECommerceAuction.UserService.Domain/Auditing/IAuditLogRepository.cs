@@ -1,6 +1,4 @@
-using ECommerceAuction.UserService.Domain.Auditing;
-
-namespace ECommerceAuction.UserService.Domain.Repositories;
+namespace ECommerceAuction.UserService.Domain.Auditing;
 
 /// <summary>
 /// Read access to the immutable user audit log for Admin review.

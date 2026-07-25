@@ -2,8 +2,8 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
 using MassTransit.NewIdProviders;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 
