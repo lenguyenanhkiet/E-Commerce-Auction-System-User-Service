@@ -5,6 +5,8 @@ using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Reputation;
+using ECommerceAuction.UserService.Domain.Reputation.Buyer;
+using ECommerceAuction.UserService.Domain.Reputation.Ledger;
 using ECommerceAuction.UserService.Domain.Sellers;
 using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Data.SqlClient;
@@ -32,6 +34,9 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<SellerProfile> SellerProfiles => Set<SellerProfile>();
     public DbSet<SellerApplicationHistory> SellerApplicationHistories => Set<SellerApplicationHistory>();
     public DbSet<IdentityVerification> IdentityVerifications => Set<IdentityVerification>();
+    public DbSet<BuyerVerificationProfile> BuyerVerificationProfiles => Set<BuyerVerificationProfile>();
+    public DbSet<BuyerReputationProfile> BuyerReputationProfiles => Set<BuyerReputationProfile>();
+    public DbSet<ReputationLedgerEntry> ReputationLedgerEntries => Set<ReputationLedgerEntry>();
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

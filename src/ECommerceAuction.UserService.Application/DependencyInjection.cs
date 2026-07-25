@@ -19,6 +19,11 @@ public static class DependencyInjection
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
 
+        // Reputation application services.
+        services.AddScoped<
+            Reputation.Services.IReputationAwardService,
+            Reputation.Services.ReputationAwardService>();
+
         return services;
     }
 }

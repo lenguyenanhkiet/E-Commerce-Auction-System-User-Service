@@ -51,6 +51,15 @@ public static class DependencyInjection
         services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IAccountMaintenanceRepository, AccountMaintenanceRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Domain.IdentityVerifications.IBuyerVerificationRepository,
+            BuyerVerificationRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Domain.Reputation.Buyer.IBuyerReputationRepository,
+            BuyerReputationRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Domain.Reputation.Ledger.IReputationLedgerRepository,
+            ReputationLedgerRepository>();
         return services;
     }
 }
