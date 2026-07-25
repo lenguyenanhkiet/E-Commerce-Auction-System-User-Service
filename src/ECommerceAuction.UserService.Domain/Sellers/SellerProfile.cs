@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Sellers
+namespace ECommerceAuction.UserService.Domain.Sellers
 {
     public class SellerProfile : AuditableEntity, IAggregateRoot
     {
@@ -46,7 +46,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
             BankName = bankName.Trim();
             BankAccountHolder = bankAccountHolder.Trim();
 
-            Status = Sellers.SellerApplicationStatus.Pending;
+            Status = SellerApplicationStatus.Pending;
             SubmittedAt = DateTime.UtcNow;
             CreatedAt = SubmittedAt;
             UpdatedAt = SubmittedAt;
@@ -64,7 +64,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
             EnsureCanBeReviewed();
 
             var from = Status;
-            Status = Sellers.SellerApplicationStatus.UnderReview;
+            Status = SellerApplicationStatus.UnderReview;
             UpdatedAt = DateTime.UtcNow;
 
             _history.Add(SellerApplicationHistory.Create(Id, from, Status, reviewerId, "Review started."));
@@ -75,7 +75,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
             EnsureCanBeReviewed();
 
             var from = Status;
-            Status = Sellers.SellerApplicationStatus.Approved;
+            Status = SellerApplicationStatus.Approved;
             RejectReason = null;
             ReviewedAt = DateTime.UtcNow;
             ReviewedBy = reviewerId;
@@ -94,7 +94,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
             EnsureCanBeReviewed();
 
             var from = Status;
-            Status = Sellers.SellerApplicationStatus.Rejected;
+            Status = SellerApplicationStatus.Rejected;
             RejectReason = reason.Trim();
             ReviewedAt = DateTime.UtcNow;
             ReviewedBy = reviewerId;
@@ -115,7 +115,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
             string bankName,
             string bankAccountHolder)
         {
-            if (Status != Sellers.SellerApplicationStatus.Rejected)
+            if (Status != SellerApplicationStatus.Rejected)
             {
                 throw new InvalidOperationException("Only a rejected application can be resubmitted.");
             }
@@ -129,7 +129,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
             BankAccountHolder = bankAccountHolder.Trim();
 
             var from = Status;
-            Status = Sellers.SellerApplicationStatus.Pending;
+            Status = SellerApplicationStatus.Pending;
             RejectReason = null;
             SubmittedAt = DateTime.UtcNow;
             UpdatedAt = SubmittedAt;
@@ -139,7 +139,7 @@ namespace ECommerceAuction.UserService.Domain.Entities.Sellers
 
         private void EnsureCanBeReviewed()
         {
-            if (Status is not (Sellers.SellerApplicationStatus.Pending or Sellers.SellerApplicationStatus.UnderReview))
+            if (Status is not (SellerApplicationStatus.Pending or SellerApplicationStatus.UnderReview))
             {
                 throw new InvalidOperationException(
                     $"Cannot review an application in status '{Status}'.");

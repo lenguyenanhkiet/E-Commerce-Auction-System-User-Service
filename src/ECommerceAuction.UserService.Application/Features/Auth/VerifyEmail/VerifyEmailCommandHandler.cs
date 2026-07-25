@@ -2,10 +2,9 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
-using ECommerceAuction.UserService.Domain.Entities.Reputation;
-using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
-
+using ECommerceAuction.UserService.Domain.Reputation;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Nexus.Contracts.Events.User;
 

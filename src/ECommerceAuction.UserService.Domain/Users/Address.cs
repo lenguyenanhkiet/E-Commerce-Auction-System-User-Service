@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users
+namespace ECommerceAuction.UserService.Domain.Users
 {
     public class Address : AuditableEntity, IAggregateRoot
     {

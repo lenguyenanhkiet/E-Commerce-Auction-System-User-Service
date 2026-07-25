@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Identities.SubmitIdentityVerification;
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
 using Microsoft.Extensions.Options;
 using NSubstitute;
@@ -17,8 +17,10 @@ public sealed class SubmitIdentityVerificationCommandHandlerTests
 
     private readonly IIdentityVerificationRepository _verificationRepository =
         Substitute.For<IIdentityVerificationRepository>();
+
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+
     private readonly IIdentityVerificationProvider _provider =
         Substitute.For<IIdentityVerificationProvider>();
 

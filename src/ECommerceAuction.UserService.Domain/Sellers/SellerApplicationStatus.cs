@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Sellers
+namespace ECommerceAuction.UserService.Domain.Sellers
 {
     public static class SellerApplicationStatus
     {

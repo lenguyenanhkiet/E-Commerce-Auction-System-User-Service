@@ -1,9 +1,9 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Entities.Sellers;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Sellers;
 using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Nexus.Contracts.Events.Seller;
@@ -68,7 +68,7 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
         user.ReputationProfile.AddTaxVerificationPoint();
         user.ReputationProfile.AddBusinessLicenseVerificationPoint();
         user.ReputationProfile.AddBusinessAddressVerificationPoint();
-        
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         await _publishEndpoint.Publish(new SellerApprovedEvent
@@ -83,4 +83,4 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
 
         return new ApproveSellerResponse(profile.Id, profile.Status, profile.ReviewedAt!.Value);
     }
-}
+}

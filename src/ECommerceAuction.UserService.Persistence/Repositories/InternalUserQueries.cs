@@ -1,7 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Sellers;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 using System.Globalization;

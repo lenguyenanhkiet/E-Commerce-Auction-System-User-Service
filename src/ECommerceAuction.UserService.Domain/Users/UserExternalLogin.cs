@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Domain.Common;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users;
+namespace ECommerceAuction.UserService.Domain.Users;
 
 /// <summary>
 /// Represents a login method linked from an external identity provider.

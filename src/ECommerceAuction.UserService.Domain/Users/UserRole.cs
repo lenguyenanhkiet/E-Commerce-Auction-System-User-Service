@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users;
+namespace ECommerceAuction.UserService.Domain.Users;
 
 /// <summary>
 /// Represents an assignment between a user and an RBAC role.

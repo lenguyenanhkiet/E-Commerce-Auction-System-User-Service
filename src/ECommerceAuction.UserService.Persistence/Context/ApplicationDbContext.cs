@@ -1,10 +1,10 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Entities.Reputation;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Sellers;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Reputation;
+using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 

@@ -1,8 +1,8 @@
 using ECommerceAuction.UserService.Domain.Common;
-using ECommerceAuction.UserService.Domain.Entities.Reputation;
+using ECommerceAuction.UserService.Domain.Reputation;
 using System.ComponentModel.DataAnnotations;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users;
+namespace ECommerceAuction.UserService.Domain.Users;
 
 /// <summary>
 /// Represents an application user owned by User Service.

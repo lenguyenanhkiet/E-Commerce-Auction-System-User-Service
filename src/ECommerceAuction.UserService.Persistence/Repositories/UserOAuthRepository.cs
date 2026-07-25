@@ -1,7 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
-using ECommerceAuction.UserService.Domain.Entities.Reputation;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Reputation;
+using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

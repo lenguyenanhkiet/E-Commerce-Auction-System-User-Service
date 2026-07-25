@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Reputation
+namespace ECommerceAuction.UserService.Domain.Reputation
 {
     public static class ReputationThresholds
     {

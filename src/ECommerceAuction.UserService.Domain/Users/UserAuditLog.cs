@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Domain.Common;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users;
+namespace ECommerceAuction.UserService.Domain.Users;
 
 /// <summary>
 /// Records security-sensitive user actions for traceability and audit.

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Reputation
+namespace ECommerceAuction.UserService.Domain.Reputation
 {
     /// <summary>
     /// Defines the trust levels for users in the system. These levels can be used to categorize users based on their reputation, activity, or other criteria defined by the business logic.

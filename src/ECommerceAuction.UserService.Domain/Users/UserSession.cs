@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Domain.Common;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users;
+namespace ECommerceAuction.UserService.Domain.Users;
 
 /// <summary>
 /// Represents a refresh-token session for a user device or browser.

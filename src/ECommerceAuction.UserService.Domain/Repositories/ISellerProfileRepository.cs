@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Entities.Sellers;
+﻿using ECommerceAuction.UserService.Domain.Sellers;
 using System;
 using System.Collections.Generic;
 using System.Text;

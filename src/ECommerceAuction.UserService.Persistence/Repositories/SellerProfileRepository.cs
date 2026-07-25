@@ -1,5 +1,5 @@
-using ECommerceAuction.UserService.Domain.Entities.Sellers;
 using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Sellers;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 

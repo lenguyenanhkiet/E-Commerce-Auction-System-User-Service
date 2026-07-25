@@ -4,8 +4,9 @@ using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.CreateUser;
 using ECommerceAuction.UserService.Application.UnitTests.Common;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Users;
 using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Reputation;
+using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;
@@ -48,7 +49,7 @@ public sealed class CreateUserCommandHandlerTests
         Assert.Equal("HASHED", created.PasswordHash);
         Assert.Equal("new@test.local", result.Email);
         await _userRepository.Received(1).AddReputationProfileAsync(
-            Arg.Any<Domain.Entities.Reputation.ReputationProfile>(), Arg.Any<CancellationToken>());
+            Arg.Any<ReputationProfile>(), Arg.Any<CancellationToken>());
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 

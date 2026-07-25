@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Users
+namespace ECommerceAuction.UserService.Domain.Users
 {
     /// <summary>
     /// Defines user account status constants used throughout the system.

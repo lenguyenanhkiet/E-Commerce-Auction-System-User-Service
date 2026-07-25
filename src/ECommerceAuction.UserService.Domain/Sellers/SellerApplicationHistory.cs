@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Sellers
+namespace ECommerceAuction.UserService.Domain.Sellers
 {
     /// <summary>
     /// Audit trail entry for a seller application status change.

@@ -1,5 +1,5 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 

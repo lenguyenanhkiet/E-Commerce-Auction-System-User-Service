@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Sellers
+namespace ECommerceAuction.UserService.Domain.Sellers
 {
     /// <summary>
     /// Type of seller account

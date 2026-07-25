@@ -1,5 +1,5 @@
-using TrustLevels = ECommerceAuction.UserService.Domain.Entities.Reputation.TrustLevel;
-namespace ECommerceAuction.UserService.Domain.Entities.Reputation;
+using TrustLevels = ECommerceAuction.UserService.Domain.Reputation.TrustLevel;
+namespace ECommerceAuction.UserService.Domain.Reputation;
 
 /// <summary>
 /// Stores the current reputation summary for a user.

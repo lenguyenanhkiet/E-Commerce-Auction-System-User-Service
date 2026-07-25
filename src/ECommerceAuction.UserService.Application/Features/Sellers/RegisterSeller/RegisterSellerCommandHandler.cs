@@ -2,8 +2,8 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Entities.Sellers;
 using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Sellers;
 using MassTransit;
 using Nexus.Contracts.Events.Seller;
 using System;
