@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ECommerceAuction.UserService.Domain.Reputation.Ledger;
 
-public static class ReputationEntryStatus
+public static class ReputationEntryStatuses
 {
     public const string Pending = "PENDING";
     public const string Confirmed = "CONFIRMED";

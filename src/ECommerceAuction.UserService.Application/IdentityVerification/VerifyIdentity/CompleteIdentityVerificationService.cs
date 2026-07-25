@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Application.IdentityVerification.VerifyIdentity;
+namespace ECommerceAuction.UserService.Application.IdentityVerifications.VerifyIdentity;
 
 public sealed class CompleteIdentityVerificationService
 {

@@ -4,7 +4,7 @@ using System.Text;
 
 namespace ECommerceAuction.UserService.Domain.Reputation.Ledger;
 
-public static class ReputationEntryType
+public static class ReputationEntryTypes
 {
     public const string ProfileVerification = "PROFILE_VERIFICATION";
     public const string EcommerceTransaction = "ECOMMERCE_TRANSACTION";

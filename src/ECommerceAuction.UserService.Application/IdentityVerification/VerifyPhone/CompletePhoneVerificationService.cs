@@ -7,7 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Application.IdentityVerification.VerifyPhone;
+namespace ECommerceAuction.UserService.Application.IdentityVerifications.VerifyPhone;
 
 public sealed class CompletePhoneVerificationService
 {
