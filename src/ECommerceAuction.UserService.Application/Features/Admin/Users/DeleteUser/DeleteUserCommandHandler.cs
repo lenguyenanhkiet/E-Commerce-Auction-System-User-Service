@@ -2,6 +2,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Repositories;
 using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;

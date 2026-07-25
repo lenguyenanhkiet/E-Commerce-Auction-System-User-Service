@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Users;
+using ECommerceAuction.UserService.Domain.Auditing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

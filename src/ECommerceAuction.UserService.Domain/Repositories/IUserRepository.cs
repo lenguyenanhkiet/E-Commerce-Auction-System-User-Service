@@ -1,3 +1,5 @@
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Users;
 

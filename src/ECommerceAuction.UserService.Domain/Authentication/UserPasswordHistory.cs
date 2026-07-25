@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Users
+namespace ECommerceAuction.UserService.Domain.Authentication
 {
     /// <summary>
     /// /// Stores the history of password hashes previously used by the user to support:

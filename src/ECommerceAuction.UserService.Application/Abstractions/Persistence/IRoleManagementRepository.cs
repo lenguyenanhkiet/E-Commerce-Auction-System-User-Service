@@ -1,5 +1,5 @@
+using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Abstractions.Persistence;
 

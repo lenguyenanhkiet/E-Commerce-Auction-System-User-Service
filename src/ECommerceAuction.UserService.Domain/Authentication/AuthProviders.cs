@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Users;
+namespace ECommerceAuction.UserService.Domain.Authentication;
 
 /// <summary>
 /// Defines supported authentication providers for the system.

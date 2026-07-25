@@ -1,8 +1,9 @@
 using System.Security.Cryptography;
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Repositories;
-using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.ForgotPassword;

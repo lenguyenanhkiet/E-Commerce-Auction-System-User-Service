@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Users;
+using ECommerceAuction.UserService.Domain.Auditing;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.Common;
 

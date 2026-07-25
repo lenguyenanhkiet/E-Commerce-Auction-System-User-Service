@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Domain.Common;
 
-namespace ECommerceAuction.UserService.Domain.Users;
+namespace ECommerceAuction.UserService.Domain.Authentication;
 
 public sealed class PasswordResetToken : BaseEntity
 {

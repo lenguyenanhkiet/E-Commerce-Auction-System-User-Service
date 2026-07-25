@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Users;
+using ECommerceAuction.UserService.Domain.Authentication;
 
 namespace ECommerceAuction.UserService.Domain.Repositories;
 
