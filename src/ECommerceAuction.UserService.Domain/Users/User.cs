@@ -38,15 +38,15 @@ public class User : AuditableEntity, IAggregateRoot
     public string PasswordHash { get; private set; } = string.Empty;
 
     public bool MustChangePassword { get; private set; }
-    public DateTime? PasswordChangedAt { get; private set; }
+    public DateTimeOffset? PasswordChangedAt { get; private set; }
 
     public string Status { get; private set; } = UserStatus.Active;
     public bool IsEmailConfirmed { get; private set; }
     public bool IsPhoneConfirmed { get; private set; }
     public bool IsIdentityVerified { get; private set; }
     public int FailedLoginAttempts { get; private set; }
-    public DateTime? StatusExpiresAt { get; private set; }
-    public DateTime? LastLoginAt { get; private set; }
+    public DateTimeOffset? StatusExpiresAt { get; private set; }
+    public DateTimeOffset? LastLoginAt { get; private set; }
 
     [StringLength(20)]
     public string AuthProvider { get; private set; } = AuthProviders.Local;
@@ -56,8 +56,6 @@ public class User : AuditableEntity, IAggregateRoot
 
     private readonly List<Address> _addresses = new();
     public IReadOnlyCollection<Address> Addresses => _addresses.AsReadOnly();
-    public ReputationProfile? ReputationProfile { get; private set; }
-
     protected User()
     {
     }
@@ -75,7 +73,7 @@ public class User : AuditableEntity, IAggregateRoot
         IsEmailConfirmed = true;
         IsPhoneConfirmed = false;
         FailedLoginAttempts = 0;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
         UpdatedAt = CreatedAt;
         // The account is created with a password, so its age starts now.
         PasswordChangedAt = CreatedAt;
@@ -105,8 +103,8 @@ public class User : AuditableEntity, IAggregateRoot
             IsEmailConfirmed = true,
             FailedLoginAttempts = 0,
             AuthProvider = AuthProviders.Google,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
         };
     }
 
@@ -144,7 +142,7 @@ public class User : AuditableEntity, IAggregateRoot
         FullName = fullName.Trim();
         Gender = string.IsNullOrWhiteSpace(gender) ? null : gender.Trim();
         DateOfBirth = dateOfBirth;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -154,7 +152,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         Email = newEmail.Trim().ToLowerInvariant();
         IsEmailConfirmed = true;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -163,8 +161,8 @@ public class User : AuditableEntity, IAggregateRoot
     public void AdminSoftDeleteUser()
     {
         Status = UserStatus.Banned;
-        DeletedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        DeletedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -177,10 +175,10 @@ public class User : AuditableEntity, IAggregateRoot
         if (FailedLoginAttempts >= maxAttempts)
         {
             Status = UserStatus.Locked;
-            StatusExpiresAt = DateTime.UtcNow.AddMinutes(lockoutMinutes);
+            StatusExpiresAt = DateTimeOffset.UtcNow.AddMinutes(lockoutMinutes);
         }
 
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -190,8 +188,8 @@ public class User : AuditableEntity, IAggregateRoot
     {
         FailedLoginAttempts = 0;
         StatusExpiresAt = null;
-        LastLoginAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        LastLoginAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
         Status = UserStatus.Active;
     }
 
@@ -219,7 +217,7 @@ public class User : AuditableEntity, IAggregateRoot
         }
 
         PhoneNumber = newPhoneNumber;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -230,13 +228,13 @@ public class User : AuditableEntity, IAggregateRoot
     {
         Email = newEmail.Trim().ToLowerInvariant();
         IsEmailConfirmed = true;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     public void ConfirmPhoneChange()
     {
         IsPhoneConfirmed = true;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -247,7 +245,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         AvatarUrl = string.IsNullOrWhiteSpace(avatarUrl) ? null : avatarUrl.Trim();
         AvatarKey = string.IsNullOrWhiteSpace(avatarKey) ? null : avatarKey.Trim();
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -270,7 +268,7 @@ public class User : AuditableEntity, IAggregateRoot
             throw new InvalidOperationException("Address must belong to this user.");
         }
         _addresses.Add(address);
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -302,7 +300,7 @@ public class User : AuditableEntity, IAggregateRoot
             return false;
         }
 
-        if (Status == UserStatus.Locked && StatusExpiresAt > DateTime.UtcNow)
+        if (Status == UserStatus.Locked && StatusExpiresAt > DateTimeOffset.UtcNow)
         {
             return false;
         }
@@ -317,7 +315,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         return DeletedAt is not null ||
                Status == UserStatus.Banned ||
-               (Status == UserStatus.Locked && StatusExpiresAt > DateTime.UtcNow);
+               (Status == UserStatus.Locked && StatusExpiresAt > DateTimeOffset.UtcNow);
     }
 
     /// <summary>
@@ -327,7 +325,7 @@ public class User : AuditableEntity, IAggregateRoot
     {
         // ECA-6 OAuth2 Google: Google id_token has a verified email claim, so this local email can be trusted.
         IsEmailConfirmed = true;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -339,7 +337,7 @@ public class User : AuditableEntity, IAggregateRoot
         PasswordHash = string.Empty;
         MustChangePassword = false;
         PasswordChangedAt = null;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -349,14 +347,14 @@ public class User : AuditableEntity, IAggregateRoot
     {
         PasswordHash = newPasswordHash;
         MustChangePassword = false;
-        PasswordChangedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        PasswordChangedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     public void FlagMustChangePassword()
     {
         MustChangePassword = true;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     public void VerifyIdentity(string legalFullName, string legelGender, DateOnly legalDateOfBirth)
@@ -365,6 +363,6 @@ public class User : AuditableEntity, IAggregateRoot
         FullName = legalFullName;
         Gender = legelGender;
         DateOfBirth = legalDateOfBirth;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 }

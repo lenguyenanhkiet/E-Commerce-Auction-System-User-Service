@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,8 +27,8 @@ public class IdentityVerification : AuditableEntity, IAggregateRoot
     public string Status { get; private set; } = IdentityVerificationState.Pending;
     public string? RejectionReason { get; private set; }
     public decimal? ConfidenceScore { get; private set; }
-    public DateTime SubmittedAt { get; private set; }
-    public DateTime? VerifiedAt { get; private set; }
+    public DateTimeOffset SubmittedAt { get; private set; }
+    public DateTimeOffset? VerifiedAt { get; private set; }
     public string? VerifiedBy { get; private set; }
 
     protected IdentityVerification()
@@ -72,7 +72,7 @@ public class IdentityVerification : AuditableEntity, IAggregateRoot
         IdentityFrontImageKey = identityFrontImageKey.Trim();
         IdentityBackImageKey = identityBackImageKey.Trim();
         Status = IdentityVerificationState.Pending;
-        SubmittedAt = DateTime.UtcNow;
+        SubmittedAt = DateTimeOffset.UtcNow;
         CreatedAt = SubmittedAt;
         UpdatedAt = SubmittedAt;
     }
@@ -86,7 +86,7 @@ public class IdentityVerification : AuditableEntity, IAggregateRoot
         Status = IdentityVerificationState.Verified;
         RejectionReason = null;
         ConfidenceScore = confidenceScore;
-        VerifiedAt = DateTime.UtcNow;
+        VerifiedAt = DateTimeOffset.UtcNow;
         VerifiedBy = verifiedBy;
         UpdatedAt = VerifiedAt.Value;
     }
@@ -103,7 +103,7 @@ public class IdentityVerification : AuditableEntity, IAggregateRoot
         }
         Status = IdentityVerificationState.Rejected;
         RejectionReason = rejectionReason.Trim();
-        VerifiedAt = DateTime.UtcNow;
+        VerifiedAt = DateTimeOffset.UtcNow;
         VerifiedBy = verifiedBy;
         UpdatedAt = VerifiedAt.Value;
     }
@@ -140,7 +140,7 @@ public class IdentityVerification : AuditableEntity, IAggregateRoot
         Status = IdentityVerificationState.Pending;
         RejectionReason = null;
         ConfidenceScore = null;
-        SubmittedAt = DateTime.UtcNow;
+        SubmittedAt = DateTimeOffset.UtcNow;
         UpdatedAt = SubmittedAt;
     }
 

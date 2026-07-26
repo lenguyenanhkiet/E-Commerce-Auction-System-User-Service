@@ -24,14 +24,21 @@ public sealed class SubmitIdentityVerificationCommandHandlerTests
     private readonly IIdentityVerificationProvider _provider =
         Substitute.For<IIdentityVerificationProvider>();
 
+    private readonly ECommerceAuction.UserService.Application.Reputation.Services.IReputationAwardService _awardService =
+        Substitute.For<ECommerceAuction.UserService.Application.Reputation.Services.IReputationAwardService>();
+
     private SubmitIdentityVerificationCommandHandler CreateSut()
     {
         var user = new User("caller@example.com", "hash", "NGUYỄN VĂN A", "0900000000");
         _userRepository.GetByIdAsync(CallerId, Arg.Any<CancellationToken>()).Returns(user);
 
+        var completeIdentity =
+            new ECommerceAuction.UserService.Application.IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService(
+                _awardService);
+
         var options = Options.Create(new IdentityMatchingOptions { MinimumConfidence = 0.80m });
         return new SubmitIdentityVerificationCommandHandler(
-            _verificationRepository, _userRepository, _unitOfWork, _provider, options);
+            _verificationRepository, _userRepository, _unitOfWork, _provider, options, completeIdentity);
     }
 
     private static SubmitIdentityVerificationCommand Command(

@@ -1,4 +1,3 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Reputation.Services;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
@@ -11,23 +10,18 @@ namespace ECommerceAuction.UserService.Application.IdentityVerifications.VerifyI
 
 public sealed class CompleteIdentityVerificationService
 {
-    private readonly IBuyerVerificationRepository _buyerVerificationRepository;
-
     private readonly IReputationAwardService _reputationAwardService;
 
-    private readonly IUnitOfWork _unitOfWork;
-
-    public CompleteIdentityVerificationService(IBuyerVerificationRepository buyerVerificationRepository, IReputationAwardService reputationAwardService, IUnitOfWork unitOfWork)
+    public CompleteIdentityVerificationService(
+        IReputationAwardService reputationAwardService)
     {
-        _buyerVerificationRepository = buyerVerificationRepository;
         _reputationAwardService = reputationAwardService;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task CompleteAsync(
         Guid userId,
         string verificationReference,
-        DateTime occurredAt,
+        DateTimeOffset occurredAt,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(verificationReference))
@@ -37,22 +31,8 @@ public sealed class CompleteIdentityVerificationService
                 nameof(verificationReference));
         }
 
-        var verificationProfile =
-            await _buyerVerificationRepository
-                .GetByUserIdAsync(
-                    userId,
-                    cancellationToken)
-            ?? throw new InvalidOperationException(
-                "Buyer verification profile was not found.");
-
-        var isFirstVerification =
-            verificationProfile.VerifyIdentity(occurredAt);
-
-        if (!isFirstVerification)
-        {
-            return;
-        }
-
+        // User owns the identity-verification flag; IdentityVerification owns
+        // the review details. The ledger idempotency key prevents double awards.
         await _reputationAwardService.AwardConfirmedAsync(
             userId: userId,
             entryType:
@@ -72,7 +52,5 @@ public sealed class CompleteIdentityVerificationService
             cancellationToken:
                 cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(
-            cancellationToken);
     }
 }

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,7 +6,7 @@ using System.Text;
 namespace ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp
 {
     public sealed record RequestPhoneOtpCommand : ICommand<RequestPhoneOtpResponse>;
-    public sealed record RequestPhoneOtpResponse(string PhoneNumber, DateTime OtpExpirationDate);
+    public sealed record RequestPhoneOtpResponse(string PhoneNumber, DateTimeOffset OtpExpirationDate);
 
 
 }

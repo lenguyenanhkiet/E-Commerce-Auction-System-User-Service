@@ -14,7 +14,7 @@ public sealed class UserSession : BaseEntity
     private UserSession(
         Guid userId,
         string refreshTokenHash,
-        DateTime expiresAt,
+        DateTimeOffset expiresAt,
         string? deviceId,
         string? deviceName,
         string? ipAddress,
@@ -27,7 +27,7 @@ public sealed class UserSession : BaseEntity
         IpAddress = ipAddress;
         UserAgent = userAgent;
         ExpiresAt = expiresAt;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
     }
 
     public Guid UserId { get; private set; }
@@ -36,10 +36,10 @@ public sealed class UserSession : BaseEntity
     public string? DeviceName { get; private set; }
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
-    public DateTime ExpiresAt { get; private set; }
-    public DateTime? RevokedAt { get; private set; }
-    public DateTime? LastUsedAt { get; private set; }
-    public DateTime CreatedAt { get; private set; }
+    public DateTimeOffset ExpiresAt { get; private set; }
+    public DateTimeOffset? RevokedAt { get; private set; }
+    public DateTimeOffset? LastUsedAt { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
 
     /// <summary>
     /// Creates a new active refresh-token session.
@@ -47,7 +47,7 @@ public sealed class UserSession : BaseEntity
     public static UserSession Create(
         Guid userId,
         string refreshTokenHash,
-        DateTime expiresAt,
+        DateTimeOffset expiresAt,
         string? deviceId = null,
         string? deviceName = null,
         string? ipAddress = null,
@@ -68,18 +68,18 @@ public sealed class UserSession : BaseEntity
     /// </summary>
     public bool IsActive()
     {
-        return RevokedAt is null && ExpiresAt > DateTime.UtcNow;
+        return RevokedAt is null && ExpiresAt > DateTimeOffset.UtcNow;
     }
 
     /// <summary>
     /// Replaces the stored refresh token after a successful refresh operation.
     /// </summary>
-    public void RotateRefreshToken(string refreshTokenHash, DateTime expiresAt)
+    public void RotateRefreshToken(string refreshTokenHash, DateTimeOffset expiresAt)
     {
         // ECA-17 Refresh token: rotate token after refresh so an old refresh token cannot be reused forever.
         RefreshTokenHash = refreshTokenHash;
         ExpiresAt = expiresAt;
-        LastUsedAt = DateTime.UtcNow;
+        LastUsedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -88,7 +88,7 @@ public sealed class UserSession : BaseEntity
     public void Revoke()
     {
         // ECA-10 Logout: revoke refresh session when FE sends the refresh token during logout.
-        RevokedAt ??= DateTime.UtcNow;
-        LastUsedAt = DateTime.UtcNow;
+        RevokedAt ??= DateTimeOffset.UtcNow;
+        LastUsedAt = DateTimeOffset.UtcNow;
     }
 }

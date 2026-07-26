@@ -81,7 +81,7 @@ public sealed class ChangePasswordCommandHandler
         }
 
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
-        var changedAt = DateTime.UtcNow;
+        var changedAt = DateTimeOffset.UtcNow;
 
         user.ChangePassword(newPasswordHash); // domain method: set PasswordHash, MustChangePassword = false, UpdatedAt
 

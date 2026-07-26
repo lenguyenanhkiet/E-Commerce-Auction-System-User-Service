@@ -54,22 +54,22 @@ public sealed class UserSessionConfiguration : IEntityTypeConfiguration<UserSess
 
         builder.Property(session => session.ExpiresAt)
             .HasColumnName("expires_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(session => session.RevokedAt)
             .HasColumnName("revoked_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Property(session => session.LastUsedAt)
             .HasColumnName("last_used_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Property(session => session.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
     }
 }

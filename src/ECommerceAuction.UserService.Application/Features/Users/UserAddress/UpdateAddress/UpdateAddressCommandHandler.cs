@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
@@ -90,12 +90,12 @@ public sealed class UpdateAddressCommandHandler : ICommandHandler<UpdateAddressC
                 address.Id,
                 address.RecipientName,
                 address.RecipientPhone,
+                address.Street,
                 address.Province,
                 address.Ward,
-                address.Street,
                 address.Type,
                 address.IsDefault,
-                address.UpdatedAt ?? DateTime.UtcNow
+                address.UpdatedAt ?? DateTimeOffset.UtcNow
             );
     }
 }

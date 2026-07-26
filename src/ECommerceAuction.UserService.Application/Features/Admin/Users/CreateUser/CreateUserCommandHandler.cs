@@ -5,7 +5,6 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Nexus.Contracts.Events.User;
@@ -24,6 +23,8 @@ public sealed class CreateUserCommandHandler
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+        _completeEmailVerification;
 
     public CreateUserCommandHandler(
         IUserRepository userRepository,
@@ -31,7 +32,9 @@ public sealed class CreateUserCommandHandler
         IPasswordHasher passwordHasher,
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+            completeEmailVerification)
     {
         _userRepository = userRepository;
         _roleRepository = roleRepository;
@@ -39,6 +42,7 @@ public sealed class CreateUserCommandHandler
         _currentUserService = currentUserService;
         _unitOfWork = unitOfWork;
         _publishEndpoint = publishEndpoint;
+        _completeEmailVerification = completeEmailVerification;
     }
 
     public async Task<CreateUserResponse> Handle(
@@ -80,9 +84,11 @@ public sealed class CreateUserCommandHandler
 
         await _userRepository.AddAsync(user, cancellationToken);
 
-        // A verified email grants the first reputation point, matching the self-registration flow.
-        await _userRepository.AddReputationProfileAsync(
-            ReputationProfile.CreateForVerifiedEmail(user.Id),
+        // Admin-created users have a verified email, so record that fact in the
+        // verification profile and award the idempotent ledger entry.
+        await _completeEmailVerification.CompleteAsync(
+            user.Id,
+            DateTimeOffset.UtcNow,
             cancellationToken);
 
         var assignedRoleCodes = roles.Select(role => role.Code).ToList();

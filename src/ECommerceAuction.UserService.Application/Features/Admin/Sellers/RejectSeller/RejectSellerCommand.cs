@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Sellers;
@@ -12,7 +12,7 @@ using System.Text;
 namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.RejectSeller
 {
     public sealed record RejectSellerCommand(Guid SellerProfileId, Guid AdminUserId, string Reason) : ICommand<RejectSellerResponse>;
-    public sealed record RejectSellerResponse(Guid Id, string Status, string? RejectReason, DateTime ReviewAt);
+    public sealed record RejectSellerResponse(Guid Id, string Status, string? RejectReason, DateTimeOffset ReviewAt);
     public sealed class RejectSellerCommandHandler
     : ICommandHandler<RejectSellerCommand, RejectSellerResponse>
     {

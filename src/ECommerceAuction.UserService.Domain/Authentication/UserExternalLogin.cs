@@ -24,10 +24,10 @@ public sealed class UserExternalLogin : AuditableEntity
         ProviderUserId = providerUserId;
         ProviderEmail = providerEmail;
         ProviderDisplayName = providerDisplayName;
-        LinkedAt = DateTime.UtcNow;
-        LastLoginAt = DateTime.UtcNow;
+        LinkedAt = DateTimeOffset.UtcNow;
+        LastLoginAt = DateTimeOffset.UtcNow;
         Status = ExternalLoginStatuses.Active;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
         // UserExternalLogins.updated_at is required by the database schema.
         UpdatedAt = CreatedAt;
     }
@@ -39,8 +39,8 @@ public sealed class UserExternalLogin : AuditableEntity
     public string? ProviderDisplayName { get; private set; }
     public string? AccessTokenHash { get; private set; }
     public string? RefreshTokenHash { get; private set; }
-    public DateTime LinkedAt { get; private set; }
-    public DateTime? LastLoginAt { get; private set; }
+    public DateTimeOffset LinkedAt { get; private set; }
+    public DateTimeOffset? LastLoginAt { get; private set; }
     public string Status { get; private set; } = ExternalLoginStatuses.Active;
     public User? User { get; private set; }
 
@@ -77,7 +77,7 @@ public sealed class UserExternalLogin : AuditableEntity
         // ECA-6 OAuth2 Google: provider_user_id is the stable identity; email/name are snapshots that can change over time.
         ProviderEmail = providerEmail.Trim().ToLowerInvariant();
         ProviderDisplayName = providerDisplayName?.Trim();
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -85,8 +85,8 @@ public sealed class UserExternalLogin : AuditableEntity
     /// </summary>
     public void MarkLoggedIn()
     {
-        LastLoginAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        LastLoginAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 }
 

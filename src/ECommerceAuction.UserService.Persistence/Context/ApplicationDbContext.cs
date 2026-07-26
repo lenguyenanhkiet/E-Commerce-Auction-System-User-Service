@@ -25,7 +25,6 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<Privilege> Privileges => Set<Privilege>();
     public DbSet<RolePrivilege> RolePrivileges => Set<RolePrivilege>();
     public DbSet<UserRole> UserRoles => Set<UserRole>();
-    public DbSet<ReputationProfile> ReputationProfiles => Set<ReputationProfile>();
     public DbSet<UserExternalLogin> UserExternalLogins => Set<UserExternalLogin>();
     public DbSet<UserSession> UserSessions => Set<UserSession>();
     public DbSet<UserAuditLog> UserAuditLogs => Set<UserAuditLog>();
@@ -41,6 +40,16 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
+    }
+
+    protected override void ConfigureConventions(
+        ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTimeOffset>()
+            .HaveColumnType("datetimeoffset(3)");
+
+        configurationBuilder.Properties<DateTimeOffset?>()
+            .HaveColumnType("datetimeoffset(3)");
     }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

@@ -38,8 +38,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("actor_user_id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
                     b.Property<string>("EntityId")
@@ -87,12 +87,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("ExpiryDate")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("expiry_date");
 
                     b.Property<bool>("IsUsed")
@@ -131,20 +131,20 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("access_token_hash");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("last_login_at");
 
-                    b.Property<DateTime>("LinkedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("LinkedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("linked_at");
 
                     b.Property<string>("Provider")
@@ -177,8 +177,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue("ACTIVE")
                         .HasColumnName("status");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("UserId")
@@ -201,8 +201,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("PasswordHash")
                         .IsRequired()
@@ -226,8 +226,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
                     b.Property<string>("DeviceId")
@@ -238,16 +238,16 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("device_name");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("expires_at");
 
                     b.Property<string>("IpAddress")
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("ip_address");
 
-                    b.Property<DateTime?>("LastUsedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("last_used_at");
 
                     b.Property<string>("RefreshTokenHash")
@@ -255,8 +255,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(255)")
                         .HasColumnName("refresh_token_hash");
 
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("revoked_at");
 
                     b.Property<string>("UserAgent")
@@ -323,12 +323,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("code");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
@@ -353,8 +353,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue("ACTIVE")
                         .HasColumnName("status");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -372,8 +372,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("AssignedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("assigned_at");
 
                     b.Property<Guid?>("AssignedBy")
@@ -405,21 +405,17 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("AddressVerifiedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("AddressVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("address_verified_at");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
-
-                    b.Property<DateTime?>("EmailVerifiedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("email_verified_at");
 
                     b.Property<bool>("HasVerifiedAddress")
                         .HasColumnType("bit")
@@ -429,32 +425,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("has_verified_payment_method");
 
-                    b.Property<DateTime?>("IdentityVerifiedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("identity_verified_at");
-
-                    b.Property<bool>("IsEmailVerified")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_email_verified");
-
-                    b.Property<bool>("IsIdentityVerified")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_identity_verified");
-
-                    b.Property<bool>("IsPhoneVerified")
-                        .HasColumnType("bit")
-                        .HasColumnName("is_phone_verified");
-
-                    b.Property<DateTime?>("PaymentMethodVerifiedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("PaymentMethodVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("payment_method_verified_at");
 
-                    b.Property<DateTime?>("PhoneVerifiedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("phone_verified_at");
-
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("UserId")
@@ -477,14 +453,14 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Property<decimal?>("ConfidenceScore")
                         .HasColumnType("decimal(5,4)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<DateOnly>("ExpiryDate")
                         .HasColumnType("date");
@@ -536,17 +512,17 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("VerifiedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("VerifiedBy")
                         .HasMaxLength(100)
@@ -571,12 +547,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("int")
                         .HasColumnName("confirmed_score");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
                     b.Property<int>("FailedAuctions")
@@ -616,8 +592,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(30)")
                         .HasColumnName("trust_level");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("UserId")
@@ -639,24 +615,24 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime?>("CancelledAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("cancelled_at");
 
-                    b.Property<DateTime?>("ConfirmAfter")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("ConfirmAfter")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("confirm_after");
 
-                    b.Property<DateTime?>("ConfirmedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("confirmed_at");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("EntryType")
@@ -682,8 +658,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("reversal_entry_id");
 
-                    b.Property<DateTime?>("ReversedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("ReversedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("reversed_at");
 
                     b.Property<string>("RuleVersion")
@@ -711,8 +687,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(20)")
                         .HasColumnName("status");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.Property<Guid>("UserId")
@@ -738,74 +714,22 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         });
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.ReputationProfile", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
-                    b.Property<decimal>("AverageRating")
-                        .HasColumnType("decimal(3,2)")
-                        .HasColumnName("average_rating");
-
-                    b.Property<int>("FailedAuctions")
-                        .HasColumnType("int")
-                        .HasColumnName("failed_auctions");
-
-                    b.Property<int>("FailedTransactions")
-                        .HasColumnType("int")
-                        .HasColumnName("failed_transactions");
-
-                    b.Property<int>("PenaltyCount")
-                        .HasColumnType("int")
-                        .HasColumnName("penalty_count");
-
-                    b.Property<int>("Score")
-                        .HasColumnType("int")
-                        .HasColumnName("score");
-
-                    b.Property<int>("SuccessfulAuctions")
-                        .HasColumnType("int")
-                        .HasColumnName("successful_auctions");
-
-                    b.Property<int>("SuccessfulTransactions")
-                        .HasColumnType("int")
-                        .HasColumnName("successful_transactions");
-
-                    b.Property<int>("TotalRatings")
-                        .HasColumnType("int")
-                        .HasColumnName("total_ratings");
-
-                    b.Property<string>("TrustLevel")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("trust_level");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("UserId");
-
-                    b.ToTable("ReputationProfiles", "user");
-                });
-
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerApplicationHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("ChangedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("FromStatus")
                         .HasMaxLength(20)
@@ -823,8 +747,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.HasKey("Id");
 
@@ -868,18 +792,18 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("RejectReason")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid?>("ReviewedBy")
                         .HasColumnType("uniqueidentifier");
@@ -894,16 +818,16 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("TaxCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -923,11 +847,11 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
@@ -956,8 +880,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -1002,16 +926,16 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("avatar_url");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date")
                         .HasColumnName("date_of_birth");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Email")
@@ -1055,8 +979,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("phone_verified");
 
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("last_login_at");
 
                     b.Property<bool>("MustChangePassword")
@@ -1065,8 +989,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("must_change_password");
 
-                    b.Property<DateTime?>("PasswordChangedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("PasswordChangedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("password_changed_at");
 
                     b.Property<string>("PasswordHash")
@@ -1086,12 +1010,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue("ACTIVE")
                         .HasColumnName("status");
 
-                    b.Property<DateTime?>("StatusExpiresAt")
-                        .HasColumnType("datetime2")
+                    b.Property<DateTimeOffset?>("StatusExpiresAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("status_expires_at");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -1112,16 +1036,16 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("AssignedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("assigned_at");
 
                     b.Property<Guid?>("AssignedBy")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("assigned_by");
 
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("revoked_at");
 
                     b.Property<Guid>("RoleId")
@@ -1180,15 +1104,6 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.ReputationProfile", b =>
-                {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", null)
-                        .WithOne("ReputationProfile")
-                        .HasForeignKey("ECommerceAuction.UserService.Domain.Reputation.ReputationProfile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerApplicationHistory", b =>
                 {
                     b.HasOne("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", null)
@@ -1243,8 +1158,6 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.User", b =>
                 {
                     b.Navigation("Addresses");
-
-                    b.Navigation("ReputationProfile");
 
                     b.Navigation("UserRoles");
                 });

@@ -66,7 +66,7 @@ public sealed class UserAuditLogConfiguration : IEntityTypeConfiguration<UserAud
 
         builder.Property(auditLog => auditLog.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.HasIndex(auditLog => auditLog.Action);

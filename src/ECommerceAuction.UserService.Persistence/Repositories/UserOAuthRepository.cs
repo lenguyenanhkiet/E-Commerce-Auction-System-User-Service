@@ -2,7 +2,6 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -167,35 +166,6 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
     }
 
     /// <summary>
-    /// Ensures the user has a reputation profile and grants the email verification point only when requested by the caller.
-    /// </summary>
-    public async Task EnsureReputationProfileAsync(
-        Guid userId,
-        bool grantEmailVerificationPoint,
-        CancellationToken cancellationToken)
-    {
-        var reputationProfile = await _dbContext.ReputationProfiles
-            .FirstOrDefaultAsync(profile => profile.UserId == userId, cancellationToken);
-
-        if (reputationProfile is null)
-        {
-            // Google-created users already have a verified email, so their profile starts with +1.
-            reputationProfile = grantEmailVerificationPoint
-                ? ReputationProfile.CreateForVerifiedEmail(userId)
-                : ReputationProfile.CreateDefault(userId);
-
-            await _dbContext.ReputationProfiles.AddAsync(reputationProfile, cancellationToken);
-            return;
-        }
-
-        if (grantEmailVerificationPoint)
-        {
-            // This is called only when this login changed email from unverified to verified.
-            reputationProfile.AddEmailVerificationPoint();
-        }
-    }
-
-    /// <summary>
     /// Adds a refresh-token session to the current unit of work.
     /// </summary>
     public Task AddUserSessionAsync(
@@ -217,7 +187,7 @@ public sealed class UserOAuthRepository : IUserOAuthRepository
                 session =>
                     session.RefreshTokenHash == refreshTokenHash &&
                     session.RevokedAt == null &&
-                    session.ExpiresAt > DateTime.UtcNow,
+                    session.ExpiresAt > DateTimeOffset.UtcNow,
                 cancellationToken);
     }
 

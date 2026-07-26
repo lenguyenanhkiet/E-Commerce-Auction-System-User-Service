@@ -10,5 +10,5 @@ public sealed record PendingUserCacheModel(
     string FullName,
     string PasswordHash,
     string OtpCode,
-    DateTime ExpiresAt,
+    DateTimeOffset ExpiresAt,
     Guid CorrelationId);

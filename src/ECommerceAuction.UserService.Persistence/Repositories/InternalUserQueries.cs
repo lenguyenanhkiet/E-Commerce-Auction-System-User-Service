@@ -63,13 +63,13 @@ public sealed class InternalUserQueries : IInternalUserQueries
                     EligibilityStatus: IneligibleStatus,
                     ReasonCode: "USER_NOT_FOUND",
                     SourceVersion: "0",
-                    UpdatedAtUtc: DateTime.UtcNow));
+                    UpdatedAtUtc: DateTimeOffset.UtcNow));
                 continue;
             }
 
             var statusActive = row.Status == UserStatus.Active;
             var canSell = statusActive && row.SellerRoleActive;
-            var updatedAt = row.UpdatedAt ?? DateTime.UtcNow;
+            var updatedAt = row.UpdatedAt ?? DateTimeOffset.UtcNow;
 
             var reasonCode = canSell
                 ? null
@@ -112,7 +112,7 @@ public sealed class InternalUserQueries : IInternalUserQueries
         BuyerAddressCandidateSnapshot? address,
         CancellationToken cancellationToken)
     {
-        var checkedAtUtc = DateTime.UtcNow;
+        var checkedAtUtc = DateTimeOffset.UtcNow;
         var row = await _db.Users
             .AsNoTracking()
             .Where(user => user.Id == userId)
@@ -266,7 +266,7 @@ public sealed class InternalUserQueries : IInternalUserQueries
             var versionSource = row.SellerProfile?.UpdatedAt ??
                                 row.SellerProfile?.CreatedAt ??
                                 row.UpdatedAt ??
-                                DateTime.UtcNow;
+                                DateTimeOffset.UtcNow;
 
             result.Add(new SellerCommerceProfileSnapshot(
                 RequestedSellerUserId: id,
@@ -308,6 +308,6 @@ public sealed class InternalUserQueries : IInternalUserQueries
         string Street,
         string? Ward,
         string? Province,
-        DateTime? UpdatedAt,
-        DateTime CreatedAt);
+        DateTimeOffset? UpdatedAt,
+        DateTimeOffset CreatedAt);
 }

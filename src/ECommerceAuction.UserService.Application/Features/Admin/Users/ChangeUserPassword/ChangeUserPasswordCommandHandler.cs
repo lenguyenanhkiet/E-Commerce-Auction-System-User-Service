@@ -52,7 +52,7 @@ public sealed class ChangeUserPasswordCommandHandler
             ?? throw new NotFoundException("User was not found or has already been deleted.");
 
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
-        var changedAt = DateTime.UtcNow;
+        var changedAt = DateTimeOffset.UtcNow;
 
         user.ChangePassword(newPasswordHash);
 
@@ -88,7 +88,7 @@ public sealed class ChangeUserPasswordCommandHandler
                 Email = user.Email,
                 FullName = user.FullName,
                 ChangedByAdmin = true,
-                ChangedAt = changedAt,
+                ChangedAt = changedAt.UtcDateTime,
                 SourceService = "UserService"
             },
             cancellationToken);

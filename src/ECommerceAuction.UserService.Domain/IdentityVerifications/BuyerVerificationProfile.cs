@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -7,41 +7,28 @@ namespace ECommerceAuction.UserService.Domain.IdentityVerifications;
 /// <summary>
 /// Stores the summarized verification state used for buyer eligibility.
 ///
-/// Email, phone and identity verification may be completed through
-/// independent workflows.
+/// Address and payment verification may be completed through independent
+/// buyer-eligibility workflows. Account email, phone and identity verification
+/// belong to User and are deliberately not duplicated here.
 /// </summary>
 
 public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
 {
     public Guid UserId { get; private set; }
 
-    public bool IsEmailVerified { get; private set; }
-    public bool IsPhoneVerified { get; private set; }
-    public bool IsIdentityVerified { get; private set; }
-
     public bool HasVerifiedAddress { get; private set; }
     public bool HasVerifiedPaymentMethod { get; private set; }
 
-    public DateTime? EmailVerifiedAt { get; private set; }
-    public DateTime? PhoneVerifiedAt { get; private set; }
-    public DateTime? IdentityVerifiedAt { get; private set; }
-    public DateTime? AddressVerifiedAt { get; private set; }
-    public DateTime? PaymentMethodVerifiedAt { get; private set; }
+    public DateTimeOffset? AddressVerifiedAt { get; private set; }
+    public DateTimeOffset? PaymentMethodVerifiedAt { get; private set; }
 
-    public bool IsFullyVerified =>
-        IsEmailVerified &&
-        IsPhoneVerified &&
-        IsIdentityVerified &&
-        HasVerifiedAddress &&
-        HasVerifiedPaymentMethod;
-
-    protected BuyerVerificationProfile()
+    private BuyerVerificationProfile()
     {
     }
 
     private BuyerVerificationProfile(
         Guid userId,
-        DateTime createdAt)
+        DateTimeOffset createdAt)
     {
         if (userId == Guid.Empty)
         {
@@ -50,6 +37,7 @@ public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
                 nameof(userId));
         }
 
+        createdAt = createdAt.ToUniversalTime();
         Id = Guid.NewGuid();
         UserId = userId;
         CreatedAt = createdAt;
@@ -58,61 +46,19 @@ public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
 
     public static BuyerVerificationProfile Create(
         Guid userId,
-        DateTime createdAt)
+        DateTimeOffset createdAt)
     {
         return new BuyerVerificationProfile(userId, createdAt);
     }
 
-    /// <returns>True when this is the first successful verification.</returns>
-    public bool VerifyEmail(DateTime occurredAt)
-    {
-        if (IsEmailVerified)
-        {
-            return false;
-        }
-
-        IsEmailVerified = true;
-        EmailVerifiedAt = occurredAt;
-        UpdatedAt = occurredAt;
-
-        return true;
-    }
-
-    public bool VerifyPhone(DateTime occurredAt)
-    {
-        if (IsPhoneVerified)
-        {
-            return false;
-        }
-
-        IsPhoneVerified = true;
-        PhoneVerifiedAt = occurredAt;
-        UpdatedAt = occurredAt;
-
-        return true;
-    }
-
-    public bool VerifyIdentity(DateTime occurredAt)
-    {
-        if (IsIdentityVerified)
-        {
-            return false;
-        }
-
-        IsIdentityVerified = true;
-        IdentityVerifiedAt = occurredAt;
-        UpdatedAt = occurredAt;
-
-        return true;
-    }
-
-    public bool VerifyAddress(DateTime occurredAt)
+    public bool VerifyAddress(DateTimeOffset occurredAt)
     {
         if (HasVerifiedAddress)
         {
             return false;
         }
 
+        occurredAt = occurredAt.ToUniversalTime();
         HasVerifiedAddress = true;
         AddressVerifiedAt = occurredAt;
         UpdatedAt = occurredAt;
@@ -120,13 +66,14 @@ public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
         return true;
     }
 
-    public bool VerifyPaymentMethod(DateTime occurredAt)
+    public bool VerifyPaymentMethod(DateTimeOffset occurredAt)
     {
         if (HasVerifiedPaymentMethod)
         {
             return false;
         }
 
+        occurredAt = occurredAt.ToUniversalTime();
         HasVerifiedPaymentMethod = true;
         PaymentMethodVerifiedAt = occurredAt;
         UpdatedAt = occurredAt;
@@ -134,41 +81,14 @@ public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
         return true;
     }
 
-    public bool RevokePhoneVerification(DateTime occurredAt)
-    {
-        if (!IsPhoneVerified)
-        {
-            return false;
-        }
-
-        IsPhoneVerified = false;
-        PhoneVerifiedAt = null;
-        UpdatedAt = occurredAt;
-
-        return true;
-    }
-
-    public bool RevokeIdentityVerification(DateTime occurredAt)
-    {
-        if (!IsIdentityVerified)
-        {
-            return false;
-        }
-
-        IsIdentityVerified = false;
-        IdentityVerifiedAt = null;
-        UpdatedAt = occurredAt;
-
-        return true;
-    }
-
-    public bool RevokePaymentMethodVerification(DateTime occurredAt)
+    public bool RevokePaymentMethodVerification(DateTimeOffset occurredAt)
     {
         if (!HasVerifiedPaymentMethod)
         {
             return false;
         }
 
+        occurredAt = occurredAt.ToUniversalTime();
         HasVerifiedPaymentMethod = false;
         PaymentMethodVerifiedAt = null;
         UpdatedAt = occurredAt;

@@ -87,7 +87,7 @@ public sealed class UpdateProfileCommandHandler
                 var verificationToken = Convert.ToHexString(
                     RandomNumberGenerator.GetBytes(32));
 
-                var expiresAtUtc = DateTime.UtcNow.AddMinutes(15);
+                var expiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(15);
 
                 var pendingEmailChange = new PendingEmailChange(
                     UserId: userId,
@@ -138,5 +138,5 @@ public sealed class UpdateProfileCommandHandler
     private sealed record PendingEmailChange(
         Guid UserId,
         string NewEmail,
-        DateTime ExpiresAtUtc);
+        DateTimeOffset ExpiresAtUtc);
 }

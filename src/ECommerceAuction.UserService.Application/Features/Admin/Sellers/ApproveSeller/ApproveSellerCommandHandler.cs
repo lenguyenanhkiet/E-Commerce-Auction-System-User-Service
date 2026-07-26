@@ -6,6 +6,10 @@ using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Nexus.Contracts.Events.Seller;
+using ECommerceAuction.UserService.Application.Reputation.Services;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Reputation.Buyer;
+using ECommerceAuction.UserService.Domain.Reputation.Ledger;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.ApproveSeller;
 
@@ -18,19 +22,25 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
     private readonly IRoleManagementRepository _roleManagementRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IBuyerVerificationRepository _buyerVerificationRepository;
+    private readonly IReputationAwardService _reputationAwardService;
 
     public ApproveSellerCommandHandler(
         ISellerProfileRepository sellerProfileRepository,
         IUserRepository userRepository,
         IRoleManagementRepository roleManagementRepository,
         IUnitOfWork unitOfWork,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        IBuyerVerificationRepository buyerVerificationRepository,
+        IReputationAwardService reputationAwardService)
     {
         _sellerProfileRepository = sellerProfileRepository;
         _userRepository = userRepository;
         _roleManagementRepository = roleManagementRepository;
         _unitOfWork = unitOfWork;
         _publishEndpoint = publishEndpoint;
+        _buyerVerificationRepository = buyerVerificationRepository;
+        _reputationAwardService = reputationAwardService;
     }
 
     public async Task<ApproveSellerResponse> Handle(
@@ -58,15 +68,30 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
 
         user.AssignRole(UserRole.Assign(user.Id, sellerRole.Id, request.AdminUserId));
 
-        if (user.ReputationProfile is null)
+        var occurredAt = DateTimeOffset.UtcNow;
+        var verificationProfile = await _buyerVerificationRepository.GetByUserIdAsync(
+            user.Id,
+            cancellationToken);
+
+        if (verificationProfile is null)
         {
-            throw new BusinessRuleException("User does not have a reputation profile.");
+            verificationProfile = BuyerVerificationProfile.Create(user.Id, occurredAt);
+            await _buyerVerificationRepository.AddAsync(verificationProfile, cancellationToken);
         }
 
-        user.ReputationProfile.AddVerifiedPaymentMethodPoint();
-        user.ReputationProfile.AddTaxVerificationPoint();
-        user.ReputationProfile.AddBusinessLicenseVerificationPoint();
-        user.ReputationProfile.AddBusinessAddressVerificationPoint();
+        if (verificationProfile.VerifyPaymentMethod(occurredAt))
+        {
+            await _reputationAwardService.AwardConfirmedAsync(
+                user.Id,
+                ReputationEntryTypes.ProfileVerification,
+                ReputationReasons.PaymentMethodVerified,
+                BuyerReputationPoints.PaymentMethodVerified,
+                "SELLER_PAYMENT_METHOD",
+                profile.Id.ToString(),
+                $"user:{user.Id}:payment-method-verified:v1",
+                occurredAt,
+                cancellationToken);
+        }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 

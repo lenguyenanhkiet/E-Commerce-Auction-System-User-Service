@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,7 +14,7 @@ namespace ECommerceAuction.UserService.Domain.Authentication
         public Guid Id { get; private set; }
         public Guid UserId { get; private set; }
         public string PasswordHash { get; private set; } = string.Empty;
-        public DateTime CreatedAt { get; private set; }
+        public DateTimeOffset CreatedAt { get; private set; }
 
         private UserPasswordHistory() { }
         public static UserPasswordHistory Create(Guid UserId, string PasswordHash)
@@ -24,7 +24,7 @@ namespace ECommerceAuction.UserService.Domain.Authentication
                 Id = Guid.NewGuid(),
                 UserId = UserId,
                 PasswordHash = PasswordHash,
-                CreatedAt = DateTime.UtcNow
+                CreatedAt = DateTimeOffset.UtcNow
             };
         }
     }

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -15,7 +15,7 @@ namespace ECommerceAuction.UserService.Domain.Sellers
         public string ToStatus { get; private set; } = string.Empty;
         public Guid ChangedBy { get; private set; }
         public string? Note { get; private set; }
-        public DateTime ChangedAt { get; private set; }
+        public DateTimeOffset ChangedAt { get; private set; }
 
         protected SellerApplicationHistory(){}
         private SellerApplicationHistory(
@@ -30,7 +30,7 @@ namespace ECommerceAuction.UserService.Domain.Sellers
             ToStatus = toStatus;
             ChangedBy = changedBy;
             Note = note;
-            ChangedAt = DateTime.UtcNow;
+            ChangedAt = DateTimeOffset.UtcNow;
             CreatedAt = ChangedAt;
             UpdatedAt = ChangedAt;
         }

@@ -35,7 +35,7 @@ public sealed class TokenRevocationService : ITokenRevocationService
             ?? throw new UnauthorizedAccessException("Access token is missing.");
 
         var jwtToken = new JwtSecurityTokenHandler().ReadJwtToken(accessToken);
-        var timeToLive = jwtToken.ValidTo - DateTime.UtcNow;
+        var timeToLive = jwtToken.ValidTo - DateTimeOffset.UtcNow;
 
         if (timeToLive <= TimeSpan.Zero)
         {

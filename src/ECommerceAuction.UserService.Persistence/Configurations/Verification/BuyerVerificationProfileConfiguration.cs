@@ -24,23 +24,15 @@ public sealed class BuyerVerificationProfileConfiguration
 
         builder.HasIndex(x => x.UserId).IsUnique();
 
-        builder.Property(x => x.IsEmailVerified).HasColumnName("is_email_verified").HasColumnType("bit");
-        builder.Property(x => x.IsPhoneVerified).HasColumnName("is_phone_verified").HasColumnType("bit");
-        builder.Property(x => x.IsIdentityVerified).HasColumnName("is_identity_verified").HasColumnType("bit");
         builder.Property(x => x.HasVerifiedAddress).HasColumnName("has_verified_address").HasColumnType("bit");
         builder.Property(x => x.HasVerifiedPaymentMethod).HasColumnName("has_verified_payment_method").HasColumnType("bit");
 
-        builder.Property(x => x.EmailVerifiedAt).HasColumnName("email_verified_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.PhoneVerifiedAt).HasColumnName("phone_verified_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.IdentityVerifiedAt).HasColumnName("identity_verified_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.AddressVerifiedAt).HasColumnName("address_verified_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.PaymentMethodVerifiedAt).HasColumnName("payment_method_verified_at").HasColumnType("datetime2(3)");
+        builder.Property(x => x.AddressVerifiedAt).HasColumnName("address_verified_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.PaymentMethodVerifiedAt).HasColumnName("payment_method_verified_at").HasColumnType("datetimeoffset(3)");
 
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetime2(3)");
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetimeoffset(3)");
 
-        // Computed convenience property is not persisted.
-        builder.Ignore(x => x.IsFullyVerified);
     }
 }

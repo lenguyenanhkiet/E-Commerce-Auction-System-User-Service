@@ -13,4 +13,4 @@ public sealed record LogoutCommand(string? RefreshToken) : ICommand<LogoutRespon
 public sealed record LogoutResponse(
     bool Success,
     string Message,
-    DateTime LoggedOutAt);
+    DateTimeOffset LoggedOutAt);

@@ -19,9 +19,9 @@ public sealed class Role
     public string? Description { get; private set; }
     public bool IsSystemRole { get; private set; }
     public string Status { get; private set; } = RoleStatuses.Active;
-    public DateTime CreatedAt { get; private set; } = DateTime.UtcNow;
-    public DateTime UpdatedAt { get; private set; } = DateTime.UtcNow;
-    public DateTime? DeletedAt { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset UpdatedAt { get; private set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? DeletedAt { get; private set; }
     public ICollection<UserRole> UserRoles { get; private set; } = new List<UserRole>();
     public IReadOnlyCollection<RolePrivilege> RolePrivileges => _rolePrivileges;
 
@@ -48,7 +48,7 @@ public sealed class Role
     {
         Name = name.Trim();
         Description = NormalizeDescription(description);
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     /// <summary>
@@ -57,8 +57,8 @@ public sealed class Role
     public void MarkDeleted()
     {
         Status = RoleStatuses.Deleted;
-        DeletedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        DeletedAt = DateTimeOffset.UtcNow;
+        UpdatedAt = DateTimeOffset.UtcNow;
     }
 
     private static Role Create(
@@ -67,7 +67,7 @@ public sealed class Role
         string? description,
         bool isSystemRole)
     {
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
 
         return new Role
         {

@@ -29,10 +29,6 @@ public interface IUserRepository
     /// <summary>
     /// Adds the user's default reputation profile to the current unit of work.
     /// </summary>
-    Task AddReputationProfileAsync(
-        ReputationProfile profile,
-        CancellationToken cancellationToken = default);
-
     /// <summary>
     /// Gets a user by email or phone number for local login.
     /// </summary>

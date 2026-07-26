@@ -41,8 +41,8 @@ public sealed class BuyerReputationProfileConfiguration
             .HasColumnType("nvarchar(30)")
             .IsRequired();
 
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetime2(3)");
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetimeoffset(3)");
     }
 }

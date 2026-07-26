@@ -23,8 +23,11 @@ public static class DependencyInjection
         services.AddScoped<
             Reputation.Services.IReputationAwardService,
             Reputation.Services.ReputationAwardService>();
+        services.AddScoped<IdentityVerifications.VerifyEmail.CompleteEmailVerificationService>();
+        services.AddScoped<IdentityVerifications.VerifyPhone.CompletePhoneVerificationService>();
+        services.AddScoped<IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService>();
+        services.AddScoped<IdentityVerifications.VerifyAddress.CompleteAddressVerificationService>();
 
         return services;
     }
 }
-

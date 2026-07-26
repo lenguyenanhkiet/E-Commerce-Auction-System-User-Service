@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -41,16 +41,17 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
     public string TrustLevel { get; private set; }
         = BuyerTrustLevels.Basic;
 
-    protected BuyerReputationProfile()
+    private BuyerReputationProfile()
     { }
 
-    private BuyerReputationProfile(Guid userId, DateTime createdAt)
+    private BuyerReputationProfile(Guid userId, DateTimeOffset createdAt)
     {
         if (userId == Guid.Empty)
         {
             throw new ArgumentException("User ID cannot be empty.", nameof(userId));
         }
 
+        createdAt = createdAt.ToUniversalTime();
         Id = Guid.NewGuid();
         UserId = userId;
         ConfirmedScore = 0;
@@ -60,7 +61,7 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
         UpdatedAt = createdAt;
     }
 
-    public static BuyerReputationProfile Create(Guid userId, DateTime createdAt)
+    public static BuyerReputationProfile Create(Guid userId, DateTimeOffset createdAt)
     {
         return new BuyerReputationProfile(userId, createdAt);
     }
@@ -71,7 +72,7 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
     /// </summary>
     ///
 
-    public void ApplyConfirmedPoints(int points, DateTime occurredAt)
+    public void ApplyConfirmedPoints(int points, DateTimeOffset occurredAt)
     {
         if (points == 0)
         {
@@ -79,6 +80,7 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
                 nameof(points),
                 "Reputation points cannot be zero.");
         }
+        occurredAt = occurredAt.ToUniversalTime();
         ConfirmedScore = checked(ConfirmedScore + points);
 
         if (points > 0)
@@ -87,7 +89,7 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
         }
         else
         {
-            LifetimeEarnedPoints = checked(LifetimePenaltyPoints + Math.Abs((long)points));
+            LifetimePenaltyPoints = checked(LifetimePenaltyPoints + Math.Abs((long)points));
             PenaltyCount = checked(PenaltyCount + 1);
         }
 
@@ -95,7 +97,7 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
         UpdatedAt = occurredAt;
     }
 
-    public void AddPendingPoints(int points, DateTime occurredAt)
+    public void AddPendingPoints(int points, DateTimeOffset occurredAt)
     {
         if (points <= 0)
         {
@@ -104,11 +106,12 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
                 "Pending reputation points must be positive.");
         }
 
+        occurredAt = occurredAt.ToUniversalTime();
         PendingScore = checked(PendingScore + points);
         UpdatedAt = occurredAt;
     }
 
-    public void ConfirmPendingPoints(int points, DateTime occurredAt)
+    public void ConfirmPendingPoints(int points, DateTimeOffset occurredAt)
     {
         if (points <= 0)
         {
@@ -127,7 +130,7 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
         ApplyConfirmedPoints(points, occurredAt);
     }
 
-    public void CancelPendingPoints(int points, DateTime occurredAt)
+    public void CancelPendingPoints(int points, DateTimeOffset occurredAt)
     {
         if (points <= 0)
         {
@@ -142,36 +145,41 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
                 "Pending score is lower than the requested cancellation amount.");
         }
 
+        occurredAt = occurredAt.ToUniversalTime();
         PendingScore -= points;
         UpdatedAt = occurredAt;
     }
 
-    public void RecordSuccessfulTransaction(DateTime occurredAt)
+    public void RecordSuccessfulTransaction(DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         SuccessfulTransactions =
             checked(SuccessfulTransactions + 1);
 
         UpdatedAt = occurredAt;
     }
 
-    public void RecordFailedTransaction(DateTime occurredAt)
+    public void RecordFailedTransaction(DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         FailedTransactions =
             checked(FailedTransactions + 1);
 
         UpdatedAt = occurredAt;
     }
 
-    public void RecordSuccessfulAuction(DateTime occurredAt)
+    public void RecordSuccessfulAuction(DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         SuccessfulAuctions =
             checked(SuccessfulAuctions + 1);
 
         UpdatedAt = occurredAt;
     }
 
-    public void RecordFailedAuction(DateTime occurredAt)
+    public void RecordFailedAuction(DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         FailedAuctions =
             checked(FailedAuctions + 1);
 

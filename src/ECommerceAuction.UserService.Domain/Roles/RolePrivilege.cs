@@ -14,7 +14,7 @@ public sealed class RolePrivilege
     public Guid RoleId { get; private set; }
     public Guid PrivilegeId { get; private set; }
     public Guid? AssignedBy { get; private set; }
-    public DateTime AssignedAt { get; private set; } = DateTime.UtcNow;
+    public DateTimeOffset AssignedAt { get; private set; } = DateTimeOffset.UtcNow;
     public Role Role { get; private set; } = null!;
     public Privilege Privilege { get; private set; } = null!;
 
@@ -28,7 +28,7 @@ public sealed class RolePrivilege
             RoleId = roleId,
             PrivilegeId = privilegeId,
             AssignedBy = assignedBy,
-            AssignedAt = DateTime.UtcNow
+            AssignedAt = DateTimeOffset.UtcNow
         };
     }
 }

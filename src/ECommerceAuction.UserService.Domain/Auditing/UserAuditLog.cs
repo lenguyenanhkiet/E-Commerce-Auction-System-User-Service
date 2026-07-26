@@ -31,7 +31,7 @@ public sealed class UserAuditLog : BaseEntity
         NewValue = newValue;
         IpAddress = ipAddress;
         UserAgent = userAgent;
-        CreatedAt = DateTime.UtcNow;
+        CreatedAt = DateTimeOffset.UtcNow;
     }
 
     public Guid? ActorUserId { get; private set; }
@@ -43,7 +43,7 @@ public sealed class UserAuditLog : BaseEntity
     public string? NewValue { get; private set; }
     public string? IpAddress { get; private set; }
     public string? UserAgent { get; private set; }
-    public DateTime CreatedAt { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
     public const string ForgotPasswordRequested = "FORGOT_PASSWORD_REQUESTED";
     public const string PasswordReset = "PASSWORD_RESET";
 

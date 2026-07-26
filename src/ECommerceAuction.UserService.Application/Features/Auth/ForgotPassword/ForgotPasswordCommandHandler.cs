@@ -58,7 +58,7 @@ public sealed class ForgotPasswordCommandHandler
         var resetToken = PasswordResetToken.Create(
             user.Id,
             token,
-            DateTime.UtcNow.Add(TokenExpiration));
+            DateTimeOffset.UtcNow.Add(TokenExpiration));
 
         await _userRepository.AddPasswordResetTokenAsync(resetToken, cancellationToken);
 
@@ -82,7 +82,7 @@ public sealed class ForgotPasswordCommandHandler
     //    FullName = user.FullName,
     //    ResetToken = token,
     //    ExpiredAt = resetToken.ExpiryDate,
-    //    RequestTime = DateTime.UtcNow
+    //    RequestTime = DateTimeOffset.UtcNow
     //},
     //cancellationToken);
 

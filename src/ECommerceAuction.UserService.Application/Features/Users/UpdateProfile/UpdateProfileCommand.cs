@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.UpdateProfile;
 
@@ -26,5 +26,5 @@ public sealed record ProfileEmailChangeRequested(
     string NewEmail,
     string FullName,
     string VerificationToken,
-    DateTime ExpiresAtUtc,
+    DateTimeOffset ExpiresAtUtc,
     Guid CorrelationId);

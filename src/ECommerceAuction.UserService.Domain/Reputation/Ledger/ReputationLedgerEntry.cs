@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -65,12 +65,12 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
 
     public Guid? ReversalEntryId { get; private set; }
 
-    public DateTime? ConfirmAfter { get; private set; }
-    public DateTime? ConfirmedAt { get; private set; }
-    public DateTime? CancelledAt { get; private set; }
-    public DateTime? ReversedAt { get; private set; }
+    public DateTimeOffset? ConfirmAfter { get; private set; }
+    public DateTimeOffset? ConfirmedAt { get; private set; }
+    public DateTimeOffset? CancelledAt { get; private set; }
+    public DateTimeOffset? ReversedAt { get; private set; }
 
-    protected ReputationLedgerEntry()
+    private ReputationLedgerEntry()
     {
     }
 
@@ -85,8 +85,8 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
         string sourceId,
         string idempotencyKey,
         string ruleVersion,
-        DateTime createdAt,
-        DateTime? confirmAfter)
+        DateTimeOffset createdAt,
+        DateTimeOffset? confirmAfter)
     {
         Validate(
             userId,
@@ -100,6 +100,8 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
             idempotencyKey,
             ruleVersion);
 
+        createdAt = createdAt.ToUniversalTime();
+        confirmAfter = confirmAfter?.ToUniversalTime();
         Id = Guid.NewGuid();
         UserId = userId;
         EntryType = entryType;
@@ -130,7 +132,7 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
         string sourceType,
         string sourceId,
         string idempotencyKey,
-        DateTime occurredAt,
+        DateTimeOffset occurredAt,
         string ruleVersion = "REPUTATION_V1")
     {
         return new ReputationLedgerEntry(
@@ -157,8 +159,8 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
         string sourceType,
         string sourceId,
         string idempotencyKey,
-        DateTime occurredAt,
-        DateTime confirmAfter,
+        DateTimeOffset occurredAt,
+        DateTimeOffset confirmAfter,
         string ruleVersion = "REPUTATION_V1")
     {
         if (points <= 0)
@@ -190,8 +192,9 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
             confirmAfter);
     }
 
-    public void Confirm(DateTime occurredAt)
+    public void Confirm(DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         if (Status != ReputationEntryStatuses.Pending)
         {
             throw new InvalidOperationException(
@@ -210,8 +213,9 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
         UpdatedAt = occurredAt;
     }
 
-    public void Cancel(DateTime occurredAt)
+    public void Cancel(DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         if (Status != ReputationEntryStatuses.Pending)
         {
             throw new InvalidOperationException(
@@ -225,8 +229,9 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
 
     public void MarkReversed(
         Guid reversalEntryId,
-        DateTime occurredAt)
+        DateTimeOffset occurredAt)
     {
+        occurredAt = occurredAt.ToUniversalTime();
         if (Status != ReputationEntryStatuses.Confirmed)
         {
             throw new InvalidOperationException(

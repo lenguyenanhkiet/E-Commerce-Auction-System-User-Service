@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -24,7 +24,7 @@ public interface IReputationLedgerRepository
 
     Task<IReadOnlyList<ReputationLedgerEntry>>
         GetConfirmablePendingEntriesAsync(
-            DateTime asOf,
+            DateTimeOffset asOf,
             int batchSize,
             CancellationToken cancellationToken = default);
 

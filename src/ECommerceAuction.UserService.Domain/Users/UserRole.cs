@@ -11,8 +11,8 @@ public class UserRole
     public Guid UserId { get; set; }
     public Guid RoleId { get; set; }
     public Guid? AssignedBy { get; set; }
-    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
-    public DateTime? RevokedAt { get; set; }
+    public DateTimeOffset AssignedAt { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset? RevokedAt { get; set; }
     public string Status { get; set; } = UserRoleStatuses.Active;
     public User User { get; set; } = null!;
     public Role Role { get; set; } = null!;
@@ -27,7 +27,7 @@ public class UserRole
             UserId = userId,
             RoleId = roleId,
             AssignedBy = assignedBy,
-            AssignedAt = DateTime.UtcNow,
+            AssignedAt = DateTimeOffset.UtcNow,
             Status = UserRoleStatuses.Active
         };
     }
@@ -38,7 +38,7 @@ public class UserRole
     public void Revoke()
     {
         Status = UserRoleStatuses.Revoked;
-        RevokedAt = DateTime.UtcNow;
+        RevokedAt = DateTimeOffset.UtcNow;
     }
 }
 

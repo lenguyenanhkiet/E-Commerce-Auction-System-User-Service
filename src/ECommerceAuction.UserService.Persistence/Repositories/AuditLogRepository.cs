@@ -21,8 +21,8 @@ public sealed class AuditLogRepository : IAuditLogRepository
         Guid? actorUserId,
         Guid? targetUserId,
         string? entityType,
-        DateTime? fromUtc,
-        DateTime? toUtc,
+        DateTimeOffset? fromUtc,
+        DateTimeOffset? toUtc,
         int page,
         int pageSize,
         CancellationToken cancellationToken = default)

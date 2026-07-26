@@ -4,5 +4,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
   </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="Reputation\Events\" />
+    <Folder Include="Reputation\Ratings\" />
+    <Folder Include="Reputation\Restrictions\" />
+    <Folder Include="Reputation\Seller\" />
+  </ItemGroup>
 </Project>
 

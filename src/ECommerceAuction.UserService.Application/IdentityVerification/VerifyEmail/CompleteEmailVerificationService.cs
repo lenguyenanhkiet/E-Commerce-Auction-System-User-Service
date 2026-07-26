@@ -1,4 +1,3 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Reputation.Services;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
@@ -15,18 +14,17 @@ public sealed class CompleteEmailVerificationService
 
     private readonly IReputationAwardService _reputationAwardService;
 
-    private readonly IUnitOfWork _unitOfWork;
-
-    public CompleteEmailVerificationService(IBuyerVerificationRepository buyerVerificationRepository, IReputationAwardService reputationAwardService, IUnitOfWork unitOfWork)
+    public CompleteEmailVerificationService(
+        IBuyerVerificationRepository buyerVerificationRepository,
+        IReputationAwardService reputationAwardService)
     {
         _buyerVerificationRepository = buyerVerificationRepository;
         _reputationAwardService = reputationAwardService;
-        _unitOfWork = unitOfWork;
     }
 
     public async Task CompleteAsync(
         Guid userId,
-        DateTime occurredAt,
+        DateTimeOffset occurredAt,
         CancellationToken cancellationToken = default)
     {
         var verificationProfile =
@@ -47,14 +45,8 @@ public sealed class CompleteEmailVerificationService
                 cancellationToken);
         }
 
-        var isFirstVerification =
-            verificationProfile.VerifyEmail(occurredAt);
-
-        if (!isFirstVerification)
-        {
-            return;
-        }
-
+        // The User aggregate owns email verification state. The ledger's
+        // idempotency key prevents duplicate reputation awards.
         await _reputationAwardService.AwardConfirmedAsync(
             userId: userId,
             entryType:
@@ -74,7 +66,5 @@ public sealed class CompleteEmailVerificationService
             cancellationToken:
                 cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(
-            cancellationToken);
     }
 }

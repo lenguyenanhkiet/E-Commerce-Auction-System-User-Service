@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
@@ -20,24 +20,28 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
         private readonly IUnitOfWork _unitOfWork;
         private readonly IIdentityVerificationProvider _identityVerificationProvider;
         private readonly IdentityMatchingOptions _options;
+        private readonly IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService _completeIdentityVerification;
 
         public SubmitIdentityVerificationCommandHandler(
             IIdentityVerificationRepository identityVerificationRepository,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork,
             IIdentityVerificationProvider identityVerificationProvider,
-            IOptions<IdentityMatchingOptions> options)
+            IOptions<IdentityMatchingOptions> options,
+            IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService completeIdentityVerification)
         {
             _identityVerificationRepository = identityVerificationRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _identityVerificationProvider = identityVerificationProvider;
             _options = options.Value;
+            _completeIdentityVerification = completeIdentityVerification;
         }
 
         public async Task<SubmitIdentityVerificationResponse> Handle(SubmitIdentityVerificationCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken) ?? throw new NotFoundException("User not found.");
+            var identityJustVerified = false;
 
             // Upload keys are "{service}/{imageType}/{ownerId}/...", and the caller hands them to us
             // straight from the request. Without this, anyone could submit somebody else's uploaded
@@ -112,7 +116,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
                         extractionResult.Extraction.FullName ?? request.FullName,
                         extractionResult.Extraction.Gender ?? request.Gender,
                         extractionResult.Extraction.DateOfBirth ?? request.DateOfBirth);
-                    user.ReputationProfile?.AddIdentificationVerificationPoint();
+                    identityJustVerified = true;
                 }
                 else
                 {
@@ -123,6 +127,14 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
             if (isFirstAttempt)
             {
                 await _identityVerificationRepository.AddAsync(verification, cancellationToken);
+            }
+
+            // Award +5 through the reputation ledger once the identity is verified. Idempotent via
+            // the ledger idempotency key, so a retried KYC callback never awards twice.
+            if (identityJustVerified)
+            {
+                await _completeIdentityVerification.CompleteAsync(
+                    user.Id, verification.Id.ToString(), DateTimeOffset.UtcNow, cancellationToken);
             }
 
             try

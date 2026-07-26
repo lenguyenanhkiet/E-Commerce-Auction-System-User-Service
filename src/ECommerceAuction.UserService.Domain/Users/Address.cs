@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -43,10 +43,10 @@ namespace ECommerceAuction.UserService.Domain.Users
             Guid userId,
             string recipientName,
             string recipientPhone,
-            string province,
-            string ward,
+            string? province,
+            string? ward,
             string street,
-            string type,
+            string? type,
             bool isDefault = false)
         {
             UserId = userId;
@@ -57,8 +57,8 @@ namespace ECommerceAuction.UserService.Domain.Users
             Street = street.Trim();
             Type = string.IsNullOrWhiteSpace(type) ? null : type.Trim(); ;
             IsDefault = isDefault;
-            CreatedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
+            CreatedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         /// <summary>
@@ -80,25 +80,25 @@ namespace ECommerceAuction.UserService.Domain.Users
             Ward = string.IsNullOrWhiteSpace(ward) ? null : ward.Trim();
             Street = street.Trim();
             Type = string.IsNullOrWhiteSpace(type) ? null : type.Trim();
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         public void SetAsDefault()
         {
             IsDefault = true;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         public void UnsetAsDefault()
         {
             IsDefault = false;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
 
         public void Delete()
         {
-            DeletedAt = DateTime.UtcNow;
-            UpdatedAt = DateTime.UtcNow;
+            DeletedAt = DateTimeOffset.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
         }
     }
 }

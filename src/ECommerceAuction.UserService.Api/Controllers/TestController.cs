@@ -1,4 +1,4 @@
-﻿//Enter the required namespace
+//Enter the required namespace
 using Microsoft.AspNetCore.Mvc;
 
 //Define namespace for this controller
@@ -24,7 +24,7 @@ public class TestController : ControllerBase
         {
             message = "Backend connected successfully!", //Notification of successful connection
             project = "ECommerceAuction.UserService", //Project name
-            time = DateTime.Now //Current time
+            time = DateTimeOffset.Now //Current time
         });
     }
 }

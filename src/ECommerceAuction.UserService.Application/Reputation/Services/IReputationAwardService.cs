@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -14,6 +14,6 @@ public interface IReputationAwardService
         string sourceType,
         string sourceId,
         string idempotencyKey,
-        DateTime occurredAt,
+        DateTimeOffset occurredAt,
         CancellationToken cancellationToken = default);
 }

@@ -17,7 +17,7 @@ public sealed class AccountMaintenanceRepository : IAccountMaintenanceRepository
         _context = context;
     }
 
-    public Task<int> UnlockExpiredLockoutsAsync(DateTime nowUtc, CancellationToken cancellationToken = default)
+    public Task<int> UnlockExpiredLockoutsAsync(DateTimeOffset nowUtc, CancellationToken cancellationToken = default)
     {
         // Set-based update: unlock every locked account whose lockout window has passed.
         return _context.Users
@@ -29,12 +29,12 @@ public sealed class AccountMaintenanceRepository : IAccountMaintenanceRepository
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(user => user.Status, UserStatus.Active)
                 .SetProperty(user => user.FailedLoginAttempts, 0)
-                .SetProperty(user => user.StatusExpiresAt, (DateTime?)null)
+                .SetProperty(user => user.StatusExpiresAt, (DateTimeOffset?)null)
                 .SetProperty(user => user.UpdatedAt, nowUtc),
                 cancellationToken);
     }
 
-    public Task<int> FlagExpiredPasswordsAsync(DateTime passwordChangedBeforeUtc, CancellationToken cancellationToken = default)
+    public Task<int> FlagExpiredPasswordsAsync(DateTimeOffset passwordChangedBeforeUtc, CancellationToken cancellationToken = default)
     {
         // Only accounts that still have a local password can be forced to rotate it.
         return _context.Users
@@ -45,7 +45,7 @@ public sealed class AccountMaintenanceRepository : IAccountMaintenanceRepository
                 (user.PasswordChangedAt ?? user.CreatedAt) < passwordChangedBeforeUtc)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(user => user.MustChangePassword, true)
-                .SetProperty(user => user.UpdatedAt, DateTime.UtcNow),
+                .SetProperty(user => user.UpdatedAt, DateTimeOffset.UtcNow),
                 cancellationToken);
     }
 }

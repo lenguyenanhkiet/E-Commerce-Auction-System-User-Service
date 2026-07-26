@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Common;
+using ECommerceAuction.UserService.Domain.Common;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,8 +18,8 @@ namespace ECommerceAuction.UserService.Domain.Sellers
         public string BankAccountHolder { get; private set; } = string.Empty;
         public string Status { get; private set; } = SellerApplicationStatus.Pending;
         public string? RejectReason { get; private set; }
-        public DateTime SubmittedAt { get; private set; }
-        public DateTime? ReviewedAt { get; private set; }
+        public DateTimeOffset SubmittedAt { get; private set; }
+        public DateTimeOffset? ReviewedAt { get; private set; }
         public Guid? ReviewedBy { get; private set; }
         private readonly List<SellerApplicationHistory> _history = new();
         public IReadOnlyCollection<SellerApplicationHistory> History => _history.AsReadOnly();
@@ -28,26 +28,30 @@ namespace ECommerceAuction.UserService.Domain.Sellers
         public SellerProfile(
         Guid userId,
         string sellerType,
-        string businessName,
-        string taxCode,
-        string businessLicenseUrl,
+        string? businessName,
+        string? taxCode,
+        string? businessLicenseUrl,
         string address,
         string bankAccountNumber,
         string bankName,
         string bankAccountHolder)
         {
+            ArgumentException.ThrowIfNullOrWhiteSpace(businessName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(taxCode);
+            ArgumentException.ThrowIfNullOrWhiteSpace(businessLicenseUrl);
+
             UserId = userId;
             SellerType = sellerType;
-            BusinessName = businessName;
-            TaxCode = taxCode;
-            BusinessLicenseUrl = businessLicenseUrl;
+            BusinessName = businessName.Trim();
+            TaxCode = taxCode.Trim();
+            BusinessLicenseUrl = businessLicenseUrl.Trim();
             Address = address.Trim();
             BankAccountNumber = bankAccountNumber.Trim();
             BankName = bankName.Trim();
             BankAccountHolder = bankAccountHolder.Trim();
 
             Status = SellerApplicationStatus.Pending;
-            SubmittedAt = DateTime.UtcNow;
+            SubmittedAt = DateTimeOffset.UtcNow;
             CreatedAt = SubmittedAt;
             UpdatedAt = SubmittedAt;
 
@@ -65,7 +69,7 @@ namespace ECommerceAuction.UserService.Domain.Sellers
 
             var from = Status;
             Status = SellerApplicationStatus.UnderReview;
-            UpdatedAt = DateTime.UtcNow;
+            UpdatedAt = DateTimeOffset.UtcNow;
 
             _history.Add(SellerApplicationHistory.Create(Id, from, Status, reviewerId, "Review started."));
         }
@@ -77,7 +81,7 @@ namespace ECommerceAuction.UserService.Domain.Sellers
             var from = Status;
             Status = SellerApplicationStatus.Approved;
             RejectReason = null;
-            ReviewedAt = DateTime.UtcNow;
+            ReviewedAt = DateTimeOffset.UtcNow;
             ReviewedBy = reviewerId;
             UpdatedAt = ReviewedAt.Value;
 
@@ -96,7 +100,7 @@ namespace ECommerceAuction.UserService.Domain.Sellers
             var from = Status;
             Status = SellerApplicationStatus.Rejected;
             RejectReason = reason.Trim();
-            ReviewedAt = DateTime.UtcNow;
+            ReviewedAt = DateTimeOffset.UtcNow;
             ReviewedBy = reviewerId;
             UpdatedAt = ReviewedAt.Value;
 
@@ -107,9 +111,9 @@ namespace ECommerceAuction.UserService.Domain.Sellers
         /// Allows a user to edit and resubmit a Rejected application, sending it back to Pending.
         /// </summary>
         public void Resubmit(
-            string businessName,
-            string taxCode,
-            string businessLicenseUrl,
+            string? businessName,
+            string? taxCode,
+            string? businessLicenseUrl,
             string address,
             string bankAccountNumber,
             string bankName,
@@ -120,9 +124,13 @@ namespace ECommerceAuction.UserService.Domain.Sellers
                 throw new InvalidOperationException("Only a rejected application can be resubmitted.");
             }
 
+            ArgumentException.ThrowIfNullOrWhiteSpace(businessName);
+            ArgumentException.ThrowIfNullOrWhiteSpace(taxCode);
+            ArgumentException.ThrowIfNullOrWhiteSpace(businessLicenseUrl);
+
             BusinessName = businessName.Trim();
             TaxCode = taxCode.Trim();
-            BusinessLicenseUrl = businessLicenseUrl;
+            BusinessLicenseUrl = businessLicenseUrl.Trim();
             Address = address.Trim();
             BankAccountNumber = bankAccountNumber.Trim();
             BankName = bankName.Trim();
@@ -131,7 +139,7 @@ namespace ECommerceAuction.UserService.Domain.Sellers
             var from = Status;
             Status = SellerApplicationStatus.Pending;
             RejectReason = null;
-            SubmittedAt = DateTime.UtcNow;
+            SubmittedAt = DateTimeOffset.UtcNow;
             UpdatedAt = SubmittedAt;
 
             _history.Add(SellerApplicationHistory.Create(Id, from, Status, UserId, "Resubmitted after rejection."));

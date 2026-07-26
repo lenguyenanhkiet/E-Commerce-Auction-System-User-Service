@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -13,10 +13,10 @@ public sealed record GetAddressByIdQueryResponse
         string RecipientName,
         string RecipientPhone,
         string Street,
-        string Province,
-        string Ward,
-        string Type,
+    string? Province,
+    string? Ward,
+    string? Type,
         bool IsDefault,
-        DateTime CreatedAt,
-        DateTime? UpdatedAt
+        DateTimeOffset CreatedAt,
+        DateTimeOffset? UpdatedAt
     );

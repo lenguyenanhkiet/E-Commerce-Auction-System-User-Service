@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -16,5 +16,5 @@ namespace ECommerceAuction.UserService.Application.Features.Sellers.ResubmitSell
         string BankName,
         string BankAccountHolder
         ) : ICommand<ResubmitSellerResponse>;
-    public sealed record ResubmitSellerResponse(Guid Id, string Status, DateTime SubmittedAt);
+    public sealed record ResubmitSellerResponse(Guid Id, string Status, DateTimeOffset SubmittedAt);
 }

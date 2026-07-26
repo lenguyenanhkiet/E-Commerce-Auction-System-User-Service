@@ -84,14 +84,14 @@ public sealed class ReputationLedgerEntryConfiguration
             .HasColumnName("reversal_entry_id")
             .HasColumnType("uniqueidentifier");
 
-        builder.Property(x => x.ConfirmAfter).HasColumnName("confirm_after").HasColumnType("datetime2(3)");
-        builder.Property(x => x.ConfirmedAt).HasColumnName("confirmed_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.CancelledAt).HasColumnName("cancelled_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.ReversedAt).HasColumnName("reversed_at").HasColumnType("datetime2(3)");
+        builder.Property(x => x.ConfirmAfter).HasColumnName("confirm_after").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.ConfirmedAt).HasColumnName("confirmed_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.CancelledAt).HasColumnName("cancelled_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.ReversedAt).HasColumnName("reversed_at").HasColumnType("datetimeoffset(3)");
 
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetime2(3)");
-        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetime2(3)");
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetimeoffset(3)");
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetimeoffset(3)");
 
         // Idempotency: the same reward/penalty can never be recorded twice.
         builder.HasIndex(x => x.IdempotencyKey).IsUnique();

@@ -8,14 +8,14 @@ public sealed class PasswordResetToken : BaseEntity
 
     public Guid UserId { get; private set; }
     public string Token { get; private set; } = string.Empty;
-    public DateTime ExpiryDate { get; private set; }
+    public DateTimeOffset ExpiryDate { get; private set; }
     public bool IsUsed { get; private set; }
-    public DateTime CreatedAt { get; private set; }
+    public DateTimeOffset CreatedAt { get; private set; }
 
     /// <summary>
     /// Creates a new password reset token for the specified user.
     /// </summary>
-    public static PasswordResetToken Create(Guid userId, string token, DateTime expiryDate)
+    public static PasswordResetToken Create(Guid userId, string token, DateTimeOffset expiryDate)
     {
         return new PasswordResetToken
         {
@@ -24,7 +24,7 @@ public sealed class PasswordResetToken : BaseEntity
             Token = token,
             ExpiryDate = expiryDate,
             IsUsed = false,
-            CreatedAt = DateTime.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow
         };
     }
 
@@ -33,7 +33,7 @@ public sealed class PasswordResetToken : BaseEntity
     /// </summary>
     public bool IsExpired()
     {
-        return ExpiryDate < DateTime.UtcNow;
+        return ExpiryDate < DateTimeOffset.UtcNow;
     }
 
     /// <summary>

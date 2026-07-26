@@ -53,7 +53,7 @@ public sealed class ServiceTokenIssuer : IServiceTokenIssuer
         }
 
         var expiresInSeconds = Math.Max(60, _jwt.ServiceTokenExpirationMinutes * 60);
-        var expiresAt = DateTime.UtcNow.AddSeconds(expiresInSeconds);
+        var expiresAt = DateTimeOffset.UtcNow.AddSeconds(expiresInSeconds);
 
         var claims = new List<Claim>
         {
@@ -71,7 +71,7 @@ public sealed class ServiceTokenIssuer : IServiceTokenIssuer
             issuer: _jwt.Issuer,
             audience: audience,
             claims: claims,
-            expires: expiresAt,
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
 
         var accessToken = new JwtSecurityTokenHandler().WriteToken(token);

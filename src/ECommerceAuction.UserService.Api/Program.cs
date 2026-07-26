@@ -110,7 +110,7 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
     // load balancer — never loopback — so the headers would be dropped and the redirect loop would
     // survive the fix. Clearing the lists trusts whatever forwards to us, which is only safe while
     // the container is not reachable directly from the internet: publish it behind the gateway only.
-    options.KnownNetworks.Clear();
+    options.KnownIPNetworks.Clear();
     options.KnownProxies.Clear();
 });
 

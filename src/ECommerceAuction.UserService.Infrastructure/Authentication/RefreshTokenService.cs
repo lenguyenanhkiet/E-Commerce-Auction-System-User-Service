@@ -43,8 +43,8 @@ public sealed class RefreshTokenService : IRefreshTokenService
     /// <summary>
     /// Calculates the UTC expiration timestamp for a new refresh token.
     /// </summary>
-    public DateTime GetRefreshTokenExpiresAt()
+    public DateTimeOffset GetRefreshTokenExpiresAt()
     {
-        return DateTime.UtcNow.AddDays(_options.RefreshTokenExpirationDays);
+        return DateTimeOffset.UtcNow.AddDays(_options.RefreshTokenExpirationDays);
     }
 }

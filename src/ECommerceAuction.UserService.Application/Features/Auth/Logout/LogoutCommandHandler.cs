@@ -72,6 +72,6 @@ public sealed class LogoutCommandHandler
         return new LogoutResponse(
             Success: true,
             Message: "User has logged out successfully.",
-            LoggedOutAt: DateTime.UtcNow);
+            LoggedOutAt: DateTimeOffset.UtcNow);
     }
 }

@@ -36,7 +36,7 @@ public sealed class AccountUnlockSweeperService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var repository = scope.ServiceProvider.GetRequiredService<IAccountMaintenanceRepository>();
 
-                var unlocked = await repository.UnlockExpiredLockoutsAsync(DateTime.UtcNow, stoppingToken);
+                var unlocked = await repository.UnlockExpiredLockoutsAsync(DateTimeOffset.UtcNow, stoppingToken);
 
                 if (unlocked > 0)
                 {

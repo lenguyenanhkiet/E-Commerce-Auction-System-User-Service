@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Users;
@@ -60,7 +60,7 @@ namespace ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOt
                     UserId: user.Id,
                     OtpCode: GenerateOtpCode(),
                     PhoneNumber: user.PhoneNumber,
-                    ExpiresAt: DateTime.UtcNow.Add(OtpExpiration),
+                    ExpiresAt: DateTimeOffset.UtcNow.Add(OtpExpiration),
                     AttemptCount: 0
                 );
 
@@ -73,7 +73,7 @@ namespace ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOt
                 PhoneNumber = user.PhoneNumber,
                 FullName = user.FullName,
                 OtpCode = otpModel.OtpCode,
-                OtpExpiresAt = otpModel.ExpiresAt,
+                OtpExpiresAt = otpModel.ExpiresAt.UtcDateTime,
                 SourceService = "UserService",
                 CorrelationId = Guid.NewGuid()
             }, cancellationToken);
@@ -92,7 +92,7 @@ namespace ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOt
         Guid UserId,
         string PhoneNumber,
         string OtpCode,
-        DateTime ExpiresAt,
+        DateTimeOffset ExpiresAt,
         int AttemptCount);
 
     }

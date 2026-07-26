@@ -36,7 +36,7 @@ public sealed class PasswordExpirySweeperService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var repository = scope.ServiceProvider.GetRequiredService<IAccountMaintenanceRepository>();
 
-                var threshold = DateTime.UtcNow.AddDays(-Math.Max(1, _options.PasswordExpiryDays));
+                var threshold = DateTimeOffset.UtcNow.AddDays(-Math.Max(1, _options.PasswordExpiryDays));
                 var flagged = await repository.FlagExpiredPasswordsAsync(threshold, stoppingToken);
 
                 if (flagged > 0)

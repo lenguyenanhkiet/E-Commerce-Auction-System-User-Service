@@ -66,7 +66,7 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
                 UserId = user.Id,
                 Email = user.Email,
                 FullName = user.FullName,
-                DeletedAt = user.DeletedAt,
+                DeletedAt = user.DeletedAt?.UtcDateTime,
                 SourceService = "UserService"
             },
             cancellationToken);

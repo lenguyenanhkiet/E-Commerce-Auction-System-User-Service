@@ -48,7 +48,7 @@ public sealed class ReputationLedgerRepository : IReputationLedgerRepository
     }
 
     public async Task<IReadOnlyList<ReputationLedgerEntry>> GetConfirmablePendingEntriesAsync(
-        DateTime asOf,
+        DateTimeOffset asOf,
         int batchSize,
         CancellationToken cancellationToken = default)
     {

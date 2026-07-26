@@ -21,19 +21,24 @@ public sealed class GoogleCallbackCommandHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly ILoginCodeService _loginCodeService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+        _completeEmailVerification;
 
     public GoogleCallbackCommandHandler(
         IOAuthStateService oauthStateService,
         IGoogleOAuthService googleOAuthService,
         IUserOAuthRepository userOAuthRepository,
         ILoginCodeService loginCodeService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+            completeEmailVerification)
     {
         _oauthStateService = oauthStateService;
         _googleOAuthService = googleOAuthService;
         _userOAuthRepository = userOAuthRepository;
         _loginCodeService = loginCodeService;
         _unitOfWork = unitOfWork;
+        _completeEmailVerification = completeEmailVerification;
     }
 
     /// <summary>
@@ -177,10 +182,13 @@ public sealed class GoogleCallbackCommandHandler
             }
 
             await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
-            await _userOAuthRepository.EnsureReputationProfileAsync(
-                user.Id,
-                grantEmailVerificationPoint,
-                cancellationToken);
+            if (grantEmailVerificationPoint)
+            {
+                await _completeEmailVerification.CompleteAsync(
+                    user.Id,
+                    DateTimeOffset.UtcNow,
+                    cancellationToken);
+            }
 
             await _userOAuthRepository.AddAuditLogAsync(
                 UserAuditLog.Create(

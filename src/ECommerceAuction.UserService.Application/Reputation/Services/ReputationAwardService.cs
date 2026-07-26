@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Reputation.Buyer;
+using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
 using System;
 using System.Collections.Generic;
@@ -25,7 +25,7 @@ public sealed class ReputationAwardService : IReputationAwardService
         _reputationLedgerRepository = reputationLedgerRepository;
     }
 
-    public async Task<bool> AwardConfirmedAsync(Guid userId, string entryType, string reason, int points, string sourceType, string sourceId, string idempotencyKey, DateTime occurredAt, CancellationToken cancellationToken = default)
+    public async Task<bool> AwardConfirmedAsync(Guid userId, string entryType, string reason, int points, string sourceType, string sourceId, string idempotencyKey, DateTimeOffset occurredAt, CancellationToken cancellationToken = default)
     {
         if (userId == Guid.Empty)
         {

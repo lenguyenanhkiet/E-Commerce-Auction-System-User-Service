@@ -89,15 +89,6 @@ public class UserRepository : IUserRepository
         await _context.Users.AddAsync(user, cancellationToken);
     }
 
-    public async Task AddReputationProfileAsync(
-        ReputationProfile profile,
-        CancellationToken cancellationToken = default)
-    {
-        await _context.ReputationProfiles.AddAsync(
-            profile,
-            cancellationToken);
-    }
-
     /// <summary>
     /// Gets a user by id for the current user's profile.
     /// </summary>
@@ -107,7 +98,6 @@ public class UserRepository : IUserRepository
     {
         return await _context.Users
             .Include(user => user.UserRoles)
-            .Include(user => user.ReputationProfile)
             .FirstOrDefaultAsync(
                 user =>
                     user.Id == userId &&
