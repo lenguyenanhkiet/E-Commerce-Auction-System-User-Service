@@ -3,6 +3,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Entities.Roles;
 using ECommerceAuction.UserService.Domain.Users;
@@ -23,7 +24,7 @@ public sealed class CreateUserCommandHandler
     private readonly ICurrentUserService _currentUserService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
-    private readonly IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+    private readonly CompleteEmailVerificationService
         _completeEmailVerification;
 
     public CreateUserCommandHandler(
@@ -33,7 +34,7 @@ public sealed class CreateUserCommandHandler
         ICurrentUserService currentUserService,
         IUnitOfWork unitOfWork,
         IPublishEndpoint publishEndpoint,
-        IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+        CompleteEmailVerificationService
             completeEmailVerification)
     {
         _userRepository = userRepository;

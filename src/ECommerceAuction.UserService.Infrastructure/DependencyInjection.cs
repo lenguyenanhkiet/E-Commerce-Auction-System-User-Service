@@ -5,6 +5,7 @@ using ECommerceAuction.UserService.Infrastructure.Caching;
 using ECommerceAuction.UserService.Infrastructure.CurrentUser;
 using ECommerceAuction.UserService.Infrastructure.HostedServices;
 using ECommerceAuction.UserService.Infrastructure.IdentityVerification;
+using ECommerceAuction.UserService.Infrastructure.PaymentMethods;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -164,6 +165,10 @@ public static class DependencyInjection
         services.AddScoped<ICurrentUserService, CurrentUserService>();
         services.AddScoped<IPasswordHasher, PasswordHasher>();
         services.AddHostedService<DatabaseMigrationService>();
+        services.Configure<BankVerificationOptions>(
+            configuration.GetSection(BankVerificationOptions.SectionName));
+        services.AddSingleton<BankVerificationSignatureValidator>();
+        services.AddScoped<IBankVerificationProvider, BankVerificationProvider>();
 
         AddIdentityVerification(services, configuration);
 

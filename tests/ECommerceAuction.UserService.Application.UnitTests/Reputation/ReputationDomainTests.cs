@@ -11,12 +11,22 @@ public sealed class ReputationDomainTests
         new(2026, 7, 26, 3, 0, 0, TimeSpan.Zero);
 
     [Fact]
-    public void BuyerVerificationProfile_VerifiesBuyerDimensionsOnlyOnce()
+    public void BuyerVerificationProfile_VerifiesAllFiveDimensionsOnlyOnce()
     {
         var profile = BuyerVerificationProfile.Create(Guid.NewGuid(), OccurredAt);
 
+        Assert.True(profile.VerifyEmail(OccurredAt));
+        Assert.True(profile.VerifyPhone(OccurredAt));
+        Assert.True(profile.VerifyIdentity(OccurredAt));
         Assert.True(profile.VerifyAddress(OccurredAt));
         Assert.True(profile.VerifyPaymentMethod(OccurredAt));
+        Assert.True(profile.IsFullyVerified);
+
+        Assert.False(profile.VerifyEmail(OccurredAt.AddMinutes(1)));
+        Assert.False(profile.VerifyPhone(OccurredAt.AddMinutes(1)));
+        Assert.False(profile.VerifyIdentity(OccurredAt.AddMinutes(1)));
+        Assert.False(profile.VerifyAddress(OccurredAt.AddMinutes(1)));
+        Assert.False(profile.VerifyPaymentMethod(OccurredAt.AddMinutes(1)));
     }
 
     [Fact]
@@ -123,20 +133,20 @@ public sealed class ReputationDomainTests
             () => confirmed.MarkReversed(Guid.NewGuid(), OccurredAt.AddMinutes(2)));
     }
     [Fact]
-    public void BuyerVerificationProfile_DoesNotDuplicateAccountVerificationState()
+    public void BuyerVerificationProfile_IsSourceOfTruthForAllVerificationState()
     {
         var propertyNames = typeof(BuyerVerificationProfile)
             .GetProperties()
             .Select(property => property.Name)
             .ToHashSet(StringComparer.Ordinal);
 
-        Assert.DoesNotContain("IsEmailVerified", propertyNames);
-        Assert.DoesNotContain("IsPhoneVerified", propertyNames);
-        Assert.DoesNotContain("EmailVerifiedAt", propertyNames);
-        Assert.DoesNotContain("PhoneVerifiedAt", propertyNames);
-        Assert.DoesNotContain("IsIdentityVerified", propertyNames);
-        Assert.DoesNotContain("IdentityVerifiedAt", propertyNames);
-        Assert.DoesNotContain("IsFullyVerified", propertyNames);
+        Assert.Contains("IsEmailVerified", propertyNames);
+        Assert.Contains("IsPhoneVerified", propertyNames);
+        Assert.Contains("EmailVerifiedAt", propertyNames);
+        Assert.Contains("PhoneVerifiedAt", propertyNames);
+        Assert.Contains("IsIdentityVerified", propertyNames);
+        Assert.Contains("IdentityVerifiedAt", propertyNames);
+        Assert.Contains("IsFullyVerified", propertyNames);
     }
 
     [Fact]

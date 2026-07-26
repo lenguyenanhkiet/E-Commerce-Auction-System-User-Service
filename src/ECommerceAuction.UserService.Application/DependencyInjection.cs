@@ -2,6 +2,11 @@
 using ECommerceAuction.UserService.Application.Common.Behaviors;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using ECommerceAuction.UserService.Application.Features.Reputation.Services;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyAddress;
+using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
+using ECommerceAuction.UserService.Application.Features.Identities.VerifyIdentity;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyPhone;
 
 namespace ECommerceAuction.UserService.Application;
 
@@ -21,12 +26,12 @@ public static class DependencyInjection
 
         // Reputation application services.
         services.AddScoped<
-            Reputation.Services.IReputationAwardService,
-            Reputation.Services.ReputationAwardService>();
-        services.AddScoped<IdentityVerifications.VerifyEmail.CompleteEmailVerificationService>();
-        services.AddScoped<IdentityVerifications.VerifyPhone.CompletePhoneVerificationService>();
-        services.AddScoped<IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService>();
-        services.AddScoped<IdentityVerifications.VerifyAddress.CompleteAddressVerificationService>();
+            IReputationAwardService,
+            ReputationAwardService>();
+        services.AddScoped<CompleteEmailVerificationService>();
+        services.AddScoped<CompletePhoneVerificationService>();
+        services.AddScoped<CompleteIdentityVerificationService>();
+        services.AddScoped<CompleteAddressVerificationService>();
 
         return services;
     }

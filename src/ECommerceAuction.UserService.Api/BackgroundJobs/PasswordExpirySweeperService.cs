@@ -1,5 +1,5 @@
 using ECommerceAuction.UserService.Application.Common.Options;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Options;
 
 namespace ECommerceAuction.UserService.Api.BackgroundJobs;

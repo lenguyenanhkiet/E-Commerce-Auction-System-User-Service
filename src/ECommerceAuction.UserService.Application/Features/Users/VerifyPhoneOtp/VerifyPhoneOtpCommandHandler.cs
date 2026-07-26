@@ -3,6 +3,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyPhone;
 using ECommerceAuction.UserService.Domain.Users;
 using System;
 using System.Collections.Generic;
@@ -17,9 +18,9 @@ namespace ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp
         private readonly IUserRepository _userRepository;
         private readonly ICacheService _cacheService;
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IdentityVerifications.VerifyPhone.CompletePhoneVerificationService _completePhoneVerification;
+        private readonly CompletePhoneVerificationService _completePhoneVerification;
 
-        public VerifyPhoneOtpCommandHandler(ICurrentUserService currentUserService, IUserRepository userRepository, ICacheService cacheService, IUnitOfWork unitOfWork, IdentityVerifications.VerifyPhone.CompletePhoneVerificationService completePhoneVerification)
+        public VerifyPhoneOtpCommandHandler(ICurrentUserService currentUserService, IUserRepository userRepository, ICacheService cacheService, IUnitOfWork unitOfWork, CompletePhoneVerificationService completePhoneVerification)
         {
             _currentUserService = currentUserService;
             _userRepository = userRepository;

@@ -2,6 +2,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyAddress;
 using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Logging;
 using System;
@@ -17,7 +18,7 @@ public sealed class CreateAddressCommandHandler : ICommandHandler<CreateAddressC
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<CreateAddressCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IdentityVerifications.VerifyAddress.CompleteAddressVerificationService
+    private readonly CompleteAddressVerificationService
         _completeAddressVerification;
 
     public CreateAddressCommandHandler(
@@ -26,7 +27,7 @@ public sealed class CreateAddressCommandHandler : ICommandHandler<CreateAddressC
         ICurrentUserService currentUserService,
         ILogger<CreateAddressCommandHandler> logger,
         IUnitOfWork unitOfWork,
-        IdentityVerifications.VerifyAddress.CompleteAddressVerificationService
+        CompleteAddressVerificationService
             completeAddressVerification)
     {
         _addressRepository = addressRepository;

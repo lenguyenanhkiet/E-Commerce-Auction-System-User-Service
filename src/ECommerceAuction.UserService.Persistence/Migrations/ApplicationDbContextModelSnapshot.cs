@@ -417,6 +417,10 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
+                    b.Property<DateTimeOffset?>("EmailVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("email_verified_at");
+
                     b.Property<bool>("HasVerifiedAddress")
                         .HasColumnType("bit")
                         .HasColumnName("has_verified_address");
@@ -425,9 +429,29 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("bit")
                         .HasColumnName("has_verified_payment_method");
 
+                    b.Property<DateTimeOffset?>("IdentityVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("identity_verified_at");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_email_verified");
+
+                    b.Property<bool>("IsIdentityVerified")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_identity_verified");
+
+                    b.Property<bool>("IsPhoneVerified")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_phone_verified");
+
                     b.Property<DateTimeOffset?>("PaymentMethodVerifiedAt")
                         .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("payment_method_verified_at");
+
+                    b.Property<DateTimeOffset?>("PhoneVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("phone_verified_at");
 
                     b.Property<DateTimeOffset?>("UpdatedAt")
                         .HasColumnType("datetimeoffset(3)")
@@ -534,6 +558,114 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("IdentityVerification", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.PaymentMethods.BankAccountVerification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)")
+                        .HasColumnName("account_fingerprint");
+
+                    b.Property<string>("BankCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("bank_code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("ExpectedAccountHolderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("expected_account_holder_name");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("FailureCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("failure_code");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("failure_reason");
+
+                    b.Property<string>("MaskedAccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("masked_account_number");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("ProviderReference")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("provider_reference");
+
+                    b.Property<DateTimeOffset?>("RejectedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("rejected_at");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.Property<string>("VerifiedAccountHolderName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("verified_account_holder_name");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("verified_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountFingerprint");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "ProviderReference")
+                        .IsUnique();
+
+                    b.ToTable("BankAccountVerifications", "user");
                 });
 
             modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.Buyer.BuyerReputationProfile", b =>

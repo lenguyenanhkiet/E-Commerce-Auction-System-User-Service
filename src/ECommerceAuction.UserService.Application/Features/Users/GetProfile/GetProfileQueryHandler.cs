@@ -69,7 +69,9 @@ public sealed class GetProfileQueryHandler
             user.Id,
             cancellationToken);
 
-        var isIdentityVerified = user.IsIdentityVerified;
+        var isEmailVerified = buyerVerification?.IsEmailVerified ?? false;
+        var isPhoneVerified = buyerVerification?.IsPhoneVerified ?? false;
+        var isIdentityVerified = buyerVerification?.IsIdentityVerified ?? false;
         var hasVerifiedAddress = buyerVerification?.HasVerifiedAddress ?? false;
         var hasVerifiedPaymentMethod = buyerVerification?.HasVerifiedPaymentMethod ?? false;
 
@@ -93,25 +95,22 @@ public sealed class GetProfileQueryHandler
             IsEmailConfirmed: user.IsEmailConfirmed,
             IsPhoneConfirmed: user.IsPhoneConfirmed,
             Verification: new UserVerificationResponse(
-                Email: new VerificationStateResponse(user.IsEmailConfirmed, null),
-                Phone: new VerificationStateResponse(user.IsPhoneConfirmed, null),
+                Email: new VerificationStateResponse(
+                    isEmailVerified,
+                    buyerVerification?.EmailVerifiedAt),
+                Phone: new VerificationStateResponse(
+                    isPhoneVerified,
+                    buyerVerification?.PhoneVerifiedAt),
                 Identity: new VerificationStateResponse(
                     isIdentityVerified,
-                    isIdentityVerified
-                        ? identityVerification?.VerifiedAt
-                        : null),
+                    buyerVerification?.IdentityVerifiedAt),
                 Address: new VerificationStateResponse(
                     hasVerifiedAddress,
                     buyerVerification?.AddressVerifiedAt),
                 PaymentMethod: new VerificationStateResponse(
                     hasVerifiedPaymentMethod,
                     buyerVerification?.PaymentMethodVerifiedAt),
-                IsFullyVerified:
-                    user.IsEmailConfirmed &&
-                    user.IsPhoneConfirmed &&
-                    isIdentityVerified &&
-                    hasVerifiedAddress &&
-                    hasVerifiedPaymentMethod),
+                IsFullyVerified: buyerVerification?.IsFullyVerified ?? false),
             AuthProvider: user.AuthProvider,
             Reputation: reputation is null
                 ? new UserReputationResponse(0, BuyerTrustLevels.Basic)

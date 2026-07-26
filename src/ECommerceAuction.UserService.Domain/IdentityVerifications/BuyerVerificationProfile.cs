@@ -5,22 +5,31 @@ using System.Text;
 
 namespace ECommerceAuction.UserService.Domain.IdentityVerifications;
 /// <summary>
-/// Stores the summarized verification state used for buyer eligibility.
-///
-/// Address and payment verification may be completed through independent
-/// buyer-eligibility workflows. Account email, phone and identity verification
-/// belong to User and are deliberately not duplicated here.
+/// Source of truth for the five buyer profile-verification dimensions.
 /// </summary>
 
 public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
 {
     public Guid UserId { get; private set; }
 
+    public bool IsEmailVerified { get; private set; }
+    public bool IsPhoneVerified { get; private set; }
+    public bool IsIdentityVerified { get; private set; }
     public bool HasVerifiedAddress { get; private set; }
     public bool HasVerifiedPaymentMethod { get; private set; }
 
+    public DateTimeOffset? EmailVerifiedAt { get; private set; }
+    public DateTimeOffset? PhoneVerifiedAt { get; private set; }
+    public DateTimeOffset? IdentityVerifiedAt { get; private set; }
     public DateTimeOffset? AddressVerifiedAt { get; private set; }
     public DateTimeOffset? PaymentMethodVerifiedAt { get; private set; }
+
+    public bool IsFullyVerified =>
+        IsEmailVerified &&
+        IsPhoneVerified &&
+        IsIdentityVerified &&
+        HasVerifiedAddress &&
+        HasVerifiedPaymentMethod;
 
     private BuyerVerificationProfile()
     {
@@ -66,6 +75,27 @@ public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
         return true;
     }
 
+    public bool VerifyEmail(DateTimeOffset occurredAt) =>
+        VerifyDimension(
+            IsEmailVerified,
+            value => IsEmailVerified = value,
+            value => EmailVerifiedAt = value,
+            occurredAt);
+
+    public bool VerifyPhone(DateTimeOffset occurredAt) =>
+        VerifyDimension(
+            IsPhoneVerified,
+            value => IsPhoneVerified = value,
+            value => PhoneVerifiedAt = value,
+            occurredAt);
+
+    public bool VerifyIdentity(DateTimeOffset occurredAt) =>
+        VerifyDimension(
+            IsIdentityVerified,
+            value => IsIdentityVerified = value,
+            value => IdentityVerifiedAt = value,
+            occurredAt);
+
     public bool VerifyPaymentMethod(DateTimeOffset occurredAt)
     {
         if (HasVerifiedPaymentMethod)
@@ -93,6 +123,24 @@ public sealed class BuyerVerificationProfile : AuditableEntity, IAggregateRoot
         PaymentMethodVerifiedAt = null;
         UpdatedAt = occurredAt;
 
+        return true;
+    }
+
+    private bool VerifyDimension(
+        bool isVerified,
+        Action<bool> setVerified,
+        Action<DateTimeOffset?> setVerifiedAt,
+        DateTimeOffset occurredAt)
+    {
+        if (isVerified)
+        {
+            return false;
+        }
+
+        occurredAt = occurredAt.ToUniversalTime();
+        setVerified(true);
+        setVerifiedAt(occurredAt);
+        UpdatedAt = occurredAt;
         return true;
     }
 }

@@ -6,10 +6,10 @@ using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Nexus.Contracts.Events.Seller;
-using ECommerceAuction.UserService.Application.Reputation.Services;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
+using ECommerceAuction.UserService.Application.Features.Reputation.Services;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.ApproveSeller;
 

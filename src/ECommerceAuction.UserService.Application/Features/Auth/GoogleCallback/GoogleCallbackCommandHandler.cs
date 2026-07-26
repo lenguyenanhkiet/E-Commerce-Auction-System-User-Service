@@ -1,6 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Authentication;
 using ECommerceAuction.UserService.Domain.Users;
@@ -21,7 +22,7 @@ public sealed class GoogleCallbackCommandHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly ILoginCodeService _loginCodeService;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+    private readonly CompleteEmailVerificationService
         _completeEmailVerification;
 
     public GoogleCallbackCommandHandler(
@@ -30,7 +31,7 @@ public sealed class GoogleCallbackCommandHandler
         IUserOAuthRepository userOAuthRepository,
         ILoginCodeService loginCodeService,
         IUnitOfWork unitOfWork,
-        IdentityVerifications.VerifyEmail.CompleteEmailVerificationService
+        CompleteEmailVerificationService
             completeEmailVerification)
     {
         _oauthStateService = oauthStateService;

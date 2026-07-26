@@ -2,6 +2,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Application.Features.Identities.VerifyIdentity;
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Users;
@@ -20,7 +21,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
         private readonly IUnitOfWork _unitOfWork;
         private readonly IIdentityVerificationProvider _identityVerificationProvider;
         private readonly IdentityMatchingOptions _options;
-        private readonly IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService _completeIdentityVerification;
+        private readonly CompleteIdentityVerificationService _completeIdentityVerification;
 
         public SubmitIdentityVerificationCommandHandler(
             IIdentityVerificationRepository identityVerificationRepository,
@@ -28,7 +29,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
             IUnitOfWork unitOfWork,
             IIdentityVerificationProvider identityVerificationProvider,
             IOptions<IdentityMatchingOptions> options,
-            IdentityVerifications.VerifyIdentity.CompleteIdentityVerificationService completeIdentityVerification)
+            CompleteIdentityVerificationService completeIdentityVerification)
         {
             _identityVerificationRepository = identityVerificationRepository;
             _userRepository = userRepository;

@@ -9,6 +9,7 @@ using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
 using ECommerceAuction.UserService.Domain.Sellers;
 using ECommerceAuction.UserService.Domain.Users;
+using ECommerceAuction.UserService.Domain.PaymentMethods;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +37,7 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<BuyerVerificationProfile> BuyerVerificationProfiles => Set<BuyerVerificationProfile>();
     public DbSet<BuyerReputationProfile> BuyerReputationProfiles => Set<BuyerReputationProfile>();
     public DbSet<ReputationLedgerEntry> ReputationLedgerEntries => Set<ReputationLedgerEntry>();
+    public DbSet<BankAccountVerification> BankAccountVerifications => Set<BankAccountVerification>();
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)

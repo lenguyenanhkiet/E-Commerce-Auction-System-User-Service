@@ -29,6 +29,9 @@ public sealed class GetProfileQueryHandlerTests
         var buyerVerification = BuyerVerificationProfile.Create(
             user.Id,
             occurredAt);
+        buyerVerification.VerifyEmail(occurredAt);
+        buyerVerification.VerifyPhone(occurredAt);
+        buyerVerification.VerifyIdentity(occurredAt);
         buyerVerification.VerifyAddress(occurredAt);
         buyerVerification.VerifyPaymentMethod(occurredAt);
 
@@ -101,7 +104,7 @@ public sealed class GetProfileQueryHandlerTests
         Assert.True(result.Verification.Phone.IsVerified);
         Assert.True(result.Verification.Identity.IsVerified);
         Assert.Equal(
-            identityVerification.VerifiedAt,
+            buyerVerification.IdentityVerifiedAt,
             result.Verification.Identity.VerifiedAt);
         Assert.True(result.Verification.Address.IsVerified);
         Assert.True(result.Verification.PaymentMethod.IsVerified);

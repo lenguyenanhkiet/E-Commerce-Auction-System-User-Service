@@ -21,14 +21,14 @@ public sealed class VerifyEmailCommandHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
-    private readonly IdentityVerifications.VerifyEmail.CompleteEmailVerificationService _completeEmailVerification;
+    private readonly CompleteEmailVerificationService _completeEmailVerification;
     public VerifyEmailCommandHandler(
         ICacheService cacheService,
         IUserRepository userRepository,
         IUserOAuthRepository userOAuthRepository,
         IUnitOfWork unitOfWork,
         IPublishEndpoint publishEndpoint,
-        IdentityVerifications.VerifyEmail.CompleteEmailVerificationService completeEmailVerification)
+        CompleteEmailVerificationService completeEmailVerification)
     {
         _cacheService = cacheService;
         _userRepository = userRepository;

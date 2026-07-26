@@ -1,5 +1,5 @@
-using ECommerceAuction.UserService.Application.IdentityVerifications.VerifyAddress;
-using ECommerceAuction.UserService.Application.Reputation.Services;
+using ECommerceAuction.UserService.Application.Features.Reputation.Services;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyAddress;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
