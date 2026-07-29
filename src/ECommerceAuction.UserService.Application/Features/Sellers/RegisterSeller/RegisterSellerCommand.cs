@@ -6,11 +6,11 @@ using System.Text;
 namespace ECommerceAuction.UserService.Application.Features.Sellers.RegisterSeller
 {
     public sealed record RegisterSellerCommand(
-        Guid UserId,
         string SellerType,
-        string? BusinessName,
-        string? TaxCode,
-        string? BusinessLicenseUrl,
+        string BusinessName,
+        string ContactPhoneNumber,
+        string TaxCode,
+        string BusinessLicenseUrl,
         string Address,
         string BankAccountNumber,
         string BankName,
@@ -19,6 +19,7 @@ namespace ECommerceAuction.UserService.Application.Features.Sellers.RegisterSell
     public sealed record RegisterSellerResponse(
         Guid Id,
         string Status,
+        string ContactPhoneNumber,
         DateTimeOffset SubmittedAt
     );
 }

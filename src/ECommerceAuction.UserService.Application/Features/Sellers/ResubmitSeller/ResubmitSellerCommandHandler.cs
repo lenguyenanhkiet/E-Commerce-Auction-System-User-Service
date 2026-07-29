@@ -28,12 +28,14 @@ namespace ECommerceAuction.UserService.Application.Features.Sellers.ResubmitSell
             {
                 profile.Resubmit(
                     request.BusinessName,
+                    profile.ContactPhoneNumber,
                     request.TaxCode,
                     request.BusinessLicenseUrl,
                     request.Address,
                     request.BankAccountNumber,
                     request.BankName,
-                    request.BankAccountHolder);
+                    request.BankAccountHolder,
+                    DateTimeOffset.UtcNow);
             }
             catch (InvalidOperationException ex)
             {

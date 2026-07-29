@@ -6,6 +6,7 @@ using ECommerceAuction.UserService.Application.UnitTests.Common;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
+using Nexus.Contracts.Events.Seller.V1;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;
 
@@ -36,6 +37,13 @@ public sealed class DeleteUserCommandHandlerTests
                 log.Action == UserAuditActions.UserDeleted && log.TargetUserId == user.Id),
             Arg.Any<CancellationToken>());
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
+        await _publish.Received(1).Publish(
+            Arg.Is<SellerEligibilityChanged>(message =>
+                message.SellerUserId == user.Id &&
+                message.Deleted &&
+                !message.CanSell &&
+                message.SourceVersion > 0),
+            Arg.Any<CancellationToken>());
     }
 
     [Fact]

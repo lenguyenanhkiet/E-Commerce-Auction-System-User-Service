@@ -15,13 +15,15 @@ public sealed class SellerProfileTests
     {
         Assert.ThrowsAny<ArgumentException>(() => new SellerProfile(
             Guid.NewGuid(),
-            SellerType.Business,
+            SellerTypes.Business,
             businessName!,
+            "0123456789",
             taxCode!,
             businessLicenseUrl!,
             "Address",
             "0123456789",
             "Bank",
-            "Account Holder"));
+            "Account Holder",
+            DateTimeOffset.UtcNow));
     }
 }

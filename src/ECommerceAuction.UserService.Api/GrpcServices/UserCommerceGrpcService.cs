@@ -3,7 +3,7 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Infrastructure.Authentication;
 using Grpc.Core;
 using Microsoft.Extensions.Options;
-using Nexus.Shared.Contracts.Common;
+using Nexus.Contracts.Common;
 
 namespace ECommerceAuction.UserService.Api.GrpcServices;
 

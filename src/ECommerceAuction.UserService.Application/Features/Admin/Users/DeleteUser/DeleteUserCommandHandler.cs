@@ -5,7 +5,7 @@ using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
-using Nexus.Contracts.Events.User;
+using Nexus.Contracts.Events.Seller.V1;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.DeleteUser;
 
@@ -58,17 +58,21 @@ public sealed class DeleteUserCommandHandler : ICommandHandler<DeleteUserCommand
                 user.Id.ToString()),
             cancellationToken);
 
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
         await _publishEndpoint.Publish(
-            new UserDeletedEvent
-            {
-                UserId = user.Id,
-                Email = user.Email,
-                FullName = user.FullName,
-                DeletedAt = user.DeletedAt?.UtcDateTime,
-                SourceService = "UserService"
-            },
+            new SellerEligibilityChanged(
+                NewId.NextGuid(),
+                user.UpdatedAt ?? DateTimeOffset.UtcNow,
+                user.Id,
+                Found: true,
+                UserStatus: user.Status,
+                Deleted: true,
+                SellerRoleActive: false,
+                CanSell: false,
+                EligibilityStatus: "INELIGIBLE",
+                ReasonCode: "SELLER_DELETED",
+                SourceVersion: (user.UpdatedAt ?? DateTimeOffset.UtcNow).UtcTicks),
             cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
     }
 }

@@ -4,7 +4,7 @@ using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Sellers;
 using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
-using Nexus.Contracts.Events.Seller;
+using Nexus.Contracts.Events.Seller.V1;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -48,27 +48,32 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.Reject
             var user = await _userRepository.GetByIdAsync(profile.UserId, cancellationToken)
                 ?? throw new NotFoundException("User not found.");
 
+            var occurredAt = DateTimeOffset.UtcNow;
             try
             {
-                profile.Reject(request.AdminUserId, request.Reason);
+                profile.Reject(request.AdminUserId, request.Reason, occurredAt);
             }
             catch (InvalidOperationException ex)
             {
                 throw new BusinessRuleException(ex.Message);
             }
 
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            await _publishEndpoint.Publish(
+                new SellerEligibilityChanged(
+                    NewId.NextGuid(),
+                    occurredAt,
+                    user.Id,
+                    Found: true,
+                    UserStatus: user.Status,
+                    Deleted: user.DeletedAt is not null,
+                    SellerRoleActive: false,
+                    CanSell: false,
+                    EligibilityStatus: "INELIGIBLE",
+                    ReasonCode: "SELLER_APPLICATION_REJECTED",
+                    SourceVersion: occurredAt.UtcTicks),
+                cancellationToken);
 
-            await _publishEndpoint.Publish(new SellerRejectedEvent
-            {
-                SellerProfileId = profile.Id,
-                UserId = user.Id,
-                Email = user.Email,
-                FullName = user.FullName,
-                RejectReason = profile.RejectReason!,
-                SourceService = "UserService",
-                CorrelationId = Guid.NewGuid()
-            }, cancellationToken);
+            await _unitOfWork.SaveChangesAsync(cancellationToken);
 
             return new RejectSellerResponse(profile.Id, profile.Status, profile.RejectReason!, profile.ReviewedAt!.Value);
         }

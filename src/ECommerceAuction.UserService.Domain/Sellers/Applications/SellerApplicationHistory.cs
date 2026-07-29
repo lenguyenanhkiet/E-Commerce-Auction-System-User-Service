@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace ECommerceAuction.UserService.Domain.Sellers
+namespace ECommerceAuction.UserService.Domain.Sellers.Applications
 {
     /// <summary>
     /// Audit trail entry for a seller application status change.
@@ -17,7 +17,9 @@ namespace ECommerceAuction.UserService.Domain.Sellers
         public string? Note { get; private set; }
         public DateTimeOffset ChangedAt { get; private set; }
 
-        protected SellerApplicationHistory(){}
+        protected SellerApplicationHistory()
+        { }
+
         private SellerApplicationHistory(
         Guid sellerProfileId,
         string? fromStatus,

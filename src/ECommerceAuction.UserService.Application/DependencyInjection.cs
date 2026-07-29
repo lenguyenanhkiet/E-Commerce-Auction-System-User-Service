@@ -2,6 +2,7 @@
 using ECommerceAuction.UserService.Application.Common.Behaviors;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ECommerceAuction.UserService.Application.Features.Reputation.Services;
 using ECommerceAuction.UserService.Application.Features.Users.VerifyAddress;
 using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
@@ -23,6 +24,10 @@ public static class DependencyInjection
 
         services.AddValidatorsFromAssembly(assembly);
         services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
+
+        // Handlers (e.g. RegisterSeller/ApproveSeller) take an ambient clock so a single
+        // occurredAt drives approval, verification, ledger and event timestamps together.
+        services.TryAddSingleton(TimeProvider.System);
 
         // Reputation application services.
         services.AddScoped<

@@ -8,7 +8,6 @@
     <Folder Include="Reputation\Events\" />
     <Folder Include="Reputation\Ratings\" />
     <Folder Include="Reputation\Restrictions\" />
-    <Folder Include="Reputation\Seller\" />
   </ItemGroup>
 </Project>
 

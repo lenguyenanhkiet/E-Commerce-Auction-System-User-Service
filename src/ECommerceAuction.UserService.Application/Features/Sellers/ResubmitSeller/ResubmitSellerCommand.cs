@@ -5,12 +5,12 @@ using System.Text;
 
 namespace ECommerceAuction.UserService.Application.Features.Sellers.ResubmitSeller
 {
-    public sealed record ResubmitSellerCommand 
+    public sealed record ResubmitSellerCommand
         (
         Guid UserId,
-        string? BusinessName,
-        string? TaxCode,
-        string? BusinessLicenseUrl,
+        string BusinessName,
+        string TaxCode,
+        string BusinessLicenseUrl,
         string Address,
         string BankAccountNumber,
         string BankName,
