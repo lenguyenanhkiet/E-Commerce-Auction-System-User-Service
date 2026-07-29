@@ -6,7 +6,6 @@ using ECommerceAuction.UserService.Application.Features.Identities.VerifyIdentit
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Users;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -142,10 +141,11 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException) when (isFirstAttempt)
+            catch (ConflictException) when (isFirstAttempt)
             {
                 // Another concurrent request already inserted a verification for this user
-                // (unique index on UserId) between our existence check and this save.
+                // (unique index on UserId) between our existence check and this save. The
+                // DbContext surfaces the unique-index violation as a ConflictException.
                 throw new ConflictException("Identity verification was already submitted for this user.");
             }
 
