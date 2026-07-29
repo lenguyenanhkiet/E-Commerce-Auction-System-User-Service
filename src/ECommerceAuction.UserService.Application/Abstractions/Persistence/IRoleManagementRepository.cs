@@ -1,5 +1,5 @@
 using ECommerceAuction.UserService.Domain.Auditing;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 
 namespace ECommerceAuction.UserService.Application.Abstractions.Persistence;
 
@@ -9,6 +9,10 @@ namespace ECommerceAuction.UserService.Application.Abstractions.Persistence;
 public interface IRoleManagementRepository
 {
     IQueryable<Role> QueryRoles();
+
+    Task<Role?> GetByCodeAsync(
+        string code,
+        CancellationToken cancellationToken = default);
 
     Task<IReadOnlyCollection<Role>> ListRolesAsync(
         IQueryable<Role> query,

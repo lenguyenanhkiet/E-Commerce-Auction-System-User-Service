@@ -1,4 +1,4 @@
-namespace ECommerceAuction.UserService.Domain.Entities.Roles;
+namespace ECommerceAuction.UserService.Domain.Roles;
 
 /// <summary>
 /// Represents the current assignment of one privilege to one role.

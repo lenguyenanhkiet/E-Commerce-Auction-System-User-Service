@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Domain.Auditing;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
@@ -17,6 +17,16 @@ public sealed class RoleManagementRepository : IRoleManagementRepository
     public RoleManagementRepository(ApplicationDbContext dbContext)
     {
         _dbContext = dbContext;
+    }
+
+    public Task<Role?> GetByCodeAsync(
+        string code,
+        CancellationToken cancellationToken = default)
+    {
+        return _dbContext.Roles
+            .FirstOrDefaultAsync(
+                role => role.Code == code,
+                cancellationToken);
     }
 
     public IQueryable<Role> QueryRoles()

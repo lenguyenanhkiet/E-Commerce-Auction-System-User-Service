@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using FluentValidation;
 
 namespace ECommerceAuction.UserService.Application.Features.Roles.GetRoles;

@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Domain.Users;
 
-namespace ECommerceAuction.UserService.Domain.Entities.Roles;
+namespace ECommerceAuction.UserService.Domain.Roles;
 
 /// <summary>
 /// Represents an RBAC role and protects role lifecycle rules inside the domain.

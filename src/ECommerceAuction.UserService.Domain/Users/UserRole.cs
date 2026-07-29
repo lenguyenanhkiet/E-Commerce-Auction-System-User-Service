@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 
 namespace ECommerceAuction.UserService.Domain.Users;
 

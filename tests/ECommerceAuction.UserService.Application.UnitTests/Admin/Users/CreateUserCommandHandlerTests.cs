@@ -6,7 +6,7 @@ using ECommerceAuction.UserService.Application.Features.Reputation.Services;
 using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 using ECommerceAuction.UserService.Application.UnitTests.Common;
 using ECommerceAuction.UserService.Domain.Auditing;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
