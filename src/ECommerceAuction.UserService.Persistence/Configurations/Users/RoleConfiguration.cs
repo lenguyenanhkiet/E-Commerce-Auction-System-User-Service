@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -51,17 +51,17 @@ public sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 
         builder.Property(role => role.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(role => role.UpdatedAt)
             .HasColumnName("updated_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(role => role.DeletedAt)
             .HasColumnName("deleted_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Navigation(role => role.RolePrivileges)

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,6 +11,6 @@ namespace ECommerceAuction.UserService.Application.Features.Sellers.GetMySellerP
         string SellerType,
         string Status,
         string? RejectReason,
-        DateTime SubmittedAt,
-        DateTime? ReviewedAt);
+        DateTimeOffset SubmittedAt,
+        DateTimeOffset? ReviewedAt);
 }

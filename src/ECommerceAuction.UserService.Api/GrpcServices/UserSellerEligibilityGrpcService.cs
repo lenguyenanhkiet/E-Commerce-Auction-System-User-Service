@@ -65,7 +65,7 @@ public sealed class UserSellerEligibilityGrpcService
             EligibilityStatus = snapshot.EligibilityStatus,
             SourceVersion = snapshot.SourceVersion,
             UpdatedAtUtc = Timestamp.FromDateTime(
-                DateTime.SpecifyKind(snapshot.UpdatedAtUtc, DateTimeKind.Utc))
+                snapshot.UpdatedAtUtc.UtcDateTime)
         };
 
         if (snapshot.SellerUserId is { } sellerUserId)

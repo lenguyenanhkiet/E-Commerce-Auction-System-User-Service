@@ -36,7 +36,7 @@ public sealed class JwtTokenService : IJwtTokenService
         IEnumerable<string> roles,
         IEnumerable<string> privileges)
     {
-        var expiresAt = DateTime.UtcNow.AddMinutes(_options.AccessTokenExpirationMinutes);
+        var expiresAt = DateTimeOffset.UtcNow.AddMinutes(_options.AccessTokenExpirationMinutes);
 
         // ECA-6 OAuth2 Google: keep JWT claim format aligned with the shared JWT service.
         var claims = new List<Claim>
@@ -65,7 +65,7 @@ public sealed class JwtTokenService : IJwtTokenService
             issuer: _options.Issuer,
             audience: _options.Audience,
             claims: claims,
-            expires: expiresAt,
+            expires: expiresAt.UtcDateTime,
             signingCredentials: credentials);
 
         return new JwtAccessToken(

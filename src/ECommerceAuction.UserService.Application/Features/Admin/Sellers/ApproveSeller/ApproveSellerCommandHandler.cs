@@ -1,12 +1,14 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Entities.Sellers;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
-using Microsoft.EntityFrameworkCore;
-using Nexus.Contracts.Events.Seller;
+using Nexus.Contracts.Events.Seller.V1;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Reputation.Buyer;
+using ECommerceAuction.UserService.Domain.Reputation.Ledger;
+using ECommerceAuction.UserService.Application.Features.Reputation.Services;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.ApproveSeller;
 
@@ -19,19 +21,28 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
     private readonly IRoleManagementRepository _roleManagementRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IBuyerVerificationRepository _buyerVerificationRepository;
+    private readonly IReputationAwardService _reputationAwardService;
+    private readonly TimeProvider _timeProvider;
 
     public ApproveSellerCommandHandler(
         ISellerProfileRepository sellerProfileRepository,
         IUserRepository userRepository,
         IRoleManagementRepository roleManagementRepository,
         IUnitOfWork unitOfWork,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        IBuyerVerificationRepository buyerVerificationRepository,
+        IReputationAwardService reputationAwardService,
+        TimeProvider timeProvider)
     {
         _sellerProfileRepository = sellerProfileRepository;
         _userRepository = userRepository;
         _roleManagementRepository = roleManagementRepository;
         _unitOfWork = unitOfWork;
         _publishEndpoint = publishEndpoint;
+        _buyerVerificationRepository = buyerVerificationRepository;
+        _reputationAwardService = reputationAwardService;
+        _timeProvider = timeProvider;
     }
 
     public async Task<ApproveSellerResponse> Handle(
@@ -44,43 +55,70 @@ public sealed class ApproveSellerCommandHandler : ICommandHandler<ApproveSellerC
         var user = await _userRepository.GetByIdAsync(profile.UserId, cancellationToken)
             ?? throw new NotFoundException("User not found.");
 
+        var sellerRole = await _roleManagementRepository.GetByCodeAsync(
+            SellerRoleCode,
+            cancellationToken)
+            ?? throw new BusinessRuleException(
+                $"Role '{SellerRoleCode}' is not configured.");
+
+        var occurredAt = _timeProvider.GetUtcNow();
+
         try
         {
-            profile.Approve(request.AdminUserId);
+            profile.Approve(request.AdminUserId, occurredAt);
         }
         catch (InvalidOperationException ex)
         {
             throw new BusinessRuleException(ex.Message);
         }
 
-        var sellerRole = await _roleManagementRepository.QueryRoles()
-            .FirstOrDefaultAsync(r => r.Code == SellerRoleCode, cancellationToken)
-            ?? throw new BusinessRuleException($"Role '{SellerRoleCode}' is not configured.");
-
         user.AssignRole(UserRole.Assign(user.Id, sellerRole.Id, request.AdminUserId));
 
-        if (user.ReputationProfile is null)
+        var verificationProfile = await _buyerVerificationRepository.GetByUserIdAsync(
+            user.Id,
+            cancellationToken);
+
+        if (verificationProfile is null)
         {
-            throw new BusinessRuleException("User does not have a reputation profile.");
+            verificationProfile = BuyerVerificationProfile.Create(user.Id, occurredAt);
+            await _buyerVerificationRepository.AddAsync(verificationProfile, cancellationToken);
         }
 
-        user.ReputationProfile.AddVerifiedPaymentMethodPoint();
-        user.ReputationProfile.AddTaxVerificationPoint();
-        user.ReputationProfile.AddBusinessLicenseVerificationPoint();
-        user.ReputationProfile.AddBusinessAddressVerificationPoint();
-        
-        await _unitOfWork.SaveChangesAsync(cancellationToken);
-
-        await _publishEndpoint.Publish(new SellerApprovedEvent
+        if (verificationProfile.VerifyPaymentMethod(occurredAt))
         {
-            SellerProfileId = profile.Id,
-            UserId = user.Id,
-            Email = user.Email,
-            FullName = user.FullName,
-            SourceService = "UserService",
-            CorrelationId = Guid.NewGuid()
-        }, cancellationToken);
+            await _reputationAwardService.AwardConfirmedAsync(
+                user.Id,
+                ReputationEntryTypes.ProfileVerification,
+                ReputationReasons.PaymentMethodVerified,
+                BuyerReputationPoints.PaymentMethodVerified,
+                "SELLER_PAYMENT_METHOD",
+                profile.Id.ToString(),
+                $"user:{user.Id}:payment-method-verified:v1",
+                occurredAt,
+                cancellationToken);
+        }
+        await _publishEndpoint.Publish(
+            new SellerEligibilityChanged(
+                NewId.NextGuid(),
+                occurredAt,
+                user.Id,
+                Found: true,
+                UserStatus: user.Status,
+                Deleted: user.DeletedAt is not null,
+                SellerRoleActive: true,
+                CanSell: true,
+                EligibilityStatus: "ELIGIBLE",
+                ReasonCode: null,
+                SourceVersion: occurredAt.UtcTicks),
+            context =>
+            {
+                context.CorrelationId = NewId.NextGuid();
+                context.Headers.Set("producer", "user-service");
+            },
+            cancellationToken);
+
+        await _unitOfWork.SaveChangesAsync(cancellationToken);
 
         return new ApproveSellerResponse(profile.Id, profile.Status, profile.ReviewedAt!.Value);
     }
-}
+}

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
+﻿using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;

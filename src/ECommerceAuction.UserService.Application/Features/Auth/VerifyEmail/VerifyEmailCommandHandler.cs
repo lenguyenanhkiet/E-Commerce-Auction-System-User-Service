@@ -2,10 +2,9 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Features.Auth.RegisterAccount;
-using ECommerceAuction.UserService.Domain.Entities.Reputation;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
-
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Reputation;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using Nexus.Contracts.Events.User;
 
@@ -22,18 +21,21 @@ public sealed class VerifyEmailCommandHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPublishEndpoint _publishEndpoint;
+    private readonly CompleteEmailVerificationService _completeEmailVerification;
     public VerifyEmailCommandHandler(
         ICacheService cacheService,
         IUserRepository userRepository,
         IUserOAuthRepository userOAuthRepository,
         IUnitOfWork unitOfWork,
-        IPublishEndpoint publishEndpoint)
+        IPublishEndpoint publishEndpoint,
+        CompleteEmailVerificationService completeEmailVerification)
     {
         _cacheService = cacheService;
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
         _unitOfWork = unitOfWork;
         _publishEndpoint = publishEndpoint;
+        _completeEmailVerification = completeEmailVerification;
     }
 
     /// <summary>
@@ -51,7 +53,7 @@ public sealed class VerifyEmailCommandHandler
             cancellationToken)
             ?? throw new InvalidOperationException("Registration request is expired or not found.");
 
-        if (pendingUser.ExpiresAt <= DateTime.UtcNow)
+        if (pendingUser.ExpiresAt <= DateTimeOffset.UtcNow)
         {
             await RemovePendingRegistrationAsync(pendingUser, cancellationToken);
             throw new InvalidOperationException("OTP has expired.");
@@ -81,13 +83,10 @@ public sealed class VerifyEmailCommandHandler
             pendingUser.FullName,
             pendingUser.PhoneNumber);
 
-        var now = DateTime.UtcNow;
-        // A successfully verified email gives the user the first reputation point.
-        var reputationProfile = ReputationProfile.CreateForVerifiedEmail(user.Id);
+        var now = DateTimeOffset.UtcNow;
 
         // SQL user is created only after the email OTP is correct.
         await _userRepository.AddAsync(user, cancellationToken);
-        await _userRepository.AddReputationProfileAsync(reputationProfile, cancellationToken);
         // Every verified local account receives the default BUYER role for future token claims.
         await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
 
@@ -100,6 +99,10 @@ public sealed class VerifyEmailCommandHandler
                 entityId: user.Id.ToString()),
             cancellationToken);
 
+        // Creates the buyer verification profile, marks email verified, writes the confirmed
+        // EMAIL_VERIFIED ledger entry (+1) and reputation summary, then commits everything above
+        // (user, role, audit) in a single transaction via its SaveChanges.
+        await _completeEmailVerification.CompleteAsync(user.Id, now, cancellationToken);
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         await _publishEndpoint.Publish(new UserRegisteredEvent
         {

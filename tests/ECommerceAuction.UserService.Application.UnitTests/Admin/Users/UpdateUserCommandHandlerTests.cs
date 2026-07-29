@@ -3,9 +3,9 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.UpdateUser;
 using ECommerceAuction.UserService.Application.UnitTests.Common;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Roles;
+using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;

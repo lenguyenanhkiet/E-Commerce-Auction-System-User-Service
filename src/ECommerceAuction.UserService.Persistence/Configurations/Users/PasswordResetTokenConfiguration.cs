@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -31,7 +31,7 @@ public sealed class PasswordResetTokenConfiguration : IEntityTypeConfiguration<P
 
         builder.Property(x => x.ExpiryDate)
             .HasColumnName("expiry_date")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(x => x.IsUsed)
@@ -42,7 +42,7 @@ public sealed class PasswordResetTokenConfiguration : IEntityTypeConfiguration<P
 
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.HasIndex(x => x.Token).IsUnique();

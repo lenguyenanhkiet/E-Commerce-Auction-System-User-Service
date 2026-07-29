@@ -1,8 +1,9 @@
 using System.Security.Cryptography;
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.ForgotPassword;
@@ -57,7 +58,7 @@ public sealed class ForgotPasswordCommandHandler
         var resetToken = PasswordResetToken.Create(
             user.Id,
             token,
-            DateTime.UtcNow.Add(TokenExpiration));
+            DateTimeOffset.UtcNow.Add(TokenExpiration));
 
         await _userRepository.AddPasswordResetTokenAsync(resetToken, cancellationToken);
 
@@ -81,7 +82,7 @@ public sealed class ForgotPasswordCommandHandler
     //    FullName = user.FullName,
     //    ResetToken = token,
     //    ExpiredAt = resetToken.ExpiryDate,
-    //    RequestTime = DateTime.UtcNow
+    //    RequestTime = DateTimeOffset.UtcNow
     //},
     //cancellationToken);
 

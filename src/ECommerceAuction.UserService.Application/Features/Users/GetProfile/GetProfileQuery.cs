@@ -1,5 +1,5 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 
@@ -23,10 +23,23 @@ public sealed record UserProfileResponse(
     DateOnly? DateOfBirth,
     bool IsEmailConfirmed,
     bool IsPhoneConfirmed,
+    UserVerificationResponse Verification,
     string AuthProvider,
     UserReputationResponse Reputation,
     IReadOnlyCollection<string> Roles,
     IReadOnlyCollection<string> Privileges);
+
+public sealed record UserVerificationResponse(
+    VerificationStateResponse Email,
+    VerificationStateResponse Phone,
+    VerificationStateResponse Identity,
+    VerificationStateResponse Address,
+    VerificationStateResponse PaymentMethod,
+    bool IsFullyVerified);
+
+public sealed record VerificationStateResponse(
+    bool IsVerified,
+    DateTimeOffset? VerifiedAt);
 
 public sealed record UserReputationResponse(
     int Score,
@@ -36,8 +49,8 @@ public sealed record AddressResponse(
     string RecipientName,
     string RecipientPhone,
     string Street,
-    string Province,
-    string Ward,
-    string Type,
+    string? Province,
+    string? Ward,
+    string? Type,
     bool IsDefault
     );

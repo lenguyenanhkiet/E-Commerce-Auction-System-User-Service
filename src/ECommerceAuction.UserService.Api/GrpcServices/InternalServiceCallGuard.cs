@@ -1,6 +1,6 @@
 using Grpc.Core;
 using Microsoft.IdentityModel.Tokens;
-using Nexus.Shared.Contracts.Common;
+using Nexus.Contracts.Common;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;

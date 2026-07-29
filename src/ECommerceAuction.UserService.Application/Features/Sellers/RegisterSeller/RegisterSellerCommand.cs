@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -6,9 +6,9 @@ using System.Text;
 namespace ECommerceAuction.UserService.Application.Features.Sellers.RegisterSeller
 {
     public sealed record RegisterSellerCommand(
-        Guid UserId,
         string SellerType,
         string BusinessName,
+        string ContactPhoneNumber,
         string TaxCode,
         string BusinessLicenseUrl,
         string Address,
@@ -19,6 +19,7 @@ namespace ECommerceAuction.UserService.Application.Features.Sellers.RegisterSell
     public sealed record RegisterSellerResponse(
         Guid Id,
         string Status,
-        DateTime SubmittedAt
+        string ContactPhoneNumber,
+        DateTimeOffset SubmittedAt
     );
 }

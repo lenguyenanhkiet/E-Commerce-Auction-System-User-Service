@@ -15,10 +15,12 @@ namespace ECommerceAuction.UserService.Api.Controllers
     public class SellersController : ControllerBase
     {
         private readonly ISender _sender;
+
         public SellersController(ISender sender)
         {
             _sender = sender;
         }
+
         /// <summary>
         /// POST /api/v1/sellers/register — submit a new seller application.
         /// </summary>
@@ -28,9 +30,9 @@ namespace ECommerceAuction.UserService.Api.Controllers
             CancellationToken cancellationToken)
         {
             var command = new RegisterSellerCommand(
-                UserId: GetCurrentUserId(),
                 SellerType: request.SellerType,
                 BusinessName: request.BusinessName,
+                ContactPhoneNumber: request.ContactPhoneNumber,
                 TaxCode: request.TaxCode,
                 BusinessLicenseUrl: request.BusinessLicenseUrl,
                 Address: request.Address,
@@ -102,18 +104,19 @@ namespace ECommerceAuction.UserService.Api.Controllers
 
     public sealed record RegisterSellerRequest(
         string SellerType,
-        string? BusinessName,
-        string? TaxCode,
-        string? BusinessLicenseUrl,
+        string BusinessName,
+        string ContactPhoneNumber,
+        string TaxCode,
+        string BusinessLicenseUrl,
         string Address,
         string BankAccountNumber,
         string BankName,
         string BankAccountHolder);
 
     public sealed record ResubmitSellerRequest(
-        string? BusinessName,
-        string? TaxCode,
-        string? BusinessLicenseUrl,
+        string BusinessName,
+        string TaxCode,
+        string BusinessLicenseUrl,
         string Address,
         string BankAccountNumber,
         string BankName,

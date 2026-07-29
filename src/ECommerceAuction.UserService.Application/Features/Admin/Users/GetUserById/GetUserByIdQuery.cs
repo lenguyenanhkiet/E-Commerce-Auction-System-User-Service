@@ -23,5 +23,5 @@ public sealed record AdminUserDetailResponse(
     bool IsEmailConfirmed,
     bool IsPhoneConfirmed,
     IReadOnlyList<string> Roles,
-    DateTime CreatedAt,
-    DateTime? UpdatedAt);
+    DateTimeOffset CreatedAt,
+    DateTimeOffset? UpdatedAt);

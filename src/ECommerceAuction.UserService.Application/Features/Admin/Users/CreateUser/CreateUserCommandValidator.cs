@@ -34,7 +34,7 @@ public sealed class CreateUserCommandValidator : AbstractValidator<CreateUserCom
             .When(command => !string.IsNullOrWhiteSpace(command.Address));
 
         RuleFor(command => command.DateOfBirth)
-            .Must(dateOfBirth => dateOfBirth is null || dateOfBirth.Value < DateOnly.FromDateTime(DateTime.UtcNow))
+            .Must(dateOfBirth => dateOfBirth is null || dateOfBirth.Value < DateOnly.FromDateTime(DateTimeOffset.UtcNow.UtcDateTime))
             .WithMessage("Date of birth must be in the past.");
 
         // Roles are optional; when present each code must be a non-empty string.

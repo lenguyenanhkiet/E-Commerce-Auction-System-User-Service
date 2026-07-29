@@ -1,7 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.ResetPassword;
 
@@ -71,7 +71,7 @@ public sealed class ResetPasswordCommandHandler
         }
 
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
-        var changedAt = DateTime.UtcNow;
+        var changedAt = DateTimeOffset.UtcNow;
 
         user.ChangePassword(newPasswordHash); // domain method: set PasswordHash, MustChangePassword = false, UpdatedAt
 

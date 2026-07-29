@@ -1,5 +1,5 @@
 using ECommerceAuction.UserService.Application.Common.Options;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Options;
 
 namespace ECommerceAuction.UserService.Api.BackgroundJobs;
@@ -36,7 +36,7 @@ public sealed class PasswordExpirySweeperService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var repository = scope.ServiceProvider.GetRequiredService<IAccountMaintenanceRepository>();
 
-                var threshold = DateTime.UtcNow.AddDays(-Math.Max(1, _options.PasswordExpiryDays));
+                var threshold = DateTimeOffset.UtcNow.AddDays(-Math.Max(1, _options.PasswordExpiryDays));
                 var flagged = await repository.FlagExpiredPasswordsAsync(threshold, stoppingToken);
 
                 if (flagged > 0)

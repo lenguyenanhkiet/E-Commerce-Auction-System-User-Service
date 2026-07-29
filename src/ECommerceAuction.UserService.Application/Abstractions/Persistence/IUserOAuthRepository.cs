@@ -1,4 +1,6 @@
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Abstractions.Persistence;
 
@@ -53,14 +55,6 @@ public interface IUserOAuthRepository
     /// Ensures that a user has the default BUYER role used by newly created OAuth2 users.
     /// </summary>
     Task EnsureDefaultBuyerRoleAsync(Guid userId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Ensures the user has a reputation profile and optionally grants the one-time email verification point.
-    /// </summary>
-    Task EnsureReputationProfileAsync(
-        Guid userId,
-        bool grantEmailVerificationPoint,
-        CancellationToken cancellationToken);
 
     /// <summary>
     /// Adds a refresh-token-backed user session.

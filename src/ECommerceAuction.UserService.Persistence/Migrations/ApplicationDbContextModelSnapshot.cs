@@ -22,7 +22,331 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.IdentityVerification.IdentityVerification", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Auditing.UserAuditLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("action");
+
+                    b.Property<Guid?>("ActorUserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("actor_user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("EntityId")
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("entity_id");
+
+                    b.Property<string>("EntityType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("entity_type");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("new_value");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("nvarchar(max)")
+                        .HasColumnName("old_value");
+
+                    b.Property<Guid?>("TargetUserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("target_user_id");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("user_agent");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Action");
+
+                    b.HasIndex("TargetUserId");
+
+                    b.ToTable("UserAuditLogs", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Authentication.PasswordResetToken", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset>("ExpiryDate")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("expiry_date");
+
+                    b.Property<bool>("IsUsed")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false)
+                        .HasColumnName("is_used");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("token");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Token")
+                        .IsUnique();
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("PasswordResetTokens", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Authentication.UserExternalLogin", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccessTokenHash")
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("access_token_hash");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("last_login_at");
+
+                    b.Property<DateTimeOffset>("LinkedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("linked_at");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("ProviderDisplayName")
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("provider_display_name");
+
+                    b.Property<string>("ProviderEmail")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("provider_email");
+
+                    b.Property<string>("ProviderUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("provider_user_id");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("refresh_token_hash");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(30)")
+                        .HasDefaultValue("ACTIVE")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "ProviderUserId")
+                        .IsUnique();
+
+                    b.ToTable("UserExternalLogins", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Authentication.UserPasswordHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
+
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId", "CreatedAt");
+
+                    b.ToTable("PasswordHistories", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Authentication.UserSession", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("DeviceId")
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("DeviceName")
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("device_name");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("IpAddress")
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("ip_address");
+
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<string>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(255)")
+                        .HasColumnName("refresh_token_hash");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("UserAgent")
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("user_agent");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RefreshTokenHash")
+                        .IsUnique();
+
+                    b.ToTable("UserSessions", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.IdentityVerifications.BuyerVerificationProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("AddressVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("address_verified_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateTimeOffset?>("EmailVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("email_verified_at");
+
+                    b.Property<bool>("HasVerifiedAddress")
+                        .HasColumnType("bit")
+                        .HasColumnName("has_verified_address");
+
+                    b.Property<bool>("HasVerifiedPaymentMethod")
+                        .HasColumnType("bit")
+                        .HasColumnName("has_verified_payment_method");
+
+                    b.Property<DateTimeOffset?>("IdentityVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("identity_verified_at");
+
+                    b.Property<bool>("IsEmailVerified")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_email_verified");
+
+                    b.Property<bool>("IsIdentityVerified")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_identity_verified");
+
+                    b.Property<bool>("IsPhoneVerified")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_phone_verified");
+
+                    b.Property<DateTimeOffset?>("PaymentMethodVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("payment_method_verified_at");
+
+                    b.Property<DateTimeOffset?>("PhoneVerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("phone_verified_at");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("BuyerVerificationProfiles", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.IdentityVerifications.IdentityVerification", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -30,14 +354,14 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Property<decimal?>("ConfidenceScore")
                         .HasColumnType("decimal(5,4)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<DateOnly>("DateOfBirth")
                         .HasColumnType("date");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<DateOnly>("ExpiryDate")
                         .HasColumnType("date");
@@ -89,17 +413,17 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("VerifiedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("VerifiedBy")
                         .HasMaxLength(100)
@@ -113,15 +437,132 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("IdentityVerification", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Reputation.ReputationProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.PaymentMethods.BankAccountVerification", b =>
                 {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AccountFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("nvarchar(128)")
+                        .HasColumnName("account_fingerprint");
+
+                    b.Property<string>("BankCode")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("bank_code");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("ExpectedAccountHolderName")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("expected_account_holder_name");
+
+                    b.Property<DateTimeOffset?>("ExpiresAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("FailureCode")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("failure_code");
+
+                    b.Property<string>("FailureReason")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("failure_reason");
+
+                    b.Property<string>("MaskedAccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("nvarchar(64)")
+                        .HasColumnName("masked_account_number");
+
+                    b.Property<string>("Provider")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("provider");
+
+                    b.Property<string>("ProviderReference")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("provider_reference");
+
+                    b.Property<DateTimeOffset?>("RejectedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("rejected_at");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("updated_at");
+
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("user_id");
 
-                    b.Property<decimal>("AverageRating")
-                        .HasColumnType("decimal(3,2)")
-                        .HasColumnName("average_rating");
+                    b.Property<string>("VerifiedAccountHolderName")
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("verified_account_holder_name");
+
+                    b.Property<DateTimeOffset?>("VerifiedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("verified_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("AccountFingerprint");
+
+                    b.HasIndex("UserId");
+
+                    b.HasIndex("Provider", "ProviderReference")
+                        .IsUnique();
+
+                    b.ToTable("BankAccountVerifications", "user");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.Buyer.BuyerReputationProfile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<int>("ConfirmedScore")
+                        .HasColumnType("int")
+                        .HasColumnName("confirmed_score");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("deleted_at");
 
                     b.Property<int>("FailedAuctions")
                         .HasColumnType("int")
@@ -131,13 +572,21 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("int")
                         .HasColumnName("failed_transactions");
 
+                    b.Property<long>("LifetimeEarnedPoints")
+                        .HasColumnType("bigint")
+                        .HasColumnName("lifetime_earned_points");
+
+                    b.Property<long>("LifetimePenaltyPoints")
+                        .HasColumnType("bigint")
+                        .HasColumnName("lifetime_penalty_points");
+
                     b.Property<int>("PenaltyCount")
                         .HasColumnType("int")
                         .HasColumnName("penalty_count");
 
-                    b.Property<int>("Score")
+                    b.Property<int>("PendingScore")
                         .HasColumnType("int")
-                        .HasColumnName("score");
+                        .HasColumnName("pending_score");
 
                     b.Property<int>("SuccessfulAuctions")
                         .HasColumnType("int")
@@ -147,25 +596,134 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("int")
                         .HasColumnName("successful_transactions");
 
-                    b.Property<int>("TotalRatings")
-                        .HasColumnType("int")
-                        .HasColumnName("total_ratings");
-
                     b.Property<string>("TrustLevel")
                         .IsRequired()
-                        .HasColumnType("nvarchar(50)")
+                        .HasColumnType("nvarchar(30)")
                         .HasColumnName("trust_level");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
-                    b.HasKey("UserId");
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
 
-                    b.ToTable("ReputationProfiles", "user");
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("BuyerReputationProfiles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.Privilege", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.Ledger.ReputationLedgerEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("CancelledAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("cancelled_at");
+
+                    b.Property<DateTimeOffset?>("ConfirmAfter")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("confirm_after");
+
+                    b.Property<DateTimeOffset?>("ConfirmedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("confirmed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<string>("EntryType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("entry_type");
+
+                    b.Property<string>("IdempotencyKey")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("idempotency_key");
+
+                    b.Property<int>("Points")
+                        .HasColumnType("int")
+                        .HasColumnName("points");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(60)")
+                        .HasColumnName("reason");
+
+                    b.Property<Guid?>("ReversalEntryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("reversal_entry_id");
+
+                    b.Property<DateTimeOffset?>("ReversedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("reversed_at");
+
+                    b.Property<string>("RuleVersion")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("rule_version");
+
+                    b.Property<string>("SourceId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("source_id");
+
+                    b.Property<string>("SourceService")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("source_service");
+
+                    b.Property<string>("SourceType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("source_type");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("IdempotencyKey")
+                        .IsUnique();
+
+                    b.HasIndex("SourceService", "SourceType", "SourceId");
+
+                    b.HasIndex("UserId", "Status", "CreatedAt");
+
+                    b.ToTable("ReputationLedgerEntries", "user", t =>
+                        {
+                            t.HasCheckConstraint("CK_ReputationLedgerEntries_entry_type", "[entry_type] IN ('PROFILE_VERIFICATION','ECOMMERCE_TRANSACTION','AUCTION_TRANSACTION','AUCTION_BONUS','REVIEW','PENALTY','REVERSAL')");
+
+                            t.HasCheckConstraint("CK_ReputationLedgerEntries_points_non_zero", "[points] <> 0");
+
+                            t.HasCheckConstraint("CK_ReputationLedgerEntries_status", "[status] IN ('PENDING','CONFIRMED','REVERSED','CANCELLED')");
+                        });
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.Privilege", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -201,7 +759,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Privileges", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.Role", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -213,12 +771,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("code");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Description")
@@ -243,8 +801,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue("ACTIVE")
                         .HasColumnName("status");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -255,15 +813,15 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Roles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.RolePrivilege", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.RolePrivilege", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("AssignedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("assigned_at");
 
                     b.Property<Guid?>("AssignedBy")
@@ -288,22 +846,22 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("RolePrivileges", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerApplicationHistory", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.Applications.SellerApplicationHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ChangedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("ChangedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("ChangedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("FromStatus")
                         .HasMaxLength(20)
@@ -321,8 +879,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.HasKey("Id");
 
@@ -331,7 +889,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("SellerApplicationHistories", (string)null);
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -366,18 +924,22 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<string>("ContactPhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("RejectReason")
                         .HasMaxLength(1000)
                         .HasColumnType("nvarchar(1000)");
 
-                    b.Property<DateTime?>("ReviewedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("ReviewedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid?>("ReviewedBy")
                         .HasColumnType("uniqueidentifier");
@@ -392,16 +954,16 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
-                    b.Property<DateTime>("SubmittedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("SubmittedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<string>("TaxCode")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -415,17 +977,17 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("SellerProfiles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Address", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.Address", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
@@ -454,8 +1016,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<DateTime?>("UpdatedAt")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
@@ -475,47 +1037,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Addresses", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.PasswordResetToken", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime>("ExpiryDate")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("expiry_date");
-
-                    b.Property<bool>("IsUsed")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bit")
-                        .HasDefaultValue(false)
-                        .HasColumnName("is_used");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("token");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Token")
-                        .IsUnique();
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("PasswordResetTokens", "user");
-                });
-
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.User", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -540,16 +1062,16 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("avatar_url");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("created_at");
 
                     b.Property<DateOnly?>("DateOfBirth")
                         .HasColumnType("date")
                         .HasColumnName("date_of_birth");
 
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("deleted_at");
 
                     b.Property<string>("Email")
@@ -593,8 +1115,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("phone_verified");
 
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("LastLoginAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("last_login_at");
 
                     b.Property<bool>("MustChangePassword")
@@ -603,8 +1125,8 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue(false)
                         .HasColumnName("must_change_password");
 
-                    b.Property<DateTime?>("PasswordChangedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("PasswordChangedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("password_changed_at");
 
                     b.Property<string>("PasswordHash")
@@ -624,12 +1146,12 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                         .HasDefaultValue("ACTIVE")
                         .HasColumnName("status");
 
-                    b.Property<DateTime?>("StatusExpiresAt")
-                        .HasColumnType("datetime2")
+                    b.Property<DateTimeOffset?>("StatusExpiresAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("status_expires_at");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("updated_at");
 
                     b.HasKey("Id");
@@ -644,179 +1166,22 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Users", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserAuditLog", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<string>("Action")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("action");
-
-                    b.Property<Guid?>("ActorUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("actor_user_id");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("EntityId")
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("entity_id");
-
-                    b.Property<string>("EntityType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("entity_type");
-
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("ip_address");
-
-                    b.Property<string>("NewValue")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("new_value");
-
-                    b.Property<string>("OldValue")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("old_value");
-
-                    b.Property<Guid?>("TargetUserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("target_user_id");
-
-                    b.Property<string>("UserAgent")
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("user_agent");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Action");
-
-                    b.HasIndex("TargetUserId");
-
-                    b.ToTable("UserAuditLogs", "user");
-                });
-
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserExternalLogin", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AccessTokenHash")
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("access_token_hash");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("created_at");
-
-                    b.Property<DateTime?>("DeletedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("deleted_at");
-
-                    b.Property<DateTime?>("LastLoginAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("last_login_at");
-
-                    b.Property<DateTime>("LinkedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("linked_at");
-
-                    b.Property<string>("Provider")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("provider");
-
-                    b.Property<string>("ProviderDisplayName")
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("provider_display_name");
-
-                    b.Property<string>("ProviderEmail")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("provider_email");
-
-                    b.Property<string>("ProviderUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("provider_user_id");
-
-                    b.Property<string>("RefreshTokenHash")
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("refresh_token_hash");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(30)")
-                        .HasDefaultValue("ACTIVE")
-                        .HasColumnName("status");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("updated_at");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.HasIndex("Provider", "ProviderUserId")
-                        .IsUnique();
-
-                    b.ToTable("UserExternalLogins", "user");
-                });
-
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserPasswordHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId", "CreatedAt");
-
-                    b.ToTable("PasswordHistories", "user");
-                });
-
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserRole", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("id");
 
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset>("AssignedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("assigned_at");
 
                     b.Property<Guid?>("AssignedBy")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("assigned_by");
 
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2(3)")
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("datetimeoffset(3)")
                         .HasColumnName("revoked_at");
 
                     b.Property<Guid>("RoleId")
@@ -845,80 +1210,196 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("UserRoles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserSession", b =>
+            modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("id");
+                        .HasColumnType("bigint");
 
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("created_at");
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
 
-                    b.Property<string>("DeviceId")
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("device_id");
+                    b.Property<DateTime?>("Consumed")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("DeviceName")
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("device_name");
+                    b.Property<Guid>("ConsumerId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime>("ExpiresAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("expires_at");
+                    b.Property<DateTime?>("Delivered")
+                        .HasColumnType("datetime2");
 
-                    b.Property<string>("IpAddress")
-                        .HasColumnType("nvarchar(50)")
-                        .HasColumnName("ip_address");
+                    b.Property<DateTime?>("ExpirationTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<DateTime?>("LastUsedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("last_used_at");
+                    b.Property<long?>("LastSequenceNumber")
+                        .HasColumnType("bigint");
 
-                    b.Property<string>("RefreshTokenHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(255)")
-                        .HasColumnName("refresh_token_hash");
+                    b.Property<Guid>("LockId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<DateTime?>("RevokedAt")
-                        .HasColumnType("datetime2(3)")
-                        .HasColumnName("revoked_at");
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("UserAgent")
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("user_agent");
+                    b.Property<int>("ReceiveCount")
+                        .HasColumnType("int");
 
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("user_id");
+                    b.Property<DateTime>("Received")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("RefreshTokenHash")
-                        .IsUnique();
+                    b.HasIndex("Delivered");
 
-                    b.ToTable("UserSessions", "user");
+                    b.ToTable("InboxState");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Reputation.ReputationProfile", b =>
+            modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", null)
-                        .WithOne("ReputationProfile")
-                        .HasForeignKey("ECommerceAuction.UserService.Domain.Entities.Reputation.ReputationProfile", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                    b.Property<long>("SequenceNumber")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("SequenceNumber"));
+
+                    b.Property<string>("Body")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid?>("ConversationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("DestinationAddress")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime?>("EnqueueTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("ExpirationTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FaultAddress")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<string>("Headers")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("InboxConsumerId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("InboxMessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("InitiatorId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("MessageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("MessageType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("OutboxId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Properties")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("RequestId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ResponseAddress")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<DateTime>("SentTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SourceAddress")
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.HasKey("SequenceNumber");
+
+                    b.HasIndex("EnqueueTime");
+
+                    b.HasIndex("ExpirationTime");
+
+                    b.HasIndex("OutboxId", "SequenceNumber")
+                        .IsUnique()
+                        .HasFilter("[OutboxId] IS NOT NULL");
+
+                    b.HasIndex("InboxMessageId", "InboxConsumerId", "SequenceNumber")
+                        .IsUnique()
+                        .HasFilter("[InboxMessageId] IS NOT NULL AND [InboxConsumerId] IS NOT NULL");
+
+                    b.ToTable("OutboxMessage");
+                });
+
+            modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxState", b =>
+                {
+                    b.Property<Guid>("OutboxId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("Delivered")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("LastSequenceNumber")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid>("LockId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.HasKey("OutboxId");
+
+                    b.HasIndex("Created");
+
+                    b.ToTable("OutboxState");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Authentication.UserExternalLogin", b =>
+                {
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.RolePrivilege", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.RolePrivilege", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Roles.Privilege", "Privilege")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Roles.Privilege", "Privilege")
                         .WithMany()
                         .HasForeignKey("PrivilegeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Roles.Role", "Role")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Roles.Role", "Role")
                         .WithMany("RolePrivileges")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -929,18 +1410,18 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerApplicationHistory", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.Applications.SellerApplicationHistory", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerProfile", null)
+                    b.HasOne("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", null)
                         .WithMany("History")
                         .HasForeignKey("SellerProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Address", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.Address", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", "User")
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -949,26 +1430,15 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserExternalLogin", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserRole", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserRole", b =>
-                {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Roles.Role", "Role")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Roles.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -979,23 +1449,33 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.Role", b =>
+            modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
+                {
+                    b.HasOne("MassTransit.EntityFrameworkCoreIntegration.OutboxState", null)
+                        .WithMany()
+                        .HasForeignKey("OutboxId");
+
+                    b.HasOne("MassTransit.EntityFrameworkCoreIntegration.InboxState", null)
+                        .WithMany()
+                        .HasForeignKey("InboxMessageId", "InboxConsumerId")
+                        .HasPrincipalKey("MessageId", "ConsumerId");
+                });
+
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.Role", b =>
                 {
                     b.Navigation("RolePrivileges");
 
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", b =>
                 {
                     b.Navigation("History");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.User", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.User", b =>
                 {
                     b.Navigation("Addresses");
-
-                    b.Navigation("ReputationProfile");
 
                     b.Navigation("UserRoles");
                 });

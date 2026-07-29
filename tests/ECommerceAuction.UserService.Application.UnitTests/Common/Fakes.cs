@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using MassTransit;
 using NSubstitute;
 

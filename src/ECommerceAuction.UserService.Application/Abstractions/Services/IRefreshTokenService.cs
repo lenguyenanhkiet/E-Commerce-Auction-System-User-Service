@@ -18,5 +18,5 @@ public interface IRefreshTokenService
     /// <summary>
     /// Gets the UTC expiration time for a newly issued refresh token.
     /// </summary>
-    DateTime GetRefreshTokenExpiresAt();
+    DateTimeOffset GetRefreshTokenExpiresAt();
 }

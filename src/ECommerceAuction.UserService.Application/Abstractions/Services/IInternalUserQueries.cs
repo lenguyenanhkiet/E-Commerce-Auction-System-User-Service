@@ -35,7 +35,7 @@ public sealed record SellerEligibilitySnapshot(
     string EligibilityStatus,
     string? ReasonCode,
     string SourceVersion,
-    DateTime UpdatedAtUtc);
+    DateTimeOffset UpdatedAtUtc);
 
 public sealed record UserProfileSnapshot(
     Guid UserId,
@@ -61,7 +61,7 @@ public sealed record BuyerCheckoutEligibilitySnapshot(
     bool CanPurchase,
     long EligibilityVersion,
     IReadOnlyCollection<string> Issues,
-    DateTime CheckedAtUtc);
+    DateTimeOffset CheckedAtUtc);
 
 public sealed record SellerCommerceProfileSnapshot(
     Guid RequestedSellerUserId,

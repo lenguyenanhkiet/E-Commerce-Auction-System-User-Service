@@ -3,10 +3,11 @@ using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Identities.SubmitIdentityVerification;
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Options;
 using NSubstitute;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Application.Features.Reputation.Services;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Identities;
 
@@ -17,19 +18,29 @@ public sealed class SubmitIdentityVerificationCommandHandlerTests
 
     private readonly IIdentityVerificationRepository _verificationRepository =
         Substitute.For<IIdentityVerificationRepository>();
+
     private readonly IUserRepository _userRepository = Substitute.For<IUserRepository>();
     private readonly IUnitOfWork _unitOfWork = Substitute.For<IUnitOfWork>();
+
     private readonly IIdentityVerificationProvider _provider =
         Substitute.For<IIdentityVerificationProvider>();
+
+    private readonly IReputationAwardService _awardService =
+        Substitute.For<IReputationAwardService>();
 
     private SubmitIdentityVerificationCommandHandler CreateSut()
     {
         var user = new User("caller@example.com", "hash", "NGUYỄN VĂN A", "0900000000");
         _userRepository.GetByIdAsync(CallerId, Arg.Any<CancellationToken>()).Returns(user);
 
+        var completeIdentity =
+            new ECommerceAuction.UserService.Application.Features.Identities.VerifyIdentity.CompleteIdentityVerificationService(
+                Substitute.For<IBuyerVerificationRepository>(),
+                _awardService);
+
         var options = Options.Create(new IdentityMatchingOptions { MinimumConfidence = 0.80m });
         return new SubmitIdentityVerificationCommandHandler(
-            _verificationRepository, _userRepository, _unitOfWork, _provider, options);
+            _verificationRepository, _userRepository, _unitOfWork, _provider, options, completeIdentity);
     }
 
     private static SubmitIdentityVerificationCommand Command(

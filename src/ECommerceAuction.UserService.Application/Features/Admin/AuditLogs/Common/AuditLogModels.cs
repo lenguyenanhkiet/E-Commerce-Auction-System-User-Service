@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Auditing;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.Common;
 
@@ -16,7 +16,7 @@ public sealed record AuditLogItem(
     string? NewValue,
     string? IpAddress,
     string? UserAgent,
-    DateTime CreatedAt)
+    DateTimeOffset CreatedAt)
 {
     public static AuditLogItem FromEntity(UserAuditLog auditLog) => new(
         Id: auditLog.Id,

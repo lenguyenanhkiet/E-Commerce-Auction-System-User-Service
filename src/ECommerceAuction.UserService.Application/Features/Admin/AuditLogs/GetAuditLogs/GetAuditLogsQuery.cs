@@ -11,8 +11,8 @@ public sealed record GetAuditLogsQuery(
     Guid? ActorUserId = null,
     Guid? TargetUserId = null,
     string? EntityType = null,
-    DateTime? FromUtc = null,
-    DateTime? ToUtc = null,
+    DateTimeOffset? FromUtc = null,
+    DateTimeOffset? ToUtc = null,
     int Page = 1,
     int PageSize = 20)
     : IQuery<PagedAuditLogsResponse>;

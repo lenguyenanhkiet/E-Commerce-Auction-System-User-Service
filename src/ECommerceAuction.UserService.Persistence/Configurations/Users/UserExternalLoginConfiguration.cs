@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Authentication;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -56,12 +56,12 @@ public sealed class UserExternalLoginConfiguration : IEntityTypeConfiguration<Us
 
         builder.Property(externalLogin => externalLogin.LinkedAt)
             .HasColumnName("linked_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(externalLogin => externalLogin.LastLoginAt)
             .HasColumnName("last_login_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Property(externalLogin => externalLogin.Status)
@@ -72,17 +72,17 @@ public sealed class UserExternalLoginConfiguration : IEntityTypeConfiguration<Us
 
         builder.Property(externalLogin => externalLogin.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(externalLogin => externalLogin.UpdatedAt)
             .HasColumnName("updated_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(externalLogin => externalLogin.DeletedAt)
             .HasColumnName("deleted_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.HasOne(externalLogin => externalLogin.User)

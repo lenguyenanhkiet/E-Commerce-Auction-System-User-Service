@@ -2,8 +2,8 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions; // điều chỉnh namespace theo đúng project của bạn
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Logging;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.ChangePassword;
@@ -81,7 +81,7 @@ public sealed class ChangePasswordCommandHandler
         }
 
         var newPasswordHash = _passwordHasher.HashPassword(request.NewPassword);
-        var changedAt = DateTime.UtcNow;
+        var changedAt = DateTimeOffset.UtcNow;
 
         user.ChangePassword(newPasswordHash); // domain method: set PasswordHash, MustChangePassword = false, UpdatedAt
 

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -21,7 +21,7 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSel
     string BankAccountNumber,
     string BankName,
     string BankAccountHolder,
-    DateTime SubmittedAt);
+    DateTimeOffset SubmittedAt);
 
     // ASSUMPTION: your project likely already has a shared PagedResult<T> type used by
     // GetUsersQuery — if so, delete this and reuse that one instead of duplicating paging shape.

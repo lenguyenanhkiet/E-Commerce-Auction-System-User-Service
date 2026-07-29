@@ -2,10 +2,15 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.CreateUser;
+using ECommerceAuction.UserService.Application.Features.Reputation.Services;
+using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
 using ECommerceAuction.UserService.Application.UnitTests.Common;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Roles;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Reputation.Buyer;
+using ECommerceAuction.UserService.Domain.Reputation.Ledger;
+using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;
@@ -18,6 +23,10 @@ public sealed class CreateUserCommandHandlerTests
     private readonly IUnitOfWork _unitOfWork = Fakes.UnitOfWork();
     private readonly MassTransit.IPublishEndpoint _publish = Fakes.PublishEndpoint();
     private readonly IRoleManagementRepository _roleRepository;
+    private readonly IBuyerVerificationRepository _buyerVerificationRepository =
+        Substitute.For<IBuyerVerificationRepository>();
+    private readonly IReputationAwardService _reputationAwardService =
+        Substitute.For<IReputationAwardService>();
 
     public CreateUserCommandHandlerTests()
     {
@@ -25,17 +34,37 @@ public sealed class CreateUserCommandHandlerTests
         _passwordHasher.HashPassword(Arg.Any<string>()).Returns("HASHED");
         _userRepository.CheckEmailExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
         _userRepository.CheckPhoneExistsAsync(Arg.Any<string>(), Arg.Any<CancellationToken>()).Returns(false);
+        _reputationAwardService.AwardConfirmedAsync(
+                Arg.Any<Guid>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<int>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<string>(),
+                Arg.Any<DateTimeOffset>(),
+                Arg.Any<CancellationToken>())
+            .Returns(true);
     }
 
     private CreateUserCommandHandler CreateSut() =>
-        new(_userRepository, _roleRepository, _passwordHasher, _currentUser, _unitOfWork, _publish);
+        new(
+            _userRepository,
+            _roleRepository,
+            _passwordHasher,
+            _currentUser,
+            _unitOfWork,
+            _publish,
+            new CompleteEmailVerificationService(
+                _buyerVerificationRepository,
+                _reputationAwardService));
 
     private static CreateUserCommand Command(IReadOnlyList<string>? roleCodes = null) =>
         new("New@Test.Local", "0901234567", "New User", "Secret@123", "Female",
             new DateOnly(1995, 5, 5), "Da Nang", roleCodes);
 
     [Fact]
-    public async Task Handle_CreatesVerifiedUser_WithNormalizedEmail_AndReputationProfile()
+    public async Task Handle_CreatesVerifiedUser_WithNormalizedEmail_AndLedgerReputation()
     {
         User? created = null;
         _ = _userRepository.AddAsync(Arg.Do<User>(user => created = user), Arg.Any<CancellationToken>());
@@ -47,8 +76,20 @@ public sealed class CreateUserCommandHandlerTests
         Assert.True(created.IsEmailConfirmed);
         Assert.Equal("HASHED", created.PasswordHash);
         Assert.Equal("new@test.local", result.Email);
-        await _userRepository.Received(1).AddReputationProfileAsync(
-            Arg.Any<Domain.Entities.Reputation.ReputationProfile>(), Arg.Any<CancellationToken>());
+        await _buyerVerificationRepository.Received(1).AddAsync(
+            Arg.Is<BuyerVerificationProfile>(profile =>
+                profile.UserId == created.Id),
+            Arg.Any<CancellationToken>());
+        await _reputationAwardService.Received(1).AwardConfirmedAsync(
+            created.Id,
+            ReputationEntryTypes.ProfileVerification,
+            ReputationReasons.EmailVerified,
+            BuyerReputationPoints.EmailVerified,
+            "USER_EMAIL",
+            created.Id.ToString(),
+            $"user:{created.Id}:email-verified:v1",
+            Arg.Any<DateTimeOffset>(),
+            Arg.Any<CancellationToken>());
         await _unitOfWork.Received(1).SaveChangesAsync(Arg.Any<CancellationToken>());
     }
 
@@ -133,7 +174,15 @@ public sealed class CreateUserCommandHandlerTests
         var currentUser = Substitute.For<ICurrentUserService>();
         currentUser.UserId.Returns((Guid?)null);
         var sut = new CreateUserCommandHandler(
-            _userRepository, _roleRepository, _passwordHasher, currentUser, _unitOfWork, _publish);
+            _userRepository,
+            _roleRepository,
+            _passwordHasher,
+            currentUser,
+            _unitOfWork,
+            _publish,
+            new CompleteEmailVerificationService(
+                _buyerVerificationRepository,
+                _reputationAwardService));
 
         await Assert.ThrowsAsync<UnauthorizedAccessException>(() =>
             sut.Handle(Command(), CancellationToken.None));

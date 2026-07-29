@@ -1,6 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.GetUserById;
 

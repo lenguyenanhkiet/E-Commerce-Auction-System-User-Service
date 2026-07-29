@@ -1,9 +1,21 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Users;
 using ECommerceAuction.UserService.Persistence.Context;
 using ECommerceAuction.UserService.Persistence.Rbac;
-using ECommerceAuction.UserService.Persistence.Repositories;
+using ECommerceAuction.UserService.Persistence.Repositories.Auditing;
+using ECommerceAuction.UserService.Persistence.Repositories.Authentication;
+using ECommerceAuction.UserService.Persistence.Repositories.IdentityVerifications;
+using ECommerceAuction.UserService.Persistence.Repositories.PaymentMethods;
+using ECommerceAuction.UserService.Persistence.Repositories.Reputation;
+using ECommerceAuction.UserService.Persistence.Repositories.Roles;
+using ECommerceAuction.UserService.Persistence.Repositories.Sellers;
+using ECommerceAuction.UserService.Persistence.Repositories.Users;
+using ECommerceAuction.UserService.Domain.PaymentMethods;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,6 +58,18 @@ public static class DependencyInjection
         services.AddScoped<IIdentityVerificationRepository, IdentityVerificationRepository>();
         services.AddScoped<IAuditLogRepository, AuditLogRepository>();
         services.AddScoped<IAccountMaintenanceRepository, AccountMaintenanceRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Domain.IdentityVerifications.IBuyerVerificationRepository,
+            BuyerVerificationRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Domain.Reputation.Buyer.IBuyerReputationRepository,
+            BuyerReputationRepository>();
+        services.AddScoped<
+            ECommerceAuction.UserService.Domain.Reputation.Ledger.IReputationLedgerRepository,
+            ReputationLedgerRepository>();
+        services.AddScoped<
+            IBankAccountVerificationRepository,
+            BankAccountVerificationRepository>();
         return services;
     }
 }

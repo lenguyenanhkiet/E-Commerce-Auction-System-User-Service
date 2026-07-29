@@ -23,4 +23,4 @@ public interface IJwtTokenService
 /// <summary>
 /// Represents a generated access token and its UTC expiration time.
 /// </summary>
-public sealed record JwtAccessToken(string Value, DateTime ExpiresAt);
+public sealed record JwtAccessToken(string Value, DateTimeOffset ExpiresAt);

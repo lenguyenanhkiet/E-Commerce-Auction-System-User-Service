@@ -1,6 +1,6 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Sellers;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,8 +22,8 @@ namespace ECommerceAuction.UserService.Application.Features.Admin.Sellers.GetSel
         string BankAccountHolder,
         string Status,
         string? RejectReason,
-        DateTime SubmittedAt,
-        DateTime? ReviewedAt,
+        DateTimeOffset SubmittedAt,
+        DateTimeOffset? ReviewedAt,
         Guid? ReviewedBy);
 
     public sealed class GetSellerApplicationByIdQueryHandler

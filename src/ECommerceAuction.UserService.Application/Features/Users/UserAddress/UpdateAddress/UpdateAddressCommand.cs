@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -12,10 +12,10 @@ public sealed record UpdateAddressCommand(
     Guid AddressId,
     string RecipientName,
     string RecipientPhone,
-    string Province,
-    string Ward,
+    string? Province,
+    string? Ward,
     string Street,
-    string Type,
+    string? Type,
     bool IsDefault
     ) : ICommand<UpdateAddressResponse>;
 /// <summary>
@@ -26,8 +26,8 @@ public sealed record UpdateAddressResponse(
     string RecipientName,
     string RecipientPhone,
     string Street,
-    string Province,
-    string Ward,
-    string Type,
+    string? Province,
+    string? Ward,
+    string? Type,
     bool IsDefault,
-    DateTime? UpdatedAt);
+    DateTimeOffset? UpdatedAt);

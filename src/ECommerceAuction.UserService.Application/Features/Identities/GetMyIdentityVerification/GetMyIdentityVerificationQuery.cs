@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -22,7 +22,7 @@ public sealed record IdentityVerificationResponse(
 
     string Status,
     string? RejectionReason,
-    DateTime SubmittedAt,
-    DateTime? VerifiedAt
+    DateTimeOffset SubmittedAt,
+    DateTimeOffset? VerifiedAt
 
 );

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Entities.Sellers;
+﻿using ECommerceAuction.UserService.Domain.Sellers.Applications;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using System;

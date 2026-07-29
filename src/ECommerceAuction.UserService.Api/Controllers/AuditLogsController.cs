@@ -35,8 +35,8 @@ public sealed class AuditLogsController : ControllerBase
         [FromQuery] Guid? actorUserId,
         [FromQuery] Guid? targetUserId,
         [FromQuery] string? entityType,
-        [FromQuery] DateTime? fromUtc,
-        [FromQuery] DateTime? toUtc,
+        [FromQuery] DateTimeOffset? fromUtc,
+        [FromQuery] DateTimeOffset? toUtc,
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 20,
         CancellationToken cancellationToken = default)

@@ -1,4 +1,4 @@
-﻿using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -72,7 +72,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.StatusExpiresAt)
             .HasColumnName("status_expires_at")
-            .HasColumnType("datetime2")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Property(x => x.IsEmailConfirmed)
@@ -107,22 +107,22 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.LastLoginAt)
             .HasColumnName("last_login_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Property(x => x.CreatedAt)
             .HasColumnName("created_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(x => x.UpdatedAt)
             .HasColumnName("updated_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         builder.Property(x => x.DeletedAt)
             .HasColumnName("deleted_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
 
         builder.Property(x => x.MustChangePassword)
@@ -133,7 +133,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
 
         builder.Property(x => x.PasswordChangedAt)
             .HasColumnName("password_changed_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired(false);
     }
 }

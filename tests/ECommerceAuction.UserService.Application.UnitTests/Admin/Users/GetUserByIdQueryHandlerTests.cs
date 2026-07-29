@@ -1,8 +1,7 @@
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.Users.GetUserById;
-using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Admin.Users;

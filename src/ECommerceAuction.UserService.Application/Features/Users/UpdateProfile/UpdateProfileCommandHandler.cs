@@ -1,7 +1,7 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
 using System.Security.Cryptography;
 
@@ -87,7 +87,7 @@ public sealed class UpdateProfileCommandHandler
                 var verificationToken = Convert.ToHexString(
                     RandomNumberGenerator.GetBytes(32));
 
-                var expiresAtUtc = DateTime.UtcNow.AddMinutes(15);
+                var expiresAtUtc = DateTimeOffset.UtcNow.AddMinutes(15);
 
                 var pendingEmailChange = new PendingEmailChange(
                     UserId: userId,
@@ -138,5 +138,5 @@ public sealed class UpdateProfileCommandHandler
     private sealed record PendingEmailChange(
         Guid UserId,
         string NewEmail,
-        DateTime ExpiresAtUtc);
+        DateTimeOffset ExpiresAtUtc);
 }

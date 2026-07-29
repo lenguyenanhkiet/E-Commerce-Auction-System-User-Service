@@ -1,5 +1,5 @@
 ﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,9 +1,10 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit.NewIdProviders;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 
 namespace ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 
@@ -18,19 +19,25 @@ public sealed class GetProfileQueryHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly IIdentityVerificationRepository _identityVerificationRepository;
     private readonly IAddressRepository _addressRepository;
+    private readonly IBuyerReputationRepository _buyerReputationRepository;
+    private readonly IBuyerVerificationRepository _buyerVerificationRepository;
 
     public GetProfileQueryHandler(
         ICurrentUserService currentUserService,
         IUserRepository userRepository,
         IUserOAuthRepository userOAuthRepository,
         IIdentityVerificationRepository identityVerificationRepository,
-        IAddressRepository addressRepository)
+        IAddressRepository addressRepository,
+        IBuyerReputationRepository buyerReputationRepository,
+        IBuyerVerificationRepository buyerVerificationRepository)
     {
         _currentUserService = currentUserService;
         _userRepository = userRepository;
         _userOAuthRepository = userOAuthRepository;
         _identityVerificationRepository = identityVerificationRepository;
         _addressRepository = addressRepository;
+        _buyerReputationRepository = buyerReputationRepository;
+        _buyerVerificationRepository = buyerVerificationRepository;
     }
 
     public async Task<UserProfileResponse> Handle(
@@ -55,6 +62,19 @@ public sealed class GetProfileQueryHandler
         var privileges = await _userOAuthRepository.GetActivePrivilegeCodesAsync(user.Id, cancellationToken);
         var identityVerification = await _identityVerificationRepository.GetByUserIdAsync(user.Id, cancellationToken);
         var addresses = await _addressRepository.GetUserAddressesAsync(user.Id, cancellationToken);
+        var reputation = await _buyerReputationRepository.GetByUserIdAsync(
+            user.Id,
+            cancellationToken);
+        var buyerVerification = await _buyerVerificationRepository.GetByUserIdAsync(
+            user.Id,
+            cancellationToken);
+
+        var isEmailVerified = buyerVerification?.IsEmailVerified ?? false;
+        var isPhoneVerified = buyerVerification?.IsPhoneVerified ?? false;
+        var isIdentityVerified = buyerVerification?.IsIdentityVerified ?? false;
+        var hasVerifiedAddress = buyerVerification?.HasVerifiedAddress ?? false;
+        var hasVerifiedPaymentMethod = buyerVerification?.HasVerifiedPaymentMethod ?? false;
+
         return new UserProfileResponse(
             Id: user.Id,
             FullName: user.FullName,
@@ -74,10 +94,27 @@ public sealed class GetProfileQueryHandler
             DateOfBirth: user.DateOfBirth,
             IsEmailConfirmed: user.IsEmailConfirmed,
             IsPhoneConfirmed: user.IsPhoneConfirmed,
+            Verification: new UserVerificationResponse(
+                Email: new VerificationStateResponse(
+                    isEmailVerified,
+                    buyerVerification?.EmailVerifiedAt),
+                Phone: new VerificationStateResponse(
+                    isPhoneVerified,
+                    buyerVerification?.PhoneVerifiedAt),
+                Identity: new VerificationStateResponse(
+                    isIdentityVerified,
+                    buyerVerification?.IdentityVerifiedAt),
+                Address: new VerificationStateResponse(
+                    hasVerifiedAddress,
+                    buyerVerification?.AddressVerifiedAt),
+                PaymentMethod: new VerificationStateResponse(
+                    hasVerifiedPaymentMethod,
+                    buyerVerification?.PaymentMethodVerifiedAt),
+                IsFullyVerified: buyerVerification?.IsFullyVerified ?? false),
             AuthProvider: user.AuthProvider,
-            Reputation: user.ReputationProfile is null
-        ? new UserReputationResponse(0, "Silver")
-        : new UserReputationResponse(user.ReputationProfile.Score, user.ReputationProfile.TrustLevel),
+            Reputation: reputation is null
+                ? new UserReputationResponse(0, BuyerTrustLevels.Basic)
+                : new UserReputationResponse(reputation.ConfirmedScore, reputation.TrustLevel),
             Roles: roles,
             Privileges: privileges);
     }

@@ -3,10 +3,11 @@ using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Roles;
+using ECommerceAuction.UserService.Domain.Users;
 using MassTransit;
+using Nexus.Contracts.Events.Seller.V1;
 using Nexus.Contracts.Events.User;
 
 namespace ECommerceAuction.UserService.Application.Features.Admin.Users.UpdateUser;
@@ -99,6 +100,35 @@ public sealed class UpdateUserCommandHandler
         {
             (finalRoleCodes, rolesChanged) =
                 await ReconcileRolesAsync(user, request.RoleCodes, actorUserId, cancellationToken);
+        }
+
+        if (rolesChanged)
+        {
+            var occurredAt = DateTimeOffset.UtcNow;
+            var sellerRoleActive = finalRoleCodes.Contains(
+                "SELLER",
+                StringComparer.OrdinalIgnoreCase);
+            var canSell = sellerRoleActive &&
+                          user.DeletedAt is null &&
+                          string.Equals(
+                              user.Status,
+                              UserStatus.Active,
+                              StringComparison.OrdinalIgnoreCase);
+
+            await _publishEndpoint.Publish(
+                new SellerEligibilityChanged(
+                    NewId.NextGuid(),
+                    occurredAt,
+                    user.Id,
+                    Found: true,
+                    UserStatus: user.Status,
+                    Deleted: user.DeletedAt is not null,
+                    SellerRoleActive: sellerRoleActive,
+                    CanSell: canSell,
+                    EligibilityStatus: canSell ? "ELIGIBLE" : "INELIGIBLE",
+                    ReasonCode: canSell ? null : "SELLER_ROLE_OR_USER_INACTIVE",
+                    SourceVersion: occurredAt.UtcTicks),
+                cancellationToken);
         }
 
         await _unitOfWork.SaveChangesAsync(cancellationToken);

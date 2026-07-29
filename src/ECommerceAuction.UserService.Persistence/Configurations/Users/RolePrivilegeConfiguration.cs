@@ -1,4 +1,4 @@
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,7 +36,7 @@ public sealed class RolePrivilegeConfiguration : IEntityTypeConfiguration<RolePr
 
         builder.Property(rolePrivilege => rolePrivilege.AssignedAt)
             .HasColumnName("assigned_at")
-            .HasColumnType("datetime2(3)")
+            .HasColumnType("datetimeoffset(3)")
             .IsRequired();
 
         // Keep one current assignment per role and privilege.

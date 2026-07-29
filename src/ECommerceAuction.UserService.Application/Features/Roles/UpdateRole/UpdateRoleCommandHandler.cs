@@ -3,8 +3,8 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Roles.Common;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Roles;
 
 namespace ECommerceAuction.UserService.Application.Features.Roles.UpdateRole;
 

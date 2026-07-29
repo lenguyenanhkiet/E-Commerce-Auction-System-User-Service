@@ -1,5 +1,5 @@
 using ECommerceAuction.UserService.Application.Common.Options;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Options;
 
 namespace ECommerceAuction.UserService.Api.BackgroundJobs;
@@ -36,7 +36,7 @@ public sealed class AccountUnlockSweeperService : BackgroundService
                 using var scope = _scopeFactory.CreateScope();
                 var repository = scope.ServiceProvider.GetRequiredService<IAccountMaintenanceRepository>();
 
-                var unlocked = await repository.UnlockExpiredLockoutsAsync(DateTime.UtcNow, stoppingToken);
+                var unlocked = await repository.UnlockExpiredLockoutsAsync(DateTimeOffset.UtcNow, stoppingToken);
 
                 if (unlocked > 0)
                 {

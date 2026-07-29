@@ -1,7 +1,10 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
-using ECommerceAuction.UserService.Domain.Entities.Users;
+using ECommerceAuction.UserService.Application.Features.Auth.VerifyEmail;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.Users;
 
 namespace ECommerceAuction.UserService.Application.Features.Auth.GoogleCallback;
 
@@ -19,19 +22,24 @@ public sealed class GoogleCallbackCommandHandler
     private readonly IUserOAuthRepository _userOAuthRepository;
     private readonly ILoginCodeService _loginCodeService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly CompleteEmailVerificationService
+        _completeEmailVerification;
 
     public GoogleCallbackCommandHandler(
         IOAuthStateService oauthStateService,
         IGoogleOAuthService googleOAuthService,
         IUserOAuthRepository userOAuthRepository,
         ILoginCodeService loginCodeService,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        CompleteEmailVerificationService
+            completeEmailVerification)
     {
         _oauthStateService = oauthStateService;
         _googleOAuthService = googleOAuthService;
         _userOAuthRepository = userOAuthRepository;
         _loginCodeService = loginCodeService;
         _unitOfWork = unitOfWork;
+        _completeEmailVerification = completeEmailVerification;
     }
 
     /// <summary>
@@ -175,10 +183,13 @@ public sealed class GoogleCallbackCommandHandler
             }
 
             await _userOAuthRepository.EnsureDefaultBuyerRoleAsync(user.Id, cancellationToken);
-            await _userOAuthRepository.EnsureReputationProfileAsync(
-                user.Id,
-                grantEmailVerificationPoint,
-                cancellationToken);
+            if (grantEmailVerificationPoint)
+            {
+                await _completeEmailVerification.CompleteAsync(
+                    user.Id,
+                    DateTimeOffset.UtcNow,
+                    cancellationToken);
+            }
 
             await _userOAuthRepository.AddAuditLogAsync(
                 UserAuditLog.Create(

@@ -1,9 +1,10 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Users.RequestPhoneOtp;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyPhone;
+using ECommerceAuction.UserService.Domain.Users;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,13 +18,15 @@ namespace ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp
         private readonly IUserRepository _userRepository;
         private readonly ICacheService _cacheService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly CompletePhoneVerificationService _completePhoneVerification;
 
-        public VerifyPhoneOtpCommandHandler(ICurrentUserService currentUserService, IUserRepository userRepository, ICacheService cacheService, IUnitOfWork unitOfWork)
+        public VerifyPhoneOtpCommandHandler(ICurrentUserService currentUserService, IUserRepository userRepository, ICacheService cacheService, IUnitOfWork unitOfWork, CompletePhoneVerificationService completePhoneVerification)
         {
             _currentUserService = currentUserService;
             _userRepository = userRepository;
             _cacheService = cacheService;
             _unitOfWork = unitOfWork;
+            _completePhoneVerification = completePhoneVerification;
         }
 
         public async Task<VerifyPhoneOtpResponse> Handle(VerifyPhoneOtpCommand request, CancellationToken cancellationToken)
@@ -49,7 +52,7 @@ namespace ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp
 
             if (otpModel.OtpCode != request.OtpCode.Trim())
             {
-                var remaining = otpModel.ExpiresAt - DateTime.UtcNow;
+                var remaining = otpModel.ExpiresAt - DateTimeOffset.UtcNow;
                 await _cacheService.SetAsync(
                     otpKey,
                     otpModel with { AttemptCount = otpModel.AttemptCount + 1 },
@@ -60,12 +63,14 @@ namespace ECommerceAuction.UserService.Application.Features.Users.VerifyPhoneOtp
             }
 
             user.ConfirmPhoneChange();
-            user.ReputationProfile?.AddPhoneVerificationPoint();
 
+            // Award +2 through the reputation ledger. Idempotent: re-verifying never awards twice.
+            // The service's SaveChanges commits the phone-confirmation change with the ledger.
+            await _completePhoneVerification.CompleteAsync(user.Id, DateTimeOffset.UtcNow, cancellationToken);
             await _unitOfWork.SaveChangesAsync(cancellationToken);
             await _cacheService.RemoveAsync(otpKey, cancellationToken);
 
-            return new VerifyPhoneOtpResponse(true, user.ReputationProfile?.Score ?? 0);
+            return new VerifyPhoneOtpResponse(true, 0);
         }
     }
 }

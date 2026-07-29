@@ -2,8 +2,8 @@
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Application.Features.Users.VerifyAddress;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -18,14 +18,24 @@ public sealed class CreateAddressCommandHandler : ICommandHandler<CreateAddressC
     private readonly ICurrentUserService _currentUserService;
     private readonly ILogger<CreateAddressCommandHandler> _logger;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly CompleteAddressVerificationService
+        _completeAddressVerification;
 
-    public CreateAddressCommandHandler(IAddressRepository addressRepository, IUserRepository userRepository, ICurrentUserService currentUserService, ILogger<CreateAddressCommandHandler> logger, IUnitOfWork unitOfWork)
+    public CreateAddressCommandHandler(
+        IAddressRepository addressRepository,
+        IUserRepository userRepository,
+        ICurrentUserService currentUserService,
+        ILogger<CreateAddressCommandHandler> logger,
+        IUnitOfWork unitOfWork,
+        CompleteAddressVerificationService
+            completeAddressVerification)
     {
         _addressRepository = addressRepository;
         _userRepository = userRepository;
         _currentUserService = currentUserService;
         _logger = logger;
         _unitOfWork = unitOfWork;
+        _completeAddressVerification = completeAddressVerification;
     }
 
     public async Task<CreateAddressResponse> Handle(CreateAddressCommand request, CancellationToken cancellationToken)
@@ -44,6 +54,15 @@ public sealed class CreateAddressCommandHandler : ICommandHandler<CreateAddressC
             request.IsDefault
             );
         await _addressRepository.AddAddressAsync(address, cancellationToken);
+
+        // The first successfully created address completes the one-time buyer
+        // address verification and awards +1 through the idempotent ledger.
+        await _completeAddressVerification.CompleteAsync(
+            userId,
+            address.Id,
+            DateTimeOffset.UtcNow,
+            cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
         _logger.LogInformation($"Created Address {address.Id} for User {userId}");
 

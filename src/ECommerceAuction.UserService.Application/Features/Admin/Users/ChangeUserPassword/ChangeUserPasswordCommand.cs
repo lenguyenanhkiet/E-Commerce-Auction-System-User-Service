@@ -16,4 +16,4 @@ public sealed record ChangeUserPasswordCommand(
 /// </summary>
 public sealed record ChangeUserPasswordResponse(
     Guid Id,
-    DateTime ChangedAt);
+    DateTimeOffset ChangedAt);

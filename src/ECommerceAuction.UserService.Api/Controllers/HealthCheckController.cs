@@ -1,4 +1,4 @@
-﻿//Enter the required namespace
+//Enter the required namespace
 using Microsoft.AspNetCore.Mvc;
 
 //Define namespace for this controller
@@ -26,7 +26,7 @@ public sealed class HealthCheckController : ControllerBase
         {
             status = "Healthy", //Health status: Healthy (healthy)
             service = "ECommerceAuction.UserService.Api", //Service name
-            timestampUtc = DateTime.UtcNow //Current time in UTC
+            timestampUtc = DateTimeOffset.UtcNow //Current time in UTC
         };
 
         //Returns HTTP 200 OK with response object

@@ -1,7 +1,7 @@
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Application.Features.Admin.AuditLogs.GetAuditLogs;
-using ECommerceAuction.UserService.Domain.Entities.Users;
-using ECommerceAuction.UserService.Domain.Repositories;
+using ECommerceAuction.UserService.Domain.Auditing;
+using ECommerceAuction.UserService.Domain.Users;
 using NSubstitute;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Admin.AuditLogs;
@@ -26,7 +26,7 @@ public sealed class GetAuditLogsQueryHandlerTests
         var logs = new List<UserAuditLog> { SampleLog(), SampleLog() };
         _repository.GetPagedAsync(
                 Arg.Any<string?>(), Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
-                Arg.Any<DateTime?>(), Arg.Any<DateTime?>(), 1, 20, Arg.Any<CancellationToken>())
+                Arg.Any<DateTimeOffset?>(), Arg.Any<DateTimeOffset?>(), 1, 20, Arg.Any<CancellationToken>())
             .Returns((logs, 25));
 
         var result = await CreateSut().Handle(new GetAuditLogsQuery(Page: 1, PageSize: 20), CancellationToken.None);
@@ -41,11 +41,11 @@ public sealed class GetAuditLogsQueryHandlerTests
     public async Task Handle_ForwardsFiltersToRepository()
     {
         var actorId = Guid.NewGuid();
-        var from = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var to = new DateTime(2026, 2, 1, 0, 0, 0, DateTimeKind.Utc);
+        var from = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
+        var to = new DateTimeOffset(2026, 2, 1, 0, 0, 0, TimeSpan.Zero);
         _repository.GetPagedAsync(
                 Arg.Any<string?>(), Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
-                Arg.Any<DateTime?>(), Arg.Any<DateTime?>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+                Arg.Any<DateTimeOffset?>(), Arg.Any<DateTimeOffset?>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns((new List<UserAuditLog>(), 0));
 
         await CreateSut().Handle(
@@ -62,7 +62,7 @@ public sealed class GetAuditLogsQueryHandlerTests
     {
         _repository.GetPagedAsync(
                 Arg.Any<string?>(), Arg.Any<Guid?>(), Arg.Any<Guid?>(), Arg.Any<string?>(),
-                Arg.Any<DateTime?>(), Arg.Any<DateTime?>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
+                Arg.Any<DateTimeOffset?>(), Arg.Any<DateTimeOffset?>(), Arg.Any<int>(), Arg.Any<int>(), Arg.Any<CancellationToken>())
             .Returns((new List<UserAuditLog>(), 0));
 
         var result = await CreateSut().Handle(new GetAuditLogsQuery(), CancellationToken.None);
@@ -84,8 +84,8 @@ public sealed class GetAuditLogsQueryHandlerTests
     [Fact]
     public async Task Handle_Throws_WhenFromIsAfterTo()
     {
-        var from = new DateTime(2026, 3, 1, 0, 0, 0, DateTimeKind.Utc);
-        var to = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var from = new DateTimeOffset(2026, 3, 1, 0, 0, 0, TimeSpan.Zero);
+        var to = new DateTimeOffset(2026, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
         await Assert.ThrowsAsync<BusinessRuleException>(() =>
             CreateSut().Handle(new GetAuditLogsQuery(FromUtc: from, ToUtc: to), CancellationToken.None));

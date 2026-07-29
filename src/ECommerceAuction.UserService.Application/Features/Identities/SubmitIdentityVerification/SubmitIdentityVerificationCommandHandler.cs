@@ -1,11 +1,11 @@
-﻿using ECommerceAuction.UserService.Application.Abstractions.Messaging;
+using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
+using ECommerceAuction.UserService.Application.Features.Identities.VerifyIdentity;
 using ECommerceAuction.UserService.Application.Services.IdentityMatching;
-using ECommerceAuction.UserService.Domain.Entities.IdentityVerification;
-using ECommerceAuction.UserService.Domain.Repositories;
-using Microsoft.EntityFrameworkCore;
+using ECommerceAuction.UserService.Domain.IdentityVerifications;
+using ECommerceAuction.UserService.Domain.Users;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -20,24 +20,28 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
         private readonly IUnitOfWork _unitOfWork;
         private readonly IIdentityVerificationProvider _identityVerificationProvider;
         private readonly IdentityMatchingOptions _options;
+        private readonly CompleteIdentityVerificationService _completeIdentityVerification;
 
         public SubmitIdentityVerificationCommandHandler(
             IIdentityVerificationRepository identityVerificationRepository,
             IUserRepository userRepository,
             IUnitOfWork unitOfWork,
             IIdentityVerificationProvider identityVerificationProvider,
-            IOptions<IdentityMatchingOptions> options)
+            IOptions<IdentityMatchingOptions> options,
+            CompleteIdentityVerificationService completeIdentityVerification)
         {
             _identityVerificationRepository = identityVerificationRepository;
             _userRepository = userRepository;
             _unitOfWork = unitOfWork;
             _identityVerificationProvider = identityVerificationProvider;
             _options = options.Value;
+            _completeIdentityVerification = completeIdentityVerification;
         }
 
         public async Task<SubmitIdentityVerificationResponse> Handle(SubmitIdentityVerificationCommand request, CancellationToken cancellationToken)
         {
             var user = await _userRepository.GetByIdAsync(request.UserId, cancellationToken) ?? throw new NotFoundException("User not found.");
+            var identityJustVerified = false;
 
             // Upload keys are "{service}/{imageType}/{ownerId}/...", and the caller hands them to us
             // straight from the request. Without this, anyone could submit somebody else's uploaded
@@ -70,7 +74,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
                     request.BackImageKey
                 );
             }
-            else if (existingVerification.Status == IdentityVerificationStatus.Verified)
+            else if (existingVerification.Status == IdentityVerificationState.Verified)
             {
                 throw new BusinessRuleException("Identity has already been verified.");
             }
@@ -112,7 +116,7 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
                         extractionResult.Extraction.FullName ?? request.FullName,
                         extractionResult.Extraction.Gender ?? request.Gender,
                         extractionResult.Extraction.DateOfBirth ?? request.DateOfBirth);
-                    user.ReputationProfile?.AddIdentificationVerificationPoint();
+                    identityJustVerified = true;
                 }
                 else
                 {
@@ -125,14 +129,23 @@ namespace ECommerceAuction.UserService.Application.Features.Identities.SubmitIde
                 await _identityVerificationRepository.AddAsync(verification, cancellationToken);
             }
 
+            // Award +5 through the reputation ledger once the identity is verified. Idempotent via
+            // the ledger idempotency key, so a retried KYC callback never awards twice.
+            if (identityJustVerified)
+            {
+                await _completeIdentityVerification.CompleteAsync(
+                    user.Id, verification.Id.ToString(), DateTimeOffset.UtcNow, cancellationToken);
+            }
+
             try
             {
                 await _unitOfWork.SaveChangesAsync(cancellationToken);
             }
-            catch (DbUpdateException) when (isFirstAttempt)
+            catch (ConflictException) when (isFirstAttempt)
             {
                 // Another concurrent request already inserted a verification for this user
-                // (unique index on UserId) between our existence check and this save.
+                // (unique index on UserId) between our existence check and this save. The
+                // DbContext surfaces the unique-index violation as a ConflictException.
                 throw new ConflictException("Identity verification was already submitted for this user.");
             }
 

@@ -1,6 +1,6 @@
 using System.Globalization;
 using ECommerceAuction.UserService.Application.Authorization;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.Roles;
 using ECommerceAuction.UserService.Persistence.Context;
 using Microsoft.EntityFrameworkCore;
 
