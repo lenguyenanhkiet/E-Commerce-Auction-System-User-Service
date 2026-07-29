@@ -2,14 +2,16 @@ using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Auditing;
 using ECommerceAuction.UserService.Domain.Authentication;
+using ECommerceAuction.UserService.Domain.Roles;
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
-using ECommerceAuction.UserService.Domain.Entities.Roles;
+using ECommerceAuction.UserService.Domain.PaymentMethods;
 using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
 using ECommerceAuction.UserService.Domain.Sellers;
+using ECommerceAuction.UserService.Domain.Sellers.Applications;
 using ECommerceAuction.UserService.Domain.Users;
-using ECommerceAuction.UserService.Domain.PaymentMethods;
+using MassTransit;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -57,7 +59,9 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
-
+        modelBuilder.AddInboxStateEntity();
+        modelBuilder.AddOutboxMessageEntity();
+        modelBuilder.AddOutboxStateEntity();
         base.OnModelCreating(modelBuilder);
     }
 

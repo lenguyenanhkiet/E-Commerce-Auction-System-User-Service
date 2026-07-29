@@ -25,7 +25,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.IdentityVerification.IdentityVerification", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.IdentityVerifications.IdentityVerification", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -116,7 +116,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("IdentityVerification", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Reputation.ReputationProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.ReputationProfile", b =>
                 {
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier")
@@ -168,7 +168,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("ReputationProfiles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.Privilege", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.Privilege", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -204,7 +204,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Privileges", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.Role", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.Role", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -258,7 +258,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Roles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.RolePrivilege", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.RolePrivilege", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -291,7 +291,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("RolePrivileges", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerApplicationHistory", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerApplicationHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -334,7 +334,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("SellerApplicationHistories", (string)null);
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
@@ -418,7 +418,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("SellerProfiles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Address", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.Address", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -478,7 +478,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Addresses", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.PasswordResetToken", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.PasswordResetToken", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -518,7 +518,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("PasswordResetTokens", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.User", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.User", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -647,7 +647,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("Users", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserAuditLog", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserAuditLog", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -705,7 +705,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("UserAuditLogs", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserExternalLogin", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserExternalLogin", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -780,7 +780,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("UserExternalLogins", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserPasswordHistory", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserPasswordHistory", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -804,7 +804,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("PasswordHistories", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserRole", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserRole", b =>
                 {
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier")
@@ -848,7 +848,7 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("UserRoles", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserSession", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserSession", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -904,24 +904,24 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.ToTable("UserSessions", "user");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Reputation.ReputationProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Reputation.ReputationProfile", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", null)
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", null)
                         .WithOne("ReputationProfile")
-                        .HasForeignKey("ECommerceAuction.UserService.Domain.Entities.Reputation.ReputationProfile", "UserId")
+                        .HasForeignKey("ECommerceAuction.UserService.Domain.Reputation.ReputationProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.RolePrivilege", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.RolePrivilege", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Roles.Privilege", "Privilege")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Roles.Privilege", "Privilege")
                         .WithMany()
                         .HasForeignKey("PrivilegeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Roles.Role", "Role")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Roles.Role", "Role")
                         .WithMany("RolePrivileges")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -932,18 +932,18 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("Role");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerApplicationHistory", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerApplicationHistory", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerProfile", null)
+                    b.HasOne("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", null)
                         .WithMany("History")
                         .HasForeignKey("SellerProfileId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.Address", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.Address", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", "User")
                         .WithMany("Addresses")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -952,9 +952,9 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserExternalLogin", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserExternalLogin", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -963,15 +963,15 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.UserRole", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.UserRole", b =>
                 {
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Roles.Role", "Role")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Roles.Role", "Role")
                         .WithMany("UserRoles")
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("ECommerceAuction.UserService.Domain.Entities.Users.User", "User")
+                    b.HasOne("ECommerceAuction.UserService.Domain.Users.User", "User")
                         .WithMany("UserRoles")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -982,19 +982,19 @@ namespace ECommerceAuction.UserService.Persistence.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Roles.Role", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Roles.Role", b =>
                 {
                     b.Navigation("RolePrivileges");
 
                     b.Navigation("UserRoles");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Sellers.SellerProfile", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Sellers.SellerProfile", b =>
                 {
                     b.Navigation("History");
                 });
 
-            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Entities.Users.User", b =>
+            modelBuilder.Entity("ECommerceAuction.UserService.Domain.Users.User", b =>
                 {
                     b.Navigation("Addresses");
 
