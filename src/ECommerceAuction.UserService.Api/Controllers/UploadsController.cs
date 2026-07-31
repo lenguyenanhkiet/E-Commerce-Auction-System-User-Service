@@ -1,5 +1,5 @@
 using System.Security.Claims;
-using ECommerceAuction.UserService.Application.Features.Users.SetAvatar;
+using ECommerceAuction.UserService.Application.Features.Users.Avatar.SetAvatar;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -28,44 +28,6 @@ public sealed class UploadsController : ControllerBase
     {
         _uploadService = uploadService;
         _sender = sender;
-    }
-
-    /// <summary>
-    /// POST /api/v1/uploads/avatar — upload the authenticated user's avatar
-    /// (max 2MB, jpeg/png/webp, 100–2000px) and save its URL onto the profile.
-    /// </summary>
-    [HttpPost("avatar")]
-    [RequestSizeLimit(3 * 1024 * 1024)]
-    public async Task<IActionResult> UploadAvatar(IFormFile file, CancellationToken cancellationToken)
-    {
-        var (result, error) = await PerformUploadAsync(file, "avatar", cancellationToken);
-        if (error is not null)
-        {
-            return error;
-        }
-
-        // Persist the new avatar (URL + key) onto the user's profile.
-        var response = await _sender.Send(new SetAvatarCommand(result!.Url, result.Key), cancellationToken);
-
-        // Best-effort cleanup of the previous avatar file so old images don't orphan in storage.
-        // A failure here must not fail the upload the user just made.
-        if (!string.IsNullOrEmpty(response.PreviousKey))
-        {
-            try
-            {
-                await _uploadService.DeleteImageAsync(response.PreviousKey);
-            }
-            catch
-            {
-                // The old file will simply remain in storage; not worth failing the request.
-            }
-        }
-
-        return Ok(new
-        {
-            message = "Avatar updated.",
-            data = new { result.Url, result.Key, result.Size }
-        });
     }
 
     /// <summary>

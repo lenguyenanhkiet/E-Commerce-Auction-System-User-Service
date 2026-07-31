@@ -1,9 +1,10 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 using ECommerceAuction.UserService.Application.Abstractions.Persistence;
 using ECommerceAuction.UserService.Application.Abstractions.Services;
+using ECommerceAuction.UserService.Application.Common.Exceptions;
 using ECommerceAuction.UserService.Domain.Users;
 
-namespace ECommerceAuction.UserService.Application.Features.Users.SetAvatar;
+namespace ECommerceAuction.UserService.Application.Features.Users.Avatar.SetAvatar;
 
 /// <summary>
 /// Loads the authenticated user, records the new avatar (URL + key) on their profile, and returns
@@ -33,20 +34,40 @@ public sealed class SetAvatarCommandHandler
         var userId = _currentUserService.UserId
             ?? throw new UnauthorizedAccessException("User information not found in JWT.");
 
-        var user = await _userRepository.GetByIdAsync(userId, cancellationToken)
-            ?? throw new KeyNotFoundException("User information not found.");
+        if (string.IsNullOrWhiteSpace(request.AvatarUrl))
+        {
+            throw new BusinessRuleException(
+                "Avatar URL is required.");
+        }
 
-        // Capture the key being replaced before overwriting it.
+        if (!AvatarStorageKeyPolicy.IsOwnedByUser(
+                request.AvatarKey,
+                userId))
+        {
+            throw new BusinessRuleException(
+                "Avatar storage key is invalid.");
+        }
+
+        var user = await _userRepository.GetByIdAsync(
+            userId,
+            cancellationToken)
+            ?? throw new NotFoundException("User was not found.");
+
         var previousKey = user.AvatarKey;
 
-        user.SetAvatar(request.AvatarUrl, request.AvatarKey);
+        user.SetAvatar(
+            request.AvatarUrl,
+            request.AvatarKey);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-        // Only report the old key when it actually differs from the new one.
-        var replacedKey = string.Equals(previousKey, request.AvatarKey, StringComparison.Ordinal)
-            ? null
-            : previousKey;
-
-        return new SetAvatarResponse(user.AvatarUrl ?? string.Empty, replacedKey);
+        return new SetAvatarResponse(
+            user.AvatarUrl!,
+            string.Equals(
+                previousKey,
+                request.AvatarKey,
+                StringComparison.Ordinal)
+                ? null
+                : previousKey);
     }
 }
