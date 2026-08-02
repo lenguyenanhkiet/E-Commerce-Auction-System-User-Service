@@ -8,6 +8,8 @@ using ECommerceAuction.UserService.Domain.PaymentMethods;
 using ECommerceAuction.UserService.Domain.Reputation;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
+using ECommerceAuction.UserService.Domain.Reputation.Ratings;
+using ECommerceAuction.UserService.Domain.Reputation.Seller;
 using ECommerceAuction.UserService.Domain.Sellers;
 using ECommerceAuction.UserService.Domain.Sellers.Applications;
 using ECommerceAuction.UserService.Domain.Users;
@@ -39,6 +41,9 @@ public sealed class ApplicationDbContext : DbContext, IUnitOfWork
     public DbSet<BuyerVerificationProfile> BuyerVerificationProfiles => Set<BuyerVerificationProfile>();
     public DbSet<BuyerReputationProfile> BuyerReputationProfiles => Set<BuyerReputationProfile>();
     public DbSet<ReputationLedgerEntry> ReputationLedgerEntries => Set<ReputationLedgerEntry>();
+    public DbSet<SellerReputationProfile> SellerReputationProfiles => Set<SellerReputationProfile>();
+    public DbSet<TransactionRatingEligibility> TransactionRatingEligibilities => Set<TransactionRatingEligibility>();
+    public DbSet<UserRating> UserRatings => Set<UserRating>();
     public DbSet<BankAccountVerification> BankAccountVerifications => Set<BankAccountVerification>();
 
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)

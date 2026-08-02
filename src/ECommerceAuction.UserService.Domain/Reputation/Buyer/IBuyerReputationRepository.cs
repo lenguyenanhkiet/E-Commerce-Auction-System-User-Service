@@ -10,10 +10,6 @@ public interface IBuyerReputationRepository
         Guid userId,
         CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsByUserIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default);
-
     Task AddAsync(
         BuyerReputationProfile profile,
         CancellationToken cancellationToken = default);

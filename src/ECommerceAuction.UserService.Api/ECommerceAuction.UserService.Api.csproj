@@ -12,7 +12,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Nexus.Contracts" Version="2.2.0" />
+    <PackageReference Include="Nexus.Contracts" Version="2.5.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
     <PackageReference Include="Grpc.AspNetCore" Version="2.80.0" />
     <PackageReference Include="Nexus.Upload" Version="1.0.4" />
@@ -25,5 +25,7 @@
  
   <ItemGroup>
     <Protobuf Include="Protos\internal_health.proto" GrpcServices="Server" />
+    <Protobuf Include="Protos\reputation_eligibility.proto"
+              GrpcServices="Server" />
   </ItemGroup>
 </Project>

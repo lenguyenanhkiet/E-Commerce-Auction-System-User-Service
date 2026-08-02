@@ -43,7 +43,14 @@ public static class Permissions
         public const string View = "REPUTATION.VIEW";
         public const string Rate = "REPUTATION.RATE";
     }
-    public static class ReputationPenalty 
+    public static class ReputationAdmin
+    {
+        public const string View = "REPUTATION.ADMIN.VIEW";
+        public const string Adjust = "REPUTATION.ADMIN.ADJUST";
+        public const string Reverse = "REPUTATION.ADMIN.REVERSE";
+        public const string ClearRestriction = "REPUTATION.RESTRICTION.CLEAR";
+    }
+    public static class ReputationPenalty
     {
         public const string View = "REPUTATION.PENALTY.VIEW";
         public const string Apply = "REPUTATION.PENALTY.APPLY";

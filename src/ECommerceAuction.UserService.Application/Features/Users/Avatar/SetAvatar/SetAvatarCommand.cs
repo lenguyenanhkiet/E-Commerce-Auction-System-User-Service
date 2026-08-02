@@ -1,6 +1,6 @@
 using ECommerceAuction.UserService.Application.Abstractions.Messaging;
 
-namespace ECommerceAuction.UserService.Application.Features.Users.SetAvatar;
+namespace ECommerceAuction.UserService.Application.Features.Users.Avatar.SetAvatar;
 
 /// <summary>
 /// Persists an already-uploaded avatar (URL + storage key) onto the authenticated user's profile.

@@ -1,94 +1,93 @@
-using ECommerceAuction.UserService.Domain.Reputation.Buyer;
-using ECommerceAuction.UserService.Domain.Reputation.Ledger;
-using System;
-using System.Collections.Generic;
+using System.Security.Cryptography;
 using System.Text;
+using ECommerceAuction.UserService.Domain.Reputation.Common;
+using ECommerceAuction.UserService.Domain.Reputation.Ledger;
+using ECommerceAuction.UserService.Domain.Reputation.Scoring;
 
 namespace ECommerceAuction.UserService.Application.Features.Reputation.Services;
 
 /// <summary>
-/// Coordinates creation of a confirmed ledger entry and updates
-/// the corresponding buyer reputation summary.
-///
-/// SaveChanges is intentionally not called here so the caller can commit
-/// verification state, ledger and profile in one database transaction.
+/// Compatibility adapter for existing profile-verification callers.
+/// All score changes are delegated to IReputationMutationService.
 /// </summary>
-
 public sealed class ReputationAwardService : IReputationAwardService
 {
-    private readonly IBuyerReputationRepository _buyerReputationRepository;
-    private readonly IReputationLedgerRepository _reputationLedgerRepository;
+    private readonly IReputationMutationService _mutationService;
 
-    public ReputationAwardService(IBuyerReputationRepository buyerReputationRepository, IReputationLedgerRepository reputationLedgerRepository)
+    public ReputationAwardService(IReputationMutationService mutationService)
     {
-        _buyerReputationRepository = buyerReputationRepository;
-        _reputationLedgerRepository = reputationLedgerRepository;
+        _mutationService = mutationService;
     }
 
-    public async Task<bool> AwardConfirmedAsync(Guid userId, string entryType, string reason, int points, string sourceType, string sourceId, string idempotencyKey, DateTimeOffset occurredAt, CancellationToken cancellationToken = default)
+    public async Task<bool> AwardConfirmedAsync(
+        Guid userId,
+        string entryType,
+        string reason,
+        int points,
+        string sourceType,
+        string sourceId,
+        string idempotencyKey,
+        DateTimeOffset occurredAt,
+        CancellationToken cancellationToken = default)
     {
         if (userId == Guid.Empty)
-        {
             throw new ArgumentException(
                 "User ID cannot be empty.",
                 nameof(userId));
-        }
-
         if (points <= 0)
-        {
             throw new ArgumentOutOfRangeException(
                 nameof(points),
                 "Awarded reputation points must be positive.");
-        }
+        if (!ReputationEntryTypes.IsValid(entryType))
+            throw new ArgumentException(
+                "Invalid legacy reputation entry type.",
+                nameof(entryType));
 
-        var alreadyProcessed =
-            await _reputationLedgerRepository
-                .ExistsByIdempotencyKeyAsync(
-                    idempotencyKey,
-                    cancellationToken);
-
-        if (alreadyProcessed)
-        {
-            return false;
-        }
-
-        var ledgerEntry =
-            ReputationLedgerEntry.CreateConfirmed(
-                userId: userId,
-                entryType: entryType,
-                reason: reason,
-                points: points,
-                sourceService: "user-service",
-                sourceType: sourceType,
-                sourceId: sourceId,
-                idempotencyKey: idempotencyKey,
-                occurredAt: occurredAt);
-
-        await _reputationLedgerRepository.AddAsync(
-            ledgerEntry,
-            cancellationToken);
-
-        var profile =
-            await _buyerReputationRepository
-                .GetByUserIdAsync(
-                    userId,
-                    cancellationToken);
-
-        if (profile is null)
-        {
-            profile = BuyerReputationProfile.Create(
-                userId,
-                occurredAt);
-
-            await _buyerReputationRepository.AddAsync(
-                profile,
-                cancellationToken);
-        }
-
-        profile.ApplyConfirmedPoints(
+        idempotencyKey = idempotencyKey?.Trim()
+            ?? throw new ArgumentNullException(nameof(idempotencyKey));
+        var mutation = new ReputationMutation(
+            userId,
+            ReputationRoles.Buyer,
+            MapLegacyReason(reason),
             points,
+            "user-service",
+            sourceType,
+            sourceId,
+            idempotencyKey,
+            "REPUTATION_V1",
+            CreateDeterministicMessageId(idempotencyKey),
+            null,
+            null,
             occurredAt);
 
-        return true;
+        var result = await _mutationService.ApplyAsync(
+            mutation,
+            cancellationToken);
+        return result.Applied;
+    }
+
+    private static string MapLegacyReason(string reason) => reason switch
+    {
+        ReputationReasons.EmailVerified =>
+            ReputationReasonCatalog.BuyerProfileEmailVerified,
+        ReputationReasons.PhoneVerified =>
+            ReputationReasonCatalog.BuyerProfilePhoneVerified,
+        ReputationReasons.IdentityVerified =>
+            ReputationReasonCatalog.BuyerProfileIdentityVerified,
+        ReputationReasons.AddressVerified =>
+            ReputationReasonCatalog.BuyerProfileAddressVerified,
+        ReputationReasons.PaymentMethodVerified =>
+            ReputationReasonCatalog.BuyerProfilePaymentMethodLinked,
+        _ => throw new ArgumentException(
+            "Unsupported legacy reputation reason.",
+            nameof(reason))
+    };
+
+    private static Guid CreateDeterministicMessageId(string idempotencyKey)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(idempotencyKey);
+        var bytes = SHA256.HashData(
+            Encoding.UTF8.GetBytes(idempotencyKey));
+        return new Guid(bytes.AsSpan(0, 16));
     }
 }

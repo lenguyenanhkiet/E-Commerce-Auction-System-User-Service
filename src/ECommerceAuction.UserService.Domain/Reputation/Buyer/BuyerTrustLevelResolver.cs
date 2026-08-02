@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using ECommerceAuction.UserService.Domain.Reputation.Common;
 
 namespace ECommerceAuction.UserService.Domain.Reputation.Buyer;
 /// <summary>
@@ -11,14 +9,6 @@ public static class BuyerTrustLevelResolver
 {
     public static string Resolve(int confirmedScore)
     {
-        return confirmedScore switch
-        {
-            < 0 => BuyerTrustLevels.Restricted,
-            < 50 => BuyerTrustLevels.Basic,
-            < 200 => BuyerTrustLevels.Trusted,
-            < 500 => BuyerTrustLevels.Reliable,
-            < 1_000 => BuyerTrustLevels.Premium,
-            _ => BuyerTrustLevels.Elite
-        };
+        return ReputationTrustLevelResolver.Resolve(confirmedScore);
     }
 }

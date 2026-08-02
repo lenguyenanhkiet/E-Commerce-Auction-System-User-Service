@@ -21,14 +21,6 @@ public sealed class BuyerReputationRepository : IBuyerReputationRepository
             .FirstOrDefaultAsync(profile => profile.UserId == userId, cancellationToken);
     }
 
-    public Task<bool> ExistsByUserIdAsync(
-        Guid userId,
-        CancellationToken cancellationToken = default)
-    {
-        return _context.BuyerReputationProfiles
-            .AnyAsync(profile => profile.UserId == userId, cancellationToken);
-    }
-
     public async Task AddAsync(
         BuyerReputationProfile profile,
         CancellationToken cancellationToken = default)

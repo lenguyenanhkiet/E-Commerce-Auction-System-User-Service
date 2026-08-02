@@ -16,6 +16,8 @@ using ECommerceAuction.UserService.Persistence.Repositories.Roles;
 using ECommerceAuction.UserService.Persistence.Repositories.Sellers;
 using ECommerceAuction.UserService.Persistence.Repositories.Users;
 using ECommerceAuction.UserService.Domain.PaymentMethods;
+using ECommerceAuction.UserService.Domain.Reputation.Seller;
+using ECommerceAuction.UserService.Domain.Reputation.Ratings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -67,6 +69,8 @@ public static class DependencyInjection
         services.AddScoped<
             ECommerceAuction.UserService.Domain.Reputation.Ledger.IReputationLedgerRepository,
             ReputationLedgerRepository>();
+        services.AddScoped<ISellerReputationRepository, SellerReputationRepository>();
+        services.AddScoped<IReputationRatingRepository, ReputationRatingRepository>();
         services.AddScoped<
             IBankAccountVerificationRepository,
             BankAccountVerificationRepository>();

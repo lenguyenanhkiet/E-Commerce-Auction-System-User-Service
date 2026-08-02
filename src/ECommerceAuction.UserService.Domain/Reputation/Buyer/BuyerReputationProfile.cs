@@ -1,7 +1,5 @@
 using ECommerceAuction.UserService.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ECommerceAuction.UserService.Domain.Reputation.Common;
 
 namespace ECommerceAuction.UserService.Domain.Reputation.Buyer;
 /// <summary>
@@ -38,8 +36,13 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
 
     public int PenaltyCount { get; private set; }
 
-    public string TrustLevel { get; private set; }
-        = BuyerTrustLevels.Basic;
+    public string AuctionRestrictionStatus { get; private set; }
+        = ReputationRestrictions.None;
+    public DateTimeOffset? RestrictedUntil { get; private set; }
+    public bool RequiresManualReview { get; private set; }
+    public string? BlockingViolationCode { get; private set; }
+    public string TrustLevel =>
+        ReputationTrustLevelResolver.Resolve(ConfirmedScore);
 
     private BuyerReputationProfile()
     { }
@@ -56,7 +59,6 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
         UserId = userId;
         ConfirmedScore = 0;
         PendingScore = 0;
-        TrustLevel = BuyerTrustLevelResolver.Resolve(0);
         CreatedAt = createdAt;
         UpdatedAt = createdAt;
     }
@@ -72,29 +74,62 @@ public sealed class BuyerReputationProfile : AuditableEntity, IAggregateRoot
     /// </summary>
     ///
 
-    public void ApplyConfirmedPoints(int points, DateTimeOffset occurredAt)
+    public void ApplyConfirmedDelta(int delta, DateTimeOffset occurredAt)
     {
-        if (points == 0)
+        if (delta == 0)
         {
             throw new ArgumentOutOfRangeException(
-                nameof(points),
+                nameof(delta),
                 "Reputation points cannot be zero.");
         }
         occurredAt = occurredAt.ToUniversalTime();
-        ConfirmedScore = checked(ConfirmedScore + points);
+        ConfirmedScore = checked(ConfirmedScore + delta);
 
-        if (points > 0)
+        if (delta > 0)
         {
-            LifetimeEarnedPoints = checked(LifetimeEarnedPoints + points);
+            LifetimeEarnedPoints = checked(LifetimeEarnedPoints + delta);
         }
         else
         {
-            LifetimePenaltyPoints = checked(LifetimePenaltyPoints + Math.Abs((long)points));
+            LifetimePenaltyPoints = checked(LifetimePenaltyPoints + Math.Abs((long)delta));
             PenaltyCount = checked(PenaltyCount + 1);
         }
 
-        TrustLevel = BuyerTrustLevelResolver.Resolve(ConfirmedScore);
         UpdatedAt = occurredAt;
+    }
+
+    public void ApplyConfirmedPoints(int points, DateTimeOffset occurredAt) =>
+        ApplyConfirmedDelta(points, occurredAt);
+
+    public void ApplyAuctionRestriction(
+        string status,
+        DateTimeOffset? restrictedUntil,
+        bool requiresManualReview,
+        string? blockingViolationCode,
+        DateTimeOffset occurredAt)
+    {
+        if (!ReputationRestrictions.IsValid(status) ||
+            status == ReputationRestrictions.None)
+        {
+            throw new ArgumentException("Invalid auction restriction status.", nameof(status));
+        }
+
+        AuctionRestrictionStatus = status;
+        RestrictedUntil = restrictedUntil?.ToUniversalTime();
+        RequiresManualReview = requiresManualReview;
+        BlockingViolationCode = string.IsNullOrWhiteSpace(blockingViolationCode)
+            ? null
+            : blockingViolationCode.Trim();
+        UpdatedAt = occurredAt.ToUniversalTime();
+    }
+
+    public void ClearAuctionRestriction(DateTimeOffset occurredAt)
+    {
+        AuctionRestrictionStatus = ReputationRestrictions.None;
+        RestrictedUntil = null;
+        RequiresManualReview = false;
+        BlockingViolationCode = null;
+        UpdatedAt = occurredAt.ToUniversalTime();
     }
 
     public void AddPendingPoints(int points, DateTimeOffset occurredAt)

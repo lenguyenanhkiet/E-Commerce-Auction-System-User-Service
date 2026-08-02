@@ -13,7 +13,7 @@
   <PackageReference Include="MediatR" Version="14.1.0" />
   <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.8" />
 
-    <PackageReference Include="Nexus.Contracts" Version="2.2.0" />
+    <PackageReference Include="Nexus.Contracts" Version="2.5.0" />
 </ItemGroup>
   <ItemGroup>
     <Folder Include="Features\Admin\Sellers\GetSellerApplicationById\" />
