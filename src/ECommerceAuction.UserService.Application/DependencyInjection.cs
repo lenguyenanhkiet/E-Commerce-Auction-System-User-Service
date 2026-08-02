@@ -33,6 +33,9 @@ public static class DependencyInjection
         services.AddScoped<
             IReputationAwardService,
             ReputationAwardService>();
+        services.AddScoped<
+            IReputationMutationService,
+            ReputationMutationService>();
         services.AddScoped<CompleteEmailVerificationService>();
         services.AddScoped<CompletePhoneVerificationService>();
         services.AddScoped<CompleteIdentityVerificationService>();

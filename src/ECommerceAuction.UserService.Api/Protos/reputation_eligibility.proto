@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+option csharp_namespace = "ECommerceAuction.UserService.Api.Grpc";
+
+package ecommerceauction.user.reputation.v1;
+
+import "google/protobuf/timestamp.proto";
+
+service ReputationEligibility {
+  rpc GetBuyerAuctionEligibility (ReputationEligibilityRequest)
+      returns (ReputationEligibilityReply);
+  rpc GetSellerAuctionEligibility (ReputationEligibilityRequest)
+      returns (ReputationEligibilityReply);
+  rpc GetBuyerCodEligibility (ReputationEligibilityRequest)
+      returns (ReputationEligibilityReply);
+}
+
+message ReputationEligibilityRequest {
+  string user_id = 1;
+}
+
+message ReputationEligibilityReply {
+  bool eligible = 1;
+  string reason_code = 2;
+  int32 confirmed_score = 3;
+  string trust_level = 4;
+  string restriction_status = 5;
+  bool requires_manual_review = 6;
+  google.protobuf.Timestamp restricted_until = 7;
+}

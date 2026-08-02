@@ -1,128 +1,123 @@
 using ECommerceAuction.UserService.Domain.Common;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using ECommerceAuction.UserService.Domain.Reputation.Common;
+using ECommerceAuction.UserService.Domain.Reputation.Scoring;
 
 namespace ECommerceAuction.UserService.Domain.Reputation.Ledger;
-/// <summary>
-/// Represents one immutable reputation mutation.
-///
-/// The entry content must not be edited after creation.
-/// Lifecycle changes are limited to Pending -> Confirmed/Cancelled
-/// and Confirmed -> Reversed.
-/// </summary>
 
 public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
 {
-    public Guid UserId { get; private set; }
-
-    public string EntryType { get; private set; }
-        = string.Empty;
-
-    public string Reason { get; private set; }
-        = string.Empty;
-
-    public string Status { get; private set; }
-        = ReputationEntryStatuses.Pending;
-
-    /// <summary>
-    /// Positive value for rewards and negative value for penalties.
-    /// Zero is not permitted.
-    /// </summary>
-    public int Points { get; private set; }
-
-    /// <summary>
-    /// Name of the service that originated the source event.
-    /// Examples: user-service, commerce-service, auction-service.
-    /// </summary>
-    public string SourceService { get; private set; }
-        = string.Empty;
-
-    /// <summary>
-    /// Business source type such as USER_EMAIL, ORDER or AUCTION.
-    /// </summary>
-    public string SourceType { get; private set; }
-        = string.Empty;
-
-    /// <summary>
-    /// External or internal source identifier.
-    /// </summary>
-    public string SourceId { get; private set; }
-        = string.Empty;
-
-    /// <summary>
-    /// Unique key used to guarantee that the same reward or penalty
-    /// cannot be processed more than once.
-    /// </summary>
-    public string IdempotencyKey { get; private set; }
-        = string.Empty;
-
-    /// <summary>
-    /// Rule version used when calculating this entry.
-    /// </summary>
-    public string RuleVersion { get; private set; }
-        = "REPUTATION_V1";
-
-    public Guid? ReversalEntryId { get; private set; }
-
-    public DateTimeOffset? ConfirmAfter { get; private set; }
-    public DateTimeOffset? ConfirmedAt { get; private set; }
-    public DateTimeOffset? CancelledAt { get; private set; }
-    public DateTimeOffset? ReversedAt { get; private set; }
-
     private ReputationLedgerEntry()
     {
     }
 
-    private ReputationLedgerEntry(
-        Guid userId,
-        string entryType,
-        string reason,
-        string status,
-        int points,
-        string sourceService,
-        string sourceType,
-        string sourceId,
-        string idempotencyKey,
-        string ruleVersion,
-        DateTimeOffset createdAt,
-        DateTimeOffset? confirmAfter)
+    public Guid UserId { get; private set; }
+    public string Role { get; private set; } = string.Empty;
+    public string ReasonCode { get; private set; } = string.Empty;
+    public int ScoreDelta { get; private set; }
+    public int ScoreBefore { get; private set; }
+    public int ScoreAfter { get; private set; }
+    public string SourceService { get; private set; } = string.Empty;
+    public string SourceType { get; private set; } = string.Empty;
+    public string SourceId { get; private set; } = string.Empty;
+    public string IdempotencyKey { get; private set; } = string.Empty;
+    public string RuleVersion { get; private set; } = string.Empty;
+    public Guid MessageId { get; private set; }
+    public Guid? CorrelationId { get; private set; }
+    public Guid? ReversesEntryId { get; private set; }
+    public string? EvidenceReference { get; private set; }
+    public DateTimeOffset OccurredAt { get; private set; }
+
+    public static ReputationLedgerEntry Create(
+        ReputationMutation mutation,
+        int scoreBefore,
+        int scoreAfter,
+        DateTimeOffset createdAt)
     {
-        Validate(
-            userId,
-            entryType,
-            reason,
-            status,
-            points,
-            sourceService,
-            sourceType,
-            sourceId,
-            idempotencyKey,
-            ruleVersion);
+        ArgumentNullException.ThrowIfNull(mutation);
+        Validate(mutation);
 
-        createdAt = createdAt.ToUniversalTime();
-        confirmAfter = confirmAfter?.ToUniversalTime();
-        Id = Guid.NewGuid();
-        UserId = userId;
-        EntryType = entryType;
-        Reason = reason;
-        Status = status;
-        Points = points;
-        SourceService = sourceService.Trim();
-        SourceType = sourceType.Trim();
-        SourceId = sourceId.Trim();
-        IdempotencyKey = idempotencyKey.Trim();
-        RuleVersion = ruleVersion.Trim();
-        ConfirmAfter = confirmAfter;
-        CreatedAt = createdAt;
-        UpdatedAt = createdAt;
-
-        if (status == ReputationEntryStatuses.Confirmed)
+        int calculated;
+        try
         {
-            ConfirmedAt = createdAt;
+            calculated = checked(scoreBefore + mutation.ScoreDelta);
         }
+        catch (OverflowException)
+        {
+            throw;
+        }
+
+        if (calculated != scoreAfter)
+        {
+            throw new InvalidOperationException(
+                "ScoreAfter must equal ScoreBefore plus ScoreDelta.");
+        }
+
+        var occurredAt = mutation.OccurredAt.ToUniversalTime();
+        createdAt = createdAt.ToUniversalTime();
+
+        return new ReputationLedgerEntry
+        {
+            Id = Guid.NewGuid(),
+            UserId = mutation.UserId,
+            Role = mutation.Role,
+            ReasonCode = mutation.ReasonCode,
+            ScoreDelta = mutation.ScoreDelta,
+            ScoreBefore = scoreBefore,
+            ScoreAfter = scoreAfter,
+            SourceService = mutation.SourceService.Trim(),
+            SourceType = mutation.SourceType.Trim(),
+            SourceId = mutation.SourceId.Trim(),
+            IdempotencyKey = mutation.IdempotencyKey.Trim(),
+            RuleVersion = mutation.RuleVersion.Trim(),
+            MessageId = mutation.MessageId,
+            CorrelationId = mutation.CorrelationId,
+            EvidenceReference = Normalize(mutation.EvidenceReference),
+            OccurredAt = occurredAt,
+            CreatedAt = createdAt,
+            UpdatedAt = createdAt
+        };
     }
 
+    public static ReputationLedgerEntry CreateReversal(
+        ReputationLedgerEntry original,
+        int scoreBefore,
+        Guid messageId,
+        Guid? correlationId,
+        string idempotencyKey,
+        string evidenceReference,
+        DateTimeOffset occurredAt,
+        DateTimeOffset createdAt)
+    {
+        ArgumentNullException.ThrowIfNull(original);
+        if (original.ReversesEntryId.HasValue)
+        {
+            throw new InvalidOperationException(
+                "A reversal entry cannot be reversed with this factory.");
+        }
+
+        var reversalDelta = checked(-original.ScoreDelta);
+        var scoreAfter = checked(scoreBefore + reversalDelta);
+        var mutation = new ReputationMutation(
+            original.UserId,
+            original.Role,
+            original.ReasonCode,
+            reversalDelta,
+            original.SourceService,
+            original.SourceType,
+            original.SourceId,
+            idempotencyKey,
+            original.RuleVersion,
+            messageId,
+            correlationId,
+            evidenceReference,
+            occurredAt);
+
+        var reversal = Create(mutation, scoreBefore, scoreAfter, createdAt);
+        reversal.ReversesEntryId = original.Id;
+        return reversal;
+    }
+
+    // Compatibility factory for existing verification flows. New code uses Create.
     public static ReputationLedgerEntry CreateConfirmed(
         Guid userId,
         string entryType,
@@ -135,202 +130,67 @@ public sealed class ReputationLedgerEntry : AuditableEntity, IAggregateRoot
         DateTimeOffset occurredAt,
         string ruleVersion = "REPUTATION_V1")
     {
-        return new ReputationLedgerEntry(
+        var reasonCode = MapLegacyReason(reason);
+        var mutation = new ReputationMutation(
             userId,
-            entryType,
-            reason,
-            ReputationEntryStatuses.Confirmed,
+            ReputationRoles.Buyer,
+            reasonCode,
             points,
             sourceService,
             sourceType,
             sourceId,
             idempotencyKey,
             ruleVersion,
-            occurredAt,
-            confirmAfter: null);
+            CreateDeterministicCompatibilityMessageId(idempotencyKey),
+            null,
+            null,
+            occurredAt);
+
+        return Create(mutation, 0, points, occurredAt);
     }
 
-    public static ReputationLedgerEntry CreatePending(
-        Guid userId,
-        string entryType,
-        string reason,
-        int points,
-        string sourceService,
-        string sourceType,
-        string sourceId,
-        string idempotencyKey,
-        DateTimeOffset occurredAt,
-        DateTimeOffset confirmAfter,
-        string ruleVersion = "REPUTATION_V1")
+    private static void Validate(ReputationMutation mutation)
     {
-        if (points <= 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(points),
-                "Pending reputation entries must have positive points.");
-        }
-
-        if (confirmAfter <= occurredAt)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(confirmAfter),
-                "Confirmation time must be after occurrence time.");
-        }
-
-        return new ReputationLedgerEntry(
-            userId,
-            entryType,
-            reason,
-            ReputationEntryStatuses.Pending,
-            points,
-            sourceService,
-            sourceType,
-            sourceId,
-            idempotencyKey,
-            ruleVersion,
-            occurredAt,
-            confirmAfter);
+        if (mutation.UserId == Guid.Empty)
+            throw new ArgumentException("User ID cannot be empty.", nameof(mutation));
+        if (!ReputationRoles.IsValid(mutation.Role))
+            throw new ArgumentException("Invalid reputation role.", nameof(mutation));
+        if (!ReputationReasonCatalog.IsKnown(mutation.ReasonCode))
+            throw new ArgumentException("Invalid reputation reason code.", nameof(mutation));
+        if (mutation.ScoreDelta == 0)
+            throw new ArgumentOutOfRangeException(nameof(mutation), "Score delta cannot be zero.");
+        if (mutation.MessageId == Guid.Empty)
+            throw new ArgumentException("Message ID cannot be empty.", nameof(mutation));
+        Require(mutation.SourceService, "Source service");
+        Require(mutation.SourceType, "Source type");
+        Require(mutation.SourceId, "Source ID");
+        Require(mutation.IdempotencyKey, "Idempotency key");
+        Require(mutation.RuleVersion, "Rule version");
     }
 
-    public void Confirm(DateTimeOffset occurredAt)
+    private static void Require(string? value, string name)
     {
-        occurredAt = occurredAt.ToUniversalTime();
-        if (Status != ReputationEntryStatuses.Pending)
-        {
-            throw new InvalidOperationException(
-                "Only pending reputation entries can be confirmed.");
-        }
-
-        if (ConfirmAfter.HasValue &&
-            occurredAt < ConfirmAfter.Value)
-        {
-            throw new InvalidOperationException(
-                "The reputation entry cannot be confirmed before ConfirmAfter.");
-        }
-
-        Status = ReputationEntryStatuses.Confirmed;
-        ConfirmedAt = occurredAt;
-        UpdatedAt = occurredAt;
+        if (string.IsNullOrWhiteSpace(value))
+            throw new ArgumentException($"{name} is required.");
     }
 
-    public void Cancel(DateTimeOffset occurredAt)
+    private static string? Normalize(string? value) =>
+        string.IsNullOrWhiteSpace(value) ? null : value.Trim();
+
+    private static Guid CreateDeterministicCompatibilityMessageId(string key)
     {
-        occurredAt = occurredAt.ToUniversalTime();
-        if (Status != ReputationEntryStatuses.Pending)
-        {
-            throw new InvalidOperationException(
-                "Only pending reputation entries can be cancelled.");
-        }
-
-        Status = ReputationEntryStatuses.Cancelled;
-        CancelledAt = occurredAt;
-        UpdatedAt = occurredAt;
+        var bytes = System.Security.Cryptography.SHA256.HashData(
+            System.Text.Encoding.UTF8.GetBytes(key));
+        return new Guid(bytes.AsSpan(0, 16));
     }
 
-    public void MarkReversed(
-        Guid reversalEntryId,
-        DateTimeOffset occurredAt)
+    private static string MapLegacyReason(string reason) => reason switch
     {
-        occurredAt = occurredAt.ToUniversalTime();
-        if (Status != ReputationEntryStatuses.Confirmed)
-        {
-            throw new InvalidOperationException(
-                "Only confirmed reputation entries can be reversed.");
-        }
-
-        if (reversalEntryId == Guid.Empty)
-        {
-            throw new ArgumentException(
-                "Reversal entry ID cannot be empty.",
-                nameof(reversalEntryId));
-        }
-
-        Status = ReputationEntryStatuses.Reversed;
-        ReversalEntryId = reversalEntryId;
-        ReversedAt = occurredAt;
-        UpdatedAt = occurredAt;
-    }
-
-    private static void Validate(
-        Guid userId,
-        string entryType,
-        string reason,
-        string status,
-        int points,
-        string sourceService,
-        string sourceType,
-        string sourceId,
-        string idempotencyKey,
-        string ruleVersion)
-    {
-        if (userId == Guid.Empty)
-        {
-            throw new ArgumentException(
-                "User ID cannot be empty.",
-                nameof(userId));
-        }
-
-        if (!ReputationEntryTypes.IsValid(entryType))
-        {
-            throw new ArgumentException(
-                $"Invalid reputation entry type: {entryType}.",
-                nameof(entryType));
-        }
-
-        if (!ReputationReasons.IsValid(reason))
-        {
-            throw new ArgumentException(
-                $"Invalid reputation reason: {reason}.",
-                nameof(reason));
-        }
-
-        if (!ReputationEntryStatuses.IsValid(status))
-        {
-            throw new ArgumentException(
-                $"Invalid reputation entry status: {status}.",
-                nameof(status));
-        }
-
-        if (points == 0)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(points),
-                "Reputation points cannot be zero.");
-        }
-
-        if (string.IsNullOrWhiteSpace(sourceService))
-        {
-            throw new ArgumentException(
-                "Source service is required.",
-                nameof(sourceService));
-        }
-
-        if (string.IsNullOrWhiteSpace(sourceType))
-        {
-            throw new ArgumentException(
-                "Source type is required.",
-                nameof(sourceType));
-        }
-
-        if (string.IsNullOrWhiteSpace(sourceId))
-        {
-            throw new ArgumentException(
-                "Source ID is required.",
-                nameof(sourceId));
-        }
-
-        if (string.IsNullOrWhiteSpace(idempotencyKey))
-        {
-            throw new ArgumentException(
-                "Idempotency key is required.",
-                nameof(idempotencyKey));
-        }
-
-        if (string.IsNullOrWhiteSpace(ruleVersion))
-        {
-            throw new ArgumentException(
-                "Rule version is required.",
-                nameof(ruleVersion));
-        }
-    }
+        ReputationReasons.EmailVerified => ReputationReasonCatalog.BuyerProfileEmailVerified,
+        ReputationReasons.PhoneVerified => ReputationReasonCatalog.BuyerProfilePhoneVerified,
+        ReputationReasons.IdentityVerified => ReputationReasonCatalog.BuyerProfileIdentityVerified,
+        ReputationReasons.AddressVerified => ReputationReasonCatalog.BuyerProfileAddressVerified,
+        ReputationReasons.PaymentMethodVerified => ReputationReasonCatalog.BuyerProfilePaymentMethodLinked,
+        _ => throw new ArgumentException("Unsupported legacy reputation reason.", nameof(reason))
+    };
 }

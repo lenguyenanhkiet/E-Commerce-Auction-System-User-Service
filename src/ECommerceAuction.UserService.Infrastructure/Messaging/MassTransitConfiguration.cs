@@ -1,4 +1,5 @@
-﻿using ECommerceAuction.UserService.Persistence.Context;
+﻿using ECommerceAuction.UserService.Application;
+using ECommerceAuction.UserService.Persistence.Context;
 using MassTransit;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -27,6 +28,19 @@ public static class MassTransitConfiguration
 
         services.AddMassTransit(configurator =>
         {
+            configurator.SetKebabCaseEndpointNameFormatter();
+            configurator.AddConsumers(typeof(ApplicationAssemblyMarker).Assembly);
+            configurator.AddConfigureEndpointsCallback((context, _, endpoint) =>
+            {
+                // Serialize each queue so two deliveries carrying the same domain
+                // MessageId cannot both pass the ledger idempotency check before
+                // either transaction commits.
+                endpoint.ConcurrentMessageLimit = 1;
+                endpoint.UseMessageRetry(retry =>
+                    retry.Interval(3, TimeSpan.FromSeconds(5)));
+                endpoint.UseEntityFrameworkOutbox<ApplicationDbContext>(context);
+            });
+
             configurator
                 .AddEntityFrameworkOutbox<ApplicationDbContext>(
                     outbox =>

@@ -10,96 +10,44 @@ public sealed class ReputationLedgerEntryConfiguration
     public void Configure(EntityTypeBuilder<ReputationLedgerEntry> builder)
     {
         builder.ToTable("ReputationLedgerEntries", "user", table =>
-        {
             table.HasCheckConstraint(
-                "CK_ReputationLedgerEntries_points_non_zero",
-                "[points] <> 0");
-
-            table.HasCheckConstraint(
-                "CK_ReputationLedgerEntries_status",
-                "[status] IN ('PENDING','CONFIRMED','REVERSED','CANCELLED')");
-
-            table.HasCheckConstraint(
-                "CK_ReputationLedgerEntries_entry_type",
-                "[entry_type] IN ('PROFILE_VERIFICATION','ECOMMERCE_TRANSACTION','AUCTION_TRANSACTION','AUCTION_BONUS','REVIEW','PENALTY','REVERSAL')");
-        });
-
+                "CK_ReputationLedgerEntries_score_delta_non_zero",
+                "[score_delta] <> 0"));
         builder.HasKey(x => x.Id);
+        builder.Property(x => x.Id).HasColumnName("id");
+        builder.Property(x => x.UserId).HasColumnName("user_id").IsRequired();
+        builder.Property(x => x.Role).HasColumnName("role").HasMaxLength(20)
+            .IsUnicode(false).IsRequired();
+        builder.Property(x => x.ReasonCode).HasColumnName("reason_code")
+            .HasMaxLength(150).IsUnicode(false).IsRequired();
+        builder.Property(x => x.ScoreDelta).HasColumnName("score_delta").IsRequired();
+        builder.Property(x => x.ScoreBefore).HasColumnName("score_before").IsRequired();
+        builder.Property(x => x.ScoreAfter).HasColumnName("score_after").IsRequired();
+        builder.Property(x => x.SourceService).HasColumnName("source_service")
+            .HasMaxLength(80).IsUnicode(false).IsRequired();
+        builder.Property(x => x.SourceType).HasColumnName("source_type")
+            .HasMaxLength(80).IsUnicode(false).IsRequired();
+        builder.Property(x => x.SourceId).HasColumnName("source_id")
+            .HasMaxLength(200).IsUnicode(false).IsRequired();
+        builder.Property(x => x.IdempotencyKey).HasColumnName("idempotency_key")
+            .HasMaxLength(450).IsUnicode(false).IsRequired();
+        builder.Property(x => x.RuleVersion).HasColumnName("rule_version")
+            .HasMaxLength(50).IsUnicode(false).IsRequired();
+        builder.Property(x => x.MessageId).HasColumnName("message_id").IsRequired();
+        builder.Property(x => x.CorrelationId).HasColumnName("correlation_id");
+        builder.Property(x => x.ReversesEntryId).HasColumnName("reverses_entry_id");
+        builder.Property(x => x.EvidenceReference).HasColumnName("evidence_reference")
+            .HasMaxLength(500);
+        builder.Property(x => x.OccurredAt).HasColumnName("occurred_at").IsRequired();
+        builder.Property(x => x.CreatedAt).HasColumnName("created_at").IsRequired();
+        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at");
+        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at");
 
-        builder.Property(x => x.Id)
-            .HasColumnName("id")
-            .HasColumnType("uniqueidentifier");
-
-        builder.Property(x => x.UserId)
-            .HasColumnName("user_id")
-            .HasColumnType("uniqueidentifier")
-            .IsRequired();
-
-        builder.Property(x => x.EntryType)
-            .HasColumnName("entry_type")
-            .HasColumnType("nvarchar(50)")
-            .IsRequired();
-
-        builder.Property(x => x.Reason)
-            .HasColumnName("reason")
-            .HasColumnType("nvarchar(60)")
-            .IsRequired();
-
-        builder.Property(x => x.Status)
-            .HasColumnName("status")
-            .HasColumnType("nvarchar(20)")
-            .IsRequired();
-
-        builder.Property(x => x.Points)
-            .HasColumnName("points")
-            .HasColumnType("int")
-            .IsRequired();
-
-        builder.Property(x => x.SourceService)
-            .HasColumnName("source_service")
-            .HasColumnType("nvarchar(50)")
-            .IsRequired();
-
-        builder.Property(x => x.SourceType)
-            .HasColumnName("source_type")
-            .HasColumnType("nvarchar(50)")
-            .IsRequired();
-
-        builder.Property(x => x.SourceId)
-            .HasColumnName("source_id")
-            .HasColumnType("nvarchar(200)")
-            .IsRequired();
-
-        builder.Property(x => x.IdempotencyKey)
-            .HasColumnName("idempotency_key")
-            .HasColumnType("nvarchar(200)")
-            .IsRequired();
-
-        builder.Property(x => x.RuleVersion)
-            .HasColumnName("rule_version")
-            .HasColumnType("nvarchar(50)")
-            .IsRequired();
-
-        builder.Property(x => x.ReversalEntryId)
-            .HasColumnName("reversal_entry_id")
-            .HasColumnType("uniqueidentifier");
-
-        builder.Property(x => x.ConfirmAfter).HasColumnName("confirm_after").HasColumnType("datetimeoffset(3)");
-        builder.Property(x => x.ConfirmedAt).HasColumnName("confirmed_at").HasColumnType("datetimeoffset(3)");
-        builder.Property(x => x.CancelledAt).HasColumnName("cancelled_at").HasColumnType("datetimeoffset(3)");
-        builder.Property(x => x.ReversedAt).HasColumnName("reversed_at").HasColumnType("datetimeoffset(3)");
-
-        builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetimeoffset(3)");
-        builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetimeoffset(3)");
-        builder.Property(x => x.DeletedAt).HasColumnName("deleted_at").HasColumnType("datetimeoffset(3)");
-
-        // Idempotency: the same reward/penalty can never be recorded twice.
         builder.HasIndex(x => x.IdempotencyKey).IsUnique();
-
-        // Fast per-user history queries filtered by status.
-        builder.HasIndex(x => new { x.UserId, x.Status, x.CreatedAt });
-
-        // Trace a ledger entry back to the business event that produced it.
-        builder.HasIndex(x => new { x.SourceService, x.SourceType, x.SourceId });
+        builder.HasIndex(x => new { x.UserId, x.Role, x.OccurredAt });
+        builder.HasIndex(x => x.MessageId);
+        builder.HasIndex(x => x.ReversesEntryId)
+            .IsUnique()
+            .HasFilter("[reverses_entry_id] IS NOT NULL");
     }
 }

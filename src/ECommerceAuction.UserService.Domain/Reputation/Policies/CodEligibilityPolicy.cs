@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+namespace ECommerceAuction.UserService.Domain.Reputation.Policies;
 
-namespace ECommerceAuction.UserService.Domain.Reputation.Policies
+public static class CodEligibilityPolicy
 {
-    internal class CodEligibilityPolicy
-    {
-    }
+    public static ReputationEligibilityResult Evaluate() =>
+        new(
+            false,
+            ReputationEligibilityReasonCodes.CodPolicyNotConfigured);
 }

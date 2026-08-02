@@ -36,10 +36,16 @@ public sealed class BuyerReputationProfileConfiguration
         builder.Property(x => x.FailedAuctions).HasColumnName("failed_auctions").HasColumnType("int");
         builder.Property(x => x.PenaltyCount).HasColumnName("penalty_count").HasColumnType("int");
 
-        builder.Property(x => x.TrustLevel)
-            .HasColumnName("trust_level")
-            .HasColumnType("nvarchar(30)")
-            .IsRequired();
+        builder.Ignore(x => x.TrustLevel);
+        builder.Property(x => x.AuctionRestrictionStatus)
+            .HasColumnName("auction_restriction_status")
+            .HasMaxLength(30).IsUnicode(false).IsRequired();
+        builder.Property(x => x.RestrictedUntil).HasColumnName("restricted_until");
+        builder.Property(x => x.RequiresManualReview)
+            .HasColumnName("requires_manual_review");
+        builder.Property(x => x.BlockingViolationCode)
+            .HasColumnName("blocking_violation_code").HasMaxLength(100)
+            .IsUnicode(false);
 
         builder.Property(x => x.CreatedAt).HasColumnName("created_at").HasColumnType("datetimeoffset(3)");
         builder.Property(x => x.UpdatedAt).HasColumnName("updated_at").HasColumnType("datetimeoffset(3)");

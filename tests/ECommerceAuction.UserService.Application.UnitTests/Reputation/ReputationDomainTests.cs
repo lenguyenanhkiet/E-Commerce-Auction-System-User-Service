@@ -1,6 +1,9 @@
 using ECommerceAuction.UserService.Domain.IdentityVerifications;
 using ECommerceAuction.UserService.Domain.Reputation.Buyer;
+using ECommerceAuction.UserService.Domain.Reputation.Common;
 using ECommerceAuction.UserService.Domain.Reputation.Ledger;
+using ECommerceAuction.UserService.Domain.Reputation.Scoring;
+using ECommerceAuction.UserService.Domain.Reputation.Seller;
 using ECommerceAuction.UserService.Application.Features.Users.GetProfile;
 
 namespace ECommerceAuction.UserService.Application.UnitTests.Reputation;
@@ -60,77 +63,200 @@ public sealed class ReputationDomainTests
             () => profile.ApplyConfirmedPoints(0, OccurredAt));
     }
 
-    [Fact]
-    public void ReputationLedgerEntry_EnforcesPendingLifecycle()
+    [Theory]
+    [InlineData(5)]
+    [InlineData(-5)]
+    public void ReputationLedgerEntry_Create_CapturesImmutableMutation(int delta)
     {
-        var entry = ReputationLedgerEntry.CreatePending(
-            Guid.NewGuid(),
-            ReputationEntryTypes.EcommerceTransaction,
-            ReputationReasons.EcommerceOrderCompleted,
-            3,
-            "user-service",
-            "ORDER",
-            "order-1",
-            "order:order-1:completed:v1",
-            OccurredAt,
-            OccurredAt.AddMinutes(5));
+        var mutation = CreateMutation(delta);
 
-        Assert.Throws<InvalidOperationException>(
-            () => entry.Confirm(OccurredAt.AddMinutes(4)));
+        var entry = ReputationLedgerEntry.Create(
+            mutation,
+            scoreBefore: 10,
+            scoreAfter: 10 + delta,
+            createdAt: OccurredAt.AddHours(7));
 
-        entry.Confirm(OccurredAt.AddMinutes(5));
-
-        Assert.Equal(ReputationEntryStatuses.Confirmed, entry.Status);
-        Assert.Throws<InvalidOperationException>(
-            () => entry.Confirm(OccurredAt.AddMinutes(6)));
-        Assert.Throws<InvalidOperationException>(
-            () => entry.Cancel(OccurredAt.AddMinutes(6)));
+        Assert.Equal(mutation.UserId, entry.UserId);
+        Assert.Equal(ReputationRoles.Buyer, entry.Role);
+        Assert.Equal(delta, entry.ScoreDelta);
+        Assert.Equal(10, entry.ScoreBefore);
+        Assert.Equal(10 + delta, entry.ScoreAfter);
+        Assert.Equal(TimeSpan.Zero, entry.OccurredAt.Offset);
+        Assert.Equal(TimeSpan.Zero, entry.CreatedAt.Offset);
     }
 
     [Fact]
-    public void ReputationLedgerEntry_RejectsInvalidTransitions()
+    public void ReputationLedgerEntry_Create_RejectsInvalidMutation()
     {
+        var valid = CreateMutation(1);
+
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            ReputationLedgerEntry.CreateConfirmed(
-                Guid.NewGuid(),
-                ReputationEntryTypes.ProfileVerification,
-                ReputationReasons.EmailVerified,
-                0,
-                "user-service",
-                "USER_EMAIL",
-                "user-1",
-                "user:user-1:email-verified:v1",
-                OccurredAt));
+            ReputationLedgerEntry.Create(valid with { ScoreDelta = 0 }, 0, 0, OccurredAt));
+        Assert.Throws<ArgumentException>(() =>
+            ReputationLedgerEntry.Create(valid with { Role = "ADMIN" }, 0, 1, OccurredAt));
+        Assert.Throws<ArgumentException>(() =>
+            ReputationLedgerEntry.Create(valid with { ReasonCode = "unknown" }, 0, 1, OccurredAt));
+        Assert.Throws<ArgumentException>(() =>
+            ReputationLedgerEntry.Create(valid with { MessageId = Guid.Empty }, 0, 1, OccurredAt));
+        Assert.Throws<ArgumentException>(() =>
+            ReputationLedgerEntry.Create(valid with { IdempotencyKey = " " }, 0, 1, OccurredAt));
+        Assert.Throws<InvalidOperationException>(() =>
+            ReputationLedgerEntry.Create(valid, 0, 2, OccurredAt));
+        Assert.Throws<OverflowException>(() =>
+            ReputationLedgerEntry.Create(valid, int.MaxValue, int.MinValue, OccurredAt));
+    }
 
-        var pending = ReputationLedgerEntry.CreatePending(
-            Guid.NewGuid(),
-            ReputationEntryTypes.EcommerceTransaction,
-            ReputationReasons.EcommerceOrderCompleted,
-            1,
-            "user-service",
-            "ORDER",
-            "order-2",
-            "order:order-2:completed:v1",
-            OccurredAt,
-            OccurredAt.AddMinutes(1));
+    [Fact]
+    public void ReputationLedgerEntry_CreateReversal_CreatesCompensatingEntryWithoutMutatingOriginal()
+    {
+        var original = ReputationLedgerEntry.Create(
+            CreateMutation(5),
+            10,
+            15,
+            OccurredAt);
+        var originalSnapshot = (original.ScoreDelta, original.ScoreBefore, original.ScoreAfter);
 
-        Assert.Throws<InvalidOperationException>(
-            () => pending.MarkReversed(Guid.NewGuid(), OccurredAt.AddMinutes(2)));
+        var reversal = ReputationLedgerEntry.CreateReversal(
+            original,
+            scoreBefore: 20,
+            messageId: Guid.NewGuid(),
+            correlationId: Guid.NewGuid(),
+            idempotencyKey: "reversal:1",
+            evidenceReference: "case-1",
+            occurredAt: OccurredAt.AddDays(1),
+            createdAt: OccurredAt.AddDays(1));
 
-        var confirmed = ReputationLedgerEntry.CreateConfirmed(
-            Guid.NewGuid(),
-            ReputationEntryTypes.ProfileVerification,
-            ReputationReasons.EmailVerified,
-            1,
-            "user-service",
-            "USER_EMAIL",
-            "user-2",
-            "user:user-2:email-verified:v1",
+        Assert.NotEqual(original.Id, reversal.Id);
+        Assert.Equal(original.Id, reversal.ReversesEntryId);
+        Assert.Equal(-5, reversal.ScoreDelta);
+        Assert.Equal(20, reversal.ScoreBefore);
+        Assert.Equal(15, reversal.ScoreAfter);
+        Assert.Equal(originalSnapshot, (original.ScoreDelta, original.ScoreBefore, original.ScoreAfter));
+        Assert.Throws<InvalidOperationException>(() =>
+            ReputationLedgerEntry.CreateReversal(
+                reversal, 15, Guid.NewGuid(), null, "reversal:2", "case-2",
+                OccurredAt.AddDays(2), OccurredAt.AddDays(2)));
+    }
+
+    [Fact]
+    public void ReputationLedgerEntry_CreateReversal_RejectsMinimumIntegerDelta()
+    {
+        var original = ReputationLedgerEntry.Create(
+            CreateMutation(int.MinValue),
+            0,
+            int.MinValue,
             OccurredAt);
 
-        confirmed.MarkReversed(Guid.NewGuid(), OccurredAt.AddMinutes(1));
-        Assert.Throws<InvalidOperationException>(
-            () => confirmed.MarkReversed(Guid.NewGuid(), OccurredAt.AddMinutes(2)));
+        Assert.Throws<OverflowException>(() =>
+            ReputationLedgerEntry.CreateReversal(
+                original, 0, Guid.NewGuid(), null, "reversal:min", "case-min",
+                OccurredAt, OccurredAt));
+    }
+
+    [Fact]
+    public void BuyerAndSellerProfiles_KeepIndependentScoresAndRestrictions()
+    {
+        var userId = Guid.NewGuid();
+        var buyer = BuyerReputationProfile.Create(userId, OccurredAt);
+        var seller = SellerReputationProfile.Create(userId, OccurredAt);
+
+        buyer.ApplyConfirmedDelta(-1, OccurredAt);
+        buyer.ApplyAuctionRestriction(
+            ReputationRestrictions.Blocked, null, true, "PAYMENT_DEFAULT", OccurredAt);
+        seller.ApplyConfirmedDelta(50, OccurredAt);
+        seller.ApplySellingRestriction(
+            ReputationRestrictions.Restricted, OccurredAt.AddDays(1), false, null, OccurredAt);
+
+        Assert.Equal(-1, buyer.ConfirmedScore);
+        Assert.Equal(ReputationTrustLevels.Restricted, buyer.TrustLevel);
+        Assert.Equal(50, seller.ConfirmedScore);
+        Assert.Equal(ReputationTrustLevels.Trusted, seller.TrustLevel);
+        Assert.Equal(ReputationRestrictions.Blocked, buyer.AuctionRestrictionStatus);
+        Assert.Equal(ReputationRestrictions.Restricted, seller.SellingRestrictionStatus);
+
+        buyer.ApplyConfirmedDelta(100, OccurredAt.AddHours(1));
+        Assert.Equal(ReputationRestrictions.Blocked, buyer.AuctionRestrictionStatus);
+
+        buyer.ClearAuctionRestriction(OccurredAt.AddHours(2));
+        seller.ClearRestrictions(OccurredAt.AddHours(2));
+        Assert.Equal(ReputationRestrictions.None, buyer.AuctionRestrictionStatus);
+        Assert.Equal(ReputationRestrictions.None, seller.SellingRestrictionStatus);
+    }
+
+    [Fact]
+    public void BuyerReputationProfile_RejectsZeroAndOverflow()
+    {
+        var profile = BuyerReputationProfile.Create(Guid.NewGuid(), OccurredAt);
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => profile.ApplyConfirmedDelta(0, OccurredAt));
+        profile.ApplyConfirmedDelta(int.MaxValue, OccurredAt);
+        Assert.Throws<OverflowException>(
+            () => profile.ApplyConfirmedDelta(1, OccurredAt));
+    }
+
+    [Fact]
+    public void SellerReputationProfile_RejectsZeroAndOverflow()
+    {
+        var profile = SellerReputationProfile.Create(Guid.NewGuid(), OccurredAt);
+
+        Assert.Throws<ArgumentOutOfRangeException>(
+            () => profile.ApplyConfirmedDelta(0, OccurredAt));
+        profile.ApplyConfirmedDelta(int.MinValue, OccurredAt);
+        Assert.Throws<OverflowException>(
+            () => profile.ApplyConfirmedDelta(-1, OccurredAt));
+    }
+
+    [Fact]
+    public void SellerReputationProfile_ScoreIncreaseDoesNotClearBlockingViolation()
+    {
+        var profile = SellerReputationProfile.Create(Guid.NewGuid(), OccurredAt);
+        profile.ApplyAuctionRestriction(
+            ReputationRestrictions.Blocked,
+            null,
+            true,
+            "SHILL_BIDDING",
+            OccurredAt);
+
+        profile.ApplyConfirmedDelta(1_000, OccurredAt.AddMinutes(1));
+
+        Assert.Equal(
+            ReputationRestrictions.Blocked,
+            profile.AuctionRestrictionStatus);
+        Assert.True(profile.RequiresManualReview);
+        Assert.Equal("SHILL_BIDDING", profile.BlockingViolationCode);
+    }
+
+    [Fact]
+    public void ReputationProfiles_RejectInvalidRestrictions()
+    {
+        var buyer = BuyerReputationProfile.Create(Guid.NewGuid(), OccurredAt);
+        var seller = SellerReputationProfile.Create(Guid.NewGuid(), OccurredAt);
+
+        Assert.Throws<ArgumentException>(() =>
+            buyer.ApplyAuctionRestriction(
+                "UNKNOWN", null, false, null, OccurredAt));
+        Assert.Throws<ArgumentException>(() =>
+            seller.ApplySellingRestriction(
+                ReputationRestrictions.None, null, false, null, OccurredAt));
+    }
+
+    private static ReputationMutation CreateMutation(int delta)
+    {
+        return new ReputationMutation(
+            Guid.NewGuid(),
+            ReputationRoles.Buyer,
+            ReputationReasonCatalog.BuyerProfileEmailVerified,
+            delta,
+            "user-service",
+            "USER",
+            "user-1",
+            $"mutation:{Guid.NewGuid():N}",
+            "REPUTATION_V1",
+            Guid.NewGuid(),
+            null,
+            null,
+            OccurredAt);
     }
     [Fact]
     public void BuyerVerificationProfile_IsSourceOfTruthForAllVerificationState()
